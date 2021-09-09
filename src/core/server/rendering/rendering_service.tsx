@@ -69,14 +69,17 @@ export class RenderingService {
       opensearchDashboardsConfig.branding.logo.defaultUrl,
       'logo default'
     );
+
     const isMarkDefaultValid = await this.checkUrlValid(
       opensearchDashboardsConfig.branding.mark.defaultUrl,
       'mark default'
     );
+
     const isLoadingLogoDefaultValid = await this.checkUrlValid(
       opensearchDashboardsConfig.branding.loadingLogo.defaultUrl,
       'loadingLogo default'
     );
+
     const isTitleValid = this.checkTitleValid(opensearchDashboardsConfig.branding.title, 'title');
 
     return {
@@ -95,15 +98,62 @@ export class RenderingService {
           defaults: uiSettings.getRegistered(),
           user: includeUserSettings ? await uiSettings.getUserProvided() : {},
         };
+        const darkmode = settings.user?.['theme:darkMode']?.userValue
+          ? Boolean(settings.user['theme:darkMode'].userValue)
+          : false;
+
+        const isLogoDarkmodeValid = darkmode
+          ? await this.checkUrlValid(
+              opensearchDashboardsConfig.branding.logo.darkModeUrl,
+              'logo darkmode'
+            )
+          : undefined;
+
+        const isMarkDarkmodeValid = darkmode
+          ? await this.checkUrlValid(
+              opensearchDashboardsConfig.branding.mark.darkModeUrl,
+              'mark darkmode'
+            )
+          : undefined;
+
+        const isLoadingLogoDarkmodeValid = darkmode
+          ? await this.checkUrlValid(
+              opensearchDashboardsConfig.branding.loadingLogo.darkModeUrl,
+              'loadingLogo darkmode'
+            )
+          : undefined;
+
+        const logoDefault = isLogoDefaultValid
+          ? opensearchDashboardsConfig.branding.logo.defaultUrl
+          : undefined;
+
+        const logoDarkmode = isLogoDarkmodeValid
+          ? opensearchDashboardsConfig.branding.logo.darkModeUrl
+          : undefined;
+
+        const markDefault = isMarkDefaultValid
+          ? opensearchDashboardsConfig.branding.mark.defaultUrl
+          : undefined;
+
+        const markDarkmode = isMarkDarkmodeValid
+          ? opensearchDashboardsConfig.branding.mark.darkModeUrl
+          : undefined;
+
+        const loadingLogoDefault = isLoadingLogoDefaultValid
+          ? opensearchDashboardsConfig.branding.loadingLogo.defaultUrl
+          : undefined;
+
+        const loadingLogoDarkmode = isLoadingLogoDarkmodeValid
+          ? opensearchDashboardsConfig.branding.loadingLogo.darkModeUrl
+          : undefined;
+
         const metadata: RenderingMetadata = {
           strictCsp: http.csp.strict,
           uiPublicUrl: `${basePath}/ui`,
           bootstrapScriptUrl: `${basePath}/bootstrap.js`,
           i18n: i18n.translate,
           locale: i18n.getLocale(),
-          darkMode: settings.user?.['theme:darkMode']?.userValue
-            ? Boolean(settings.user['theme:darkMode'].userValue)
-            : false,
+          darkMode: darkmode,
           injectedMetadata: {
             version: env.packageInfo.version,
             buildNumber: env.packageInfo.buildNum,
@@ -128,23 +178,18 @@ export class RenderingService {
               uiSettings: settings,
             },
             branding: {
+              darkmode,
               logo: {
-                defaultUrl: isLogoDefaultValid
-                  ? opensearchDashboardsConfig.branding.logo.defaultUrl
-                  : undefined,
-                darkModeUrl: '',
+                defaultUrl: logoDefault,
+                darkModeUrl: logoDarkmode,
               },
               mark: {
-                defaultUrl: isMarkDefaultValid
-                  ? opensearchDashboardsConfig.branding.mark.defaultUrl
-                  : undefined,
-                darkModeUrl: '',
+                defaultUrl: markDefault,
+                darkModeUrl: markDarkmode,
               },
               loadingLogo: {
-                defaultUrl: isLoadingLogoDefaultValid
-                  ? opensearchDashboardsConfig.branding.loadingLogo.defaultUrl
-                  : undefined,
-                darkModeUrl: '',
+                defaultUrl: loadingLogoDefault,
+                darkModeUrl: loadingLogoDarkmode,
               },
               favicon: '',
               title: isTitleValid ? opensearchDashboardsConfig.branding.title : DEFAULT_TITLE,

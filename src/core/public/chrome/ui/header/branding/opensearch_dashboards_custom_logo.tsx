@@ -40,6 +40,7 @@ import { OpenSearchDashboardsLogoDarkMode } from './opensearch_dashboards_logo_d
  * @param {string} title - custom title for the application
  */
 export interface CustomLogoType {
+  darkmode: boolean;
   logo: {
     defaultUrl?: string;
     darkModeUrl?: string;
@@ -50,6 +51,7 @@ export interface CustomLogoType {
   };
   title?: string;
 }
+
 /**
  *
  * @param {CustomLogoType} - branding object consist of logo, mark and title
@@ -59,17 +61,32 @@ export interface CustomLogoType {
  *          the default opensearch logo will be rendered.
  */
 export const CustomLogo = ({ ...branding }: CustomLogoType) => {
-  const headerLogoUrl = !branding.logo.defaultUrl
-    ? branding.mark.defaultUrl
-    : branding.logo.defaultUrl;
-  return !branding.logo.defaultUrl && !branding.mark.defaultUrl ? (
+  const customHeaderLogo = () => {
+    if (branding.darkmode) {
+      return !branding.logo.darkModeUrl
+        ? !branding.logo.defaultUrl
+          ? !branding.mark.darkModeUrl
+            ? !branding.mark.defaultUrl
+              ? undefined
+              : branding.mark.defaultUrl
+            : branding.mark.darkModeUrl
+          : branding.logo.defaultUrl
+        : branding.logo.darkModeUrl;
+    }
+    return !branding.logo.defaultUrl
+      ? !branding.mark.defaultUrl
+        ? undefined
+        : branding.mark.defaultUrl
+      : branding.logo.defaultUrl;
+  };
+  return !customHeaderLogo() ? (
     OpenSearchDashboardsLogoDarkMode()
   ) : (
     <div className="logoContainer">
       <img
         data-test-subj="customLogo"
-        data-test-image-url={headerLogoUrl}
-        src={headerLogoUrl}
+        data-test-image-url={customHeaderLogo()}
+        src={customHeaderLogo()}
         alt={branding.title + ' logo'}
         loading="lazy"
         className="logoImage"

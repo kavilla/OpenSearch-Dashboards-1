@@ -10,34 +10,96 @@ import React from 'react';
 import { mountWithIntl } from 'test_utils/enzyme_helpers';
 import { CustomLogo } from './opensearch_dashboards_custom_logo';
 
-describe('Custom Logo', () => {
-  it('Take in a normal full logo URL string', () => {
-    const branding = {
-      logo: { defaultUrl: '/' },
-      mark: {},
-      title: 'title',
-    };
-    const component = mountWithIntl(<CustomLogo {...branding} />);
-    expect(component).toMatchSnapshot();
+describe('Header logo ', () => {
+  describe('in light mode ', () => {
+    it('rendered as a default logo', () => {
+      const branding = {
+        darkmode: false,
+        logo: { defaultUrl: '/' },
+        mark: {},
+        title: 'title',
+      };
+      const component = mountWithIntl(<CustomLogo {...branding} />);
+      expect(component).toMatchSnapshot();
+    });
+
+    it('rendered as a default mark', () => {
+      const branding = {
+        darkmode: false,
+        logo: {},
+        mark: { defaultUrl: '/' },
+        title: 'title',
+      };
+      const component = mountWithIntl(<CustomLogo {...branding} />);
+      expect(component).toMatchSnapshot();
+    });
+
+    it('rendered as default opensearch logo', () => {
+      const branding = {
+        darkmode: false,
+        logo: {},
+        mark: {},
+        title: 'title',
+      };
+      const component = mountWithIntl(<CustomLogo {...branding} />);
+      expect(component).toMatchSnapshot();
+    });
   });
 
-  it('Take in an invalid full logo URL string and a valid logo URL string', () => {
-    const branding = {
-      logo: {},
-      mark: { defaultUrl: '/' },
-      title: 'title',
-    };
-    const component = mountWithIntl(<CustomLogo {...branding} />);
-    expect(component).toMatchSnapshot();
-  });
+  describe('in dark mode ', () => {
+    it('rendered as a dark mode logo', () => {
+      const branding = {
+        darkmode: true,
+        logo: { defaultUrl: '/defaultLogo', darkModeUrl: '/darkLogo' },
+        mark: { defaultUrl: '/defaultMark', darkModeUrl: '/darkMark' },
+        title: 'title',
+      };
+      const component = mountWithIntl(<CustomLogo {...branding} />);
+      expect(component).toMatchSnapshot();
+    });
 
-  it('Take in invalid full logo URL and logo URL', () => {
-    const branding = {
-      logo: {},
-      mark: {},
-      title: 'title',
-    };
-    const component = mountWithIntl(<CustomLogo {...branding} />);
-    expect(component).toMatchSnapshot();
+    it('rendered as a default logo', () => {
+      const branding = {
+        darkmode: true,
+        logo: { defaultUrl: '/defaultLogo' },
+        mark: { defaultUrl: '/defaultMark', darkModeUrl: '/darkMark' },
+        title: 'title',
+      };
+      const component = mountWithIntl(<CustomLogo {...branding} />);
+      expect(component).toMatchSnapshot();
+    });
+
+    it('rendered as a dark mode mark', () => {
+      const branding = {
+        darkmode: true,
+        logo: {},
+        mark: { defaultUrl: '/defaultMark', darkModeUrl: '/darkMark' },
+        title: 'title',
+      };
+      const component = mountWithIntl(<CustomLogo {...branding} />);
+      expect(component).toMatchSnapshot();
+    });
+
+    it('rendered as a default mark', () => {
+      const branding = {
+        darkmode: true,
+        logo: {},
+        mark: { defaultUrl: '/defaultMark' },
+        title: 'title',
+      };
+      const component = mountWithIntl(<CustomLogo {...branding} />);
+      expect(component).toMatchSnapshot();
+    });
+
+    it('rendered as default opensearch logo', () => {
+      const branding = {
+        darkmode: true,
+        logo: {},
+        mark: {},
+        title: 'title',
+      };
+      const component = mountWithIntl(<CustomLogo {...branding} />);
+      expect(component).toMatchSnapshot();
+    });
   });
 });

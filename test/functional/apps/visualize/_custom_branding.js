@@ -37,7 +37,7 @@ export default function ({ getService, getPageObjects }) {
   const globalNav = getService('globalNav');
   const opensearchArchiver = getService('opensearchArchiver');
   const opensearchDashboardsServer = getService('opensearchDashboardsServer');
-  const PageObjects = getPageObjects(['common', 'home', 'header']);
+  const PageObjects = getPageObjects(['common', 'home', 'header', 'settings']);
   const testSubjects = getService('testSubjects');
 
   describe('OpenSearch Dashboards branding configuration', function customHomeBranding() {
@@ -90,12 +90,13 @@ export default function ({ getService, getPageObjects }) {
       this.tags('includeFirefox');
       const expectedUrl =
         'https://opensearch.org/assets/brand/SVG/Logo/opensearch_logo_default.svg';
+      const expectedUrlDarkMode = "https://opensearch.org/assets/brand/SVG/Logo/opensearch_logo_darkmode.svg";
 
       before(async function () {
         await PageObjects.common.navigateToApp('home');
       });
 
-      it('with customized logo in Navbar', async () => {
+      it('with customized logo in header bar', async () => {
         await globalNav.logoExistsOrFail(expectedUrl);
       });
 
@@ -106,6 +107,23 @@ export default function ({ getService, getPageObjects }) {
         const url = await browser.getCurrentUrl();
         expect(url.includes('/app/home')).to.be(true);
       });
+
+      it('with customized logo in header bar in dark mode', async () => {
+        await PageObjects.common.navigateToApp('management/opensearch-dashboards/settings');
+        PageObjects.settings.toggleAdvancedSettingCheckbox("theme:darkMode")
+        await testSubjects.click(`advancedSetting-saveButton`);
+        await PageObjects.header.waitUntilLoadingHasFinished();
+        await PageObjects.common.navigateToApp('home');
+        await globalNav.logoExistsOrFail(expectedUrlDarkMode);
+      })
+
+      it('with customized logo that can take back to home page in dark mode', async () => {
+        await PageObjects.common.navigateToApp('settings');
+        await globalNav.clickLogo();
+        await PageObjects.header.waitUntilLoadingHasFinished();
+        const url = await browser.getCurrentUrl();
+        expect(url.includes('/app/home')).to.be(true);
+      })
     });
   });
 }

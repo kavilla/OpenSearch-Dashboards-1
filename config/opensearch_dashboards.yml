@@ -151,13 +151,13 @@
 # ]
 #vis_type_timeline.graphiteBlockedIPs: []
 
-# opensearchDashboards.branding:
+ # opensearchDashboards.branding:
   # logo:
-    # defaultUrl: ""
-    # darkModeUrl: ""
+    # defaultUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg"
+    # darkModeUrl: "https://www.pinclipart.com/picdir/big/358-3584545_amazon-web-services-logo-png-transparent-svg-vector.png"
   # mark:
-    # defaultUrl: ""
-    # darkModeUrl: ""
+    # defaultUrl: "https://cdn.worldvectorlogo.com/logos/amazon-icon-1.svg"
+    # darkModeUrl: "https://pbs.twimg.com/media/ESRg6JZXkAAhMFe.png"
   # loadingLogo: 
     # defaultUrl: ""
     # darkModeUrl: ""

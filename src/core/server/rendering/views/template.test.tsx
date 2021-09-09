@@ -86,6 +86,7 @@ function mockProps() {
 describe('Template', () => {
   it('renders with default OpenSearch loading logo', () => {
     const branding = {
+      darkmode: false,
       logo: {},
       mark: {},
       loadingLogo: {},
@@ -98,6 +99,7 @@ describe('Template', () => {
 
   it('renders with static logo with horizontal loading bar', () => {
     const branding = {
+      darkmode: false,
       logo: {},
       mark: { defaultUrl: '/' },
       loadingLogo: {},
@@ -110,6 +112,7 @@ describe('Template', () => {
 
   it('renders with customized loading logo', () => {
     const branding = {
+      darkmode: false,
       logo: {},
       mark: { defaultUrl: '/' },
       loadingLogo: { defaultUrl: '/' },

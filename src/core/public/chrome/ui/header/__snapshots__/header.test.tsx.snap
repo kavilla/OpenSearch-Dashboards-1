@@ -249,6 +249,7 @@ exports[`Header renders 1`] = `
   }
   branding={
     Object {
+      "darkmode": false,
       "logo": Object {
         "defaultUrl": "/",
       },
@@ -1678,6 +1679,7 @@ exports[`Header renders 1`] = `
                 <HeaderLogo
                   branding={
                     Object {
+                      "darkmode": false,
                       "logo": Object {
                         "defaultUrl": "/",
                       },
@@ -2795,6 +2797,7 @@ exports[`Header renders 1`] = `
                   <HeaderLogo
                     branding={
                       Object {
+                        "darkmode": false,
                         "logo": Object {
                           "defaultUrl": "/",
                         },
@@ -2957,6 +2960,7 @@ exports[`Header renders 1`] = `
                       onClick={[Function]}
                     >
                       <CustomLogo
+                        darkmode={false}
                         logo={
                           Object {
                             "defaultUrl": "/",

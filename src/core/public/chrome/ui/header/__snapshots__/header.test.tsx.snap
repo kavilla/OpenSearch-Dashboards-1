@@ -249,8 +249,12 @@ exports[`Header renders 1`] = `
   }
   branding={
     Object {
-      "fullLogoUrl": "/",
-      "logoUrl": "/",
+      "logo": Object {
+        "defaultUrl": "/",
+      },
+      "mark": Object {
+        "defaultUrl": "/",
+      },
       "title": "OpenSearch Dashboards",
     }
   }
@@ -1674,8 +1678,12 @@ exports[`Header renders 1`] = `
                 <HeaderLogo
                   branding={
                     Object {
-                      "fullLogoUrl": "/",
-                      "logoUrl": "/",
+                      "logo": Object {
+                        "defaultUrl": "/",
+                      },
+                      "mark": Object {
+                        "defaultUrl": "/",
+                      },
                       "title": "OpenSearch Dashboards",
                     }
                   }
@@ -2787,8 +2795,12 @@ exports[`Header renders 1`] = `
                   <HeaderLogo
                     branding={
                       Object {
-                        "fullLogoUrl": "/",
-                        "logoUrl": "/",
+                        "logo": Object {
+                          "defaultUrl": "/",
+                        },
+                        "mark": Object {
+                          "defaultUrl": "/",
+                        },
                         "title": "OpenSearch Dashboards",
                       }
                     }
@@ -2945,18 +2957,30 @@ exports[`Header renders 1`] = `
                       onClick={[Function]}
                     >
                       <CustomLogo
-                        fullLogoUrl="/"
-                        logoUrl="/"
+                        logo={
+                          Object {
+                            "defaultUrl": "/",
+                          }
+                        }
+                        mark={
+                          Object {
+                            "defaultUrl": "/",
+                          }
+                        }
                         title="OpenSearch Dashboards"
                       >
-                        <img
-                          alt="OpenSearch Dashboards logo"
-                          className="logoImage"
-                          data-test-image-url="/"
-                          data-test-subj="customLogo"
-                          loading="lazy"
-                          src="/"
-                        />
+                        <div
+                          className="logoContainer"
+                        >
+                          <img
+                            alt="OpenSearch Dashboards logo"
+                            className="logoImage"
+                            data-test-image-url="/"
+                            data-test-subj="customLogo"
+                            loading="lazy"
+                            src="/"
+                          />
+                        </div>
                       </CustomLogo>
                     </a>
                   </HeaderLogo>

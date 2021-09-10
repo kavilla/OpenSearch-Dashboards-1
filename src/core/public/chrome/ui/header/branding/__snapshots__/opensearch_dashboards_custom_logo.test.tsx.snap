@@ -2,7 +2,6 @@
 
 exports[`Custom Logo Take in a normal full logo URL string 1`] = `
 <CustomLogo
-  fullLogoUrl="/custom"
   intl={
     Object {
       "defaultFormats": Object {},
@@ -105,16 +104,26 @@ exports[`Custom Logo Take in a normal full logo URL string 1`] = `
       "timeZone": null,
     }
   }
+  logo={
+    Object {
+      "defaultUrl": "/",
+    }
+  }
+  mark={Object {}}
   title="title"
 >
-  <img
-    alt="title logo"
-    className="logoImage"
-    data-test-image-url="/custom"
-    data-test-subj="customLogo"
-    loading="lazy"
-    src="/custom"
-  />
+  <div
+    className="logoContainer"
+  >
+    <img
+      alt="title logo"
+      className="logoImage"
+      data-test-image-url="/"
+      data-test-subj="customLogo"
+      loading="lazy"
+      src="/"
+    />
+  </div>
 </CustomLogo>
 `;
 
@@ -222,17 +231,26 @@ exports[`Custom Logo Take in an invalid full logo URL string and a valid logo UR
       "timeZone": null,
     }
   }
-  logoUrl="/custom"
+  logo={Object {}}
+  mark={
+    Object {
+      "defaultUrl": "/",
+    }
+  }
   title="title"
 >
-  <img
-    alt="title logo"
-    className="logoImage"
-    data-test-image-url="/custom"
-    data-test-subj="customLogo"
-    loading="lazy"
-    src="/custom"
-  />
+  <div
+    className="logoContainer"
+  >
+    <img
+      alt="title logo"
+      className="logoImage"
+      data-test-image-url="/"
+      data-test-subj="customLogo"
+      loading="lazy"
+      src="/"
+    />
+  </div>
 </CustomLogo>
 `;
 
@@ -340,6 +358,8 @@ exports[`Custom Logo Take in invalid full logo URL and logo URL 1`] = `
       "timeZone": null,
     }
   }
+  logo={Object {}}
+  mark={Object {}}
   title="title"
 >
   <svg

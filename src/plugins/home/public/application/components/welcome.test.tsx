@@ -51,7 +51,9 @@ test('should render a Welcome screen with the telemetry disclaimer', () => {
 */
 
 const branding = {
-  logoUrl: '/',
+  mark: {
+    defaultUrl: '/',
+  },
   title: 'OpenSearch Dashboards',
 };
 
@@ -92,6 +94,7 @@ test('fires opt-in seen when mounted', () => {
 
 test('should render a Welcome screen with the default OpenSearch Dashboards branding', () => {
   const defaultBranding = {
+    mark: {},
     title: 'OpenSearch Dashboards',
   };
   const component = shallow(
@@ -102,7 +105,9 @@ test('should render a Welcome screen with the default OpenSearch Dashboards bran
 
 test('should render a Welcome screen with customized branding', () => {
   const customBranding = {
-    logoUrl: '/custom',
+    mark: {
+      defaultUrl: '/custom',
+    },
     title: 'custom title',
   };
   const component = shallow(

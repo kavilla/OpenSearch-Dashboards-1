@@ -249,6 +249,11 @@ export default () =>
         favicon: Joi.any().default('/'),
         title: Joi.any().default(''),
       }),
+      helpMenu: Joi.object({
+        customLinks: Joi.boolean().default(false),
+        linkNames: Joi.array().default([]),
+        links: Joi.array().default([]),
+      }),
     }).default(),
 
     savedObjects: HANDLED_IN_NEW_PLATFORM,

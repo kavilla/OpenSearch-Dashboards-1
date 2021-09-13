@@ -99,6 +99,10 @@ export interface HeaderProps {
     };
     title?: string;
   };
+  helpMenu: {
+    linkNames: string[];
+    links: string[];
+  };
 }
 
 export function Header({
@@ -109,6 +113,7 @@ export function Header({
   onIsLockedUpdate,
   homeHref,
   branding,
+  helpMenu,
   ...observables
 }: HeaderProps) {
   const isVisible = useObservable(observables.isVisible$, false);
@@ -122,6 +127,15 @@ export function Header({
   const toggleCollapsibleNavRef = createRef<HTMLButtonElement>();
   const navId = htmlIdGenerator()();
   const className = classnames('hide-for-sharing', 'headerGlobalNav');
+
+  const renderBrandingEnabledOrDisabledTitle = () => {
+    if (!branding.darkMode) {
+      return !branding.logo.defaultUrl ? <h1>{branding.title}</h1> : null;
+    }
+    return !branding.logo.darkModeUrl && !branding.logo.defaultUrl ? (
+      <h1>{branding.title}</h1>
+    ) : null;
+  };
 
   return (
     <>
@@ -140,6 +154,7 @@ export function Header({
                     navigateToApp={application.navigateToApp}
                     branding={branding}
                   />,
+                  renderBrandingEnabledOrDisabledTitle(),
                   <LoadingIndicator loadingCount$={observables.loadingCount$} />,
                 ],
                 borders: 'none',
@@ -164,6 +179,7 @@ export function Header({
                     helpSupportUrl$={observables.helpSupportUrl$}
                     opensearchDashboardsDocLink={opensearchDashboardsDocLink}
                     opensearchDashboardsVersion={opensearchDashboardsVersion}
+                    helpMenu={helpMenu}
                   />,
                   <HeaderNavControls navControls$={observables.navControlsRight$} />,
                 ],

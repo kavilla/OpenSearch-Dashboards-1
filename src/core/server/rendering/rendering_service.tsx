@@ -201,6 +201,11 @@ export class RenderingService {
               favicon,
               title: isTitleValid ? opensearchDashboardsConfig.branding.title : DEFAULT_TITLE,
             },
+            helpMenu: {
+              customLinks: opensearchDashboardsConfig.helpMenu.customLinks,
+              linkNames: opensearchDashboardsConfig.helpMenu.linkNames,
+              links: opensearchDashboardsConfig.helpMenu.links,
+            },
           },
         };
 

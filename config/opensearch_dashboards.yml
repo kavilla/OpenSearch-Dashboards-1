@@ -152,9 +152,9 @@
 #vis_type_timeline.graphiteBlockedIPs: []
 
  opensearchDashboards.branding:
-   logo:
-     defaultUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg"
-     darkModeUrl: "https://www.pinclipart.com/picdir/big/358-3584545_amazon-web-services-logo-png-transparent-svg-vector.png"
+  # logo:
+    # defaultUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg"
+    # darkModeUrl: "https://www.pinclipart.com/picdir/big/358-3584545_amazon-web-services-logo-png-transparent-svg-vector.png"
    mark:
      defaultUrl: "https://cdn.worldvectorlogo.com/logos/amazon-icon-1.svg"
      darkModeUrl: "https://pbs.twimg.com/media/ESRg6JZXkAAhMFe.png"
@@ -163,3 +163,16 @@
      darkModeUrl: "https://i.gifer.com/FneT.gif"
    favicon: "https://i.ibb.co/HFKMhkp/favicon-32x32.png"
    title: "AWS Search Dashboards"
+
+ opensearchDashboards.helpMenu: 
+   customLinks: true
+   linkNames: [
+    'Branding Open Issue',
+    'Branding Github Project',
+    'Rockyyyyyyy Kavilla'
+   ]
+   links: [
+     'https://github.com/opensearch-project/OpenSearch-Dashboards/issues/725',
+     'https://github.com/abbyhu2000/OpenSearch-Dashboards/projects/1',
+     'https://github.com/kavilla'
+   ]

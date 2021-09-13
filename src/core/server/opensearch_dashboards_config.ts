@@ -32,6 +32,7 @@
 
 import { schema, TypeOf } from '@osd/config-schema';
 import { ConfigDeprecationProvider } from 'packages/osd-config';
+import { string } from 'packages/osd-test/node_modules/@types/joi';
 
 export type OpenSearchDashboardsConfigType = TypeOf<typeof config.schema>;
 
@@ -83,6 +84,11 @@ export const config = {
       title: schema.string({
         defaultValue: '',
       }),
+    }),
+    helpMenu: schema.object({
+      customLinks: schema.boolean({ defaultValue: false }),
+      linkNames: schema.arrayOf(schema.string()),
+      links: schema.arrayOf(schema.string()),
     }),
   }),
   deprecations,

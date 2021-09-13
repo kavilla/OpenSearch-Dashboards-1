@@ -79,6 +79,7 @@ function mockProps() {
         },
       },
       branding: injectedMetadata.getBranding(),
+      helpMenu: injectedMetadata.getHelpMenu(),
     },
   };
 }

@@ -75,6 +75,11 @@ function mockProps() {
       mark: { defaultUrl: '/' },
       title: 'OpenSearch Dashboards',
     },
+    helpMenu: {
+      customLinks: false,
+      linkNames: [],
+      links: [],
+    },
   };
 }
 

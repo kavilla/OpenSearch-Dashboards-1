@@ -124,6 +124,11 @@ interface Props {
   opensearchDashboardsVersion: string;
   useDefaultContent?: boolean;
   opensearchDashboardsDocLink: string;
+  helpMenu: {
+    customLinks: boolean;
+    linkNames: string[];
+    links: string[];
+  };
 }
 
 interface State {
@@ -194,16 +199,30 @@ class HeaderHelpMenuUI extends Component<Props, State> {
     );
   };
 
+  customLinks = (linkNames: string[], links: string[]) => {
+    return linkNames.map((linkName, linkCount) => {
+      return (
+        <EuiButtonEmpty href={links[linkCount]} target="_blank" size="xs" flush="left">
+          <FormattedMessage
+            id="core.ui.chrome.headerGlobalNav.helpMenuOpenSearchDashboardsDocumentationTitle"
+            defaultMessage={linkName}
+          />
+        </EuiButtonEmpty>
+      );
+    });
+  };
+
   public render() {
     const {
       intl,
       opensearchDashboardsVersion,
       useDefaultContent,
       opensearchDashboardsDocLink,
+      helpMenu,
     } = this.props;
     const { helpExtension, helpSupportUrl } = this.state;
 
-    const defaultContent = useDefaultContent ? (
+    const defaultContent = !helpMenu.customLinks ? (
       <Fragment>
         <EuiButtonEmpty href={opensearchDashboardsDocLink} target="_blank" size="xs" flush="left">
           <FormattedMessage
@@ -250,7 +269,9 @@ class HeaderHelpMenuUI extends Component<Props, State> {
           />
         </EuiButtonEmpty>
       </Fragment>
-    ) : null;
+    ) : (
+      <Fragment>{this.customLinks(helpMenu.linkNames, helpMenu.links)}</Fragment>
+    );
 
     let customContent;
     if (helpExtension) {

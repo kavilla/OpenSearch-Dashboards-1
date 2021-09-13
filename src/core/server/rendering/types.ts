@@ -91,6 +91,11 @@ export interface RenderingMetadata {
       favicon?: string;
       title?: string;
     };
+    helpMenu: {
+      customLinks: boolean;
+      links: string[];
+      linkNames: string[];
+    };
   };
 }
 

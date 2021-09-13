@@ -93,6 +93,11 @@ export interface InjectedMetadataParams {
       favicon?: string;
       title?: string;
     };
+    helpMenu: {
+      customLinks: boolean;
+      linkNames: string[];
+      links: string[];
+    };
   };
 }
 
@@ -164,6 +169,10 @@ export class InjectedMetadataService {
       getBranding: () => {
         return this.state.branding;
       },
+
+      getHelpMenu: () => {
+        return this.state.helpMenu;
+      },
     };
   }
 }
@@ -213,6 +222,11 @@ export interface InjectedMetadataSetup {
     };
     favicon?: string;
     title?: string;
+  };
+  getHelpMenu: () => {
+    customLinks: boolean;
+    linkNames: string[];
+    links: string[];
   };
 }
 

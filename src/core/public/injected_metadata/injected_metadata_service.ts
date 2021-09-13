@@ -77,7 +77,7 @@ export interface InjectedMetadataParams {
       };
     };
     branding: {
-      darkmode: boolean;
+      darkMode: boolean;
       logo: {
         defaultUrl?: string;
         darkModeUrl?: string;
@@ -198,7 +198,7 @@ export interface InjectedMetadataSetup {
     [key: string]: unknown;
   };
   getBranding: () => {
-    darkmode: boolean;
+    darkMode: boolean;
     logo: {
       defaultUrl?: string;
       darkModeUrl?: string;

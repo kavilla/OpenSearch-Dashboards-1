@@ -40,7 +40,7 @@ import { OpenSearchDashboardsLogoDarkMode } from './opensearch_dashboards_logo_d
  * @param {string} title - custom title for the application
  */
 export interface CustomLogoType {
-  darkmode: boolean;
+  darkMode: boolean;
   logo: {
     defaultUrl?: string;
     darkModeUrl?: string;
@@ -62,7 +62,7 @@ export interface CustomLogoType {
  */
 export const CustomLogo = ({ ...branding }: CustomLogoType) => {
   const customHeaderLogo = () => {
-    if (branding.darkmode) {
+    if (branding.darkMode) {
       return !branding.logo.darkModeUrl
         ? !branding.logo.defaultUrl
           ? !branding.mark.darkModeUrl

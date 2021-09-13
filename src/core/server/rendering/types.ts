@@ -75,7 +75,7 @@ export interface RenderingMetadata {
       };
     };
     branding: {
-      darkmode: boolean;
+      darkMode: boolean;
       logo: {
         defaultUrl?: string;
         darkModeUrl?: string;

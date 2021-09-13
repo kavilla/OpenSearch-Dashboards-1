@@ -14,7 +14,7 @@ describe('Header logo ', () => {
   describe('in light mode ', () => {
     it('rendered as a default logo', () => {
       const branding = {
-        darkmode: false,
+        darkMode: false,
         logo: { defaultUrl: '/' },
         mark: {},
         title: 'title',
@@ -25,7 +25,7 @@ describe('Header logo ', () => {
 
     it('rendered as a default mark', () => {
       const branding = {
-        darkmode: false,
+        darkMode: false,
         logo: {},
         mark: { defaultUrl: '/' },
         title: 'title',
@@ -36,7 +36,7 @@ describe('Header logo ', () => {
 
     it('rendered as default opensearch logo', () => {
       const branding = {
-        darkmode: false,
+        darkMode: false,
         logo: {},
         mark: {},
         title: 'title',
@@ -49,7 +49,7 @@ describe('Header logo ', () => {
   describe('in dark mode ', () => {
     it('rendered as a dark mode logo', () => {
       const branding = {
-        darkmode: true,
+        darkMode: true,
         logo: { defaultUrl: '/defaultLogo', darkModeUrl: '/darkLogo' },
         mark: { defaultUrl: '/defaultMark', darkModeUrl: '/darkMark' },
         title: 'title',
@@ -60,7 +60,7 @@ describe('Header logo ', () => {
 
     it('rendered as a default logo', () => {
       const branding = {
-        darkmode: true,
+        darkMode: true,
         logo: { defaultUrl: '/defaultLogo' },
         mark: { defaultUrl: '/defaultMark', darkModeUrl: '/darkMark' },
         title: 'title',
@@ -71,7 +71,7 @@ describe('Header logo ', () => {
 
     it('rendered as a dark mode mark', () => {
       const branding = {
-        darkmode: true,
+        darkMode: true,
         logo: {},
         mark: { defaultUrl: '/defaultMark', darkModeUrl: '/darkMark' },
         title: 'title',
@@ -82,7 +82,7 @@ describe('Header logo ', () => {
 
     it('rendered as a default mark', () => {
       const branding = {
-        darkmode: true,
+        darkMode: true,
         logo: {},
         mark: { defaultUrl: '/defaultMark' },
         title: 'title',
@@ -93,7 +93,7 @@ describe('Header logo ', () => {
 
     it('rendered as default opensearch logo', () => {
       const branding = {
-        darkmode: true,
+        darkMode: true,
         logo: {},
         mark: {},
         title: 'title',

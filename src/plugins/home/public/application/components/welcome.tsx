@@ -59,6 +59,7 @@ interface Props {
   onSkip: () => void;
   telemetry?: TelemetryPluginStart;
   branding: {
+    darkMode: boolean;
     mark: {
       defaultUrl?: string;
       darkModeUrl?: string;
@@ -148,7 +149,9 @@ export class Welcome extends React.Component<Props> {
   };
 
   private renderBrandingEnabledOrDisabledLogo = () => {
+    const darkMode = this.props.branding.darkMode;
     const mark = this.props.branding.mark.defaultUrl;
+    const markDarkMode = this.props.branding.mark.darkModeUrl;
     if (!mark) {
       return (
         <span className="homWelcome__logo">
@@ -156,14 +159,15 @@ export class Welcome extends React.Component<Props> {
         </span>
       );
     } else {
+      const customUrl = !darkMode ? mark : !markDarkMode ? mark : markDarkMode;
       return (
         <div className="homWelcome__customLogoContainer">
           <img
             className="homWelcome__customLogo"
             data-test-subj="welcomeCustomLogo"
-            data-test-image-url={mark}
+            data-test-image-url={customUrl}
             alt={this.props.branding.title + ' logo'}
-            src={mark}
+            src={customUrl}
           />
         </div>
       );

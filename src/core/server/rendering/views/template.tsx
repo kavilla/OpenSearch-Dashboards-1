@@ -96,37 +96,62 @@ export const Template: FunctionComponent<Props> = ({
     </svg>
   );
 
+  const loadingLogo = () => {
+    const darkmode = injectedMetadata.branding.darkMode;
+    const loadingLogoDefault = injectedMetadata.branding.loadingLogo.defaultUrl;
+    const loadingLogoDarkMode = injectedMetadata.branding.loadingLogo.darkModeUrl;
+    const markDefault = injectedMetadata.branding.mark.defaultUrl;
+    const markDarkMode = injectedMetadata.branding.mark.darkModeUrl;
+
+    if (!darkmode) {
+      return !loadingLogoDefault ? (!markDefault ? undefined : markDefault) : loadingLogoDefault;
+    }
+    return !loadingLogoDarkMode
+      ? !loadingLogoDefault
+        ? !markDarkMode
+          ? !markDefault
+            ? undefined
+            : markDefault
+          : markDarkMode
+        : loadingLogoDefault
+      : loadingLogoDarkMode;
+  };
+
   const renderBrandingEnabledOrDisabledLoadingBar = () => {
-    if (
-      !injectedMetadata.branding.loadingLogo.defaultUrl &&
-      injectedMetadata.branding.mark.defaultUrl
-    ) {
-      return <div className="osdProgress" />;
+    if (!injectedMetadata.branding.darkMode) {
+      if (
+        !injectedMetadata.branding.loadingLogo.defaultUrl &&
+        injectedMetadata.branding.mark.defaultUrl
+      ) {
+        return <div className="osdProgress" />;
+      }
+    } else {
+      if (
+        !injectedMetadata.branding.loadingLogo.defaultUrl &&
+        !injectedMetadata.branding.loadingLogo.darkModeUrl &&
+        loadingLogo()
+      ) {
+        return <div className="osdProgress" />;
+      }
     }
   };
 
   const renderBrandingEnabledOrDisabledLoadingLogo = () => {
-    if (
-      !injectedMetadata.branding.loadingLogo.defaultUrl &&
-      !injectedMetadata.branding.mark.defaultUrl
-    ) {
+    if (!loadingLogo()) {
       return openSearchLogoSpinner;
-    } else {
-      return (
-        <div className="loadingLogoContainer">
-          <img
-            className="loadingLogo"
-            src={
-              !injectedMetadata.branding.loadingLogo.defaultUrl
-                ? injectedMetadata.branding.mark.defaultUrl
-                : injectedMetadata.branding.loadingLogo.defaultUrl
-            }
-            alt={injectedMetadata.branding.title + ' logo'}
-          />
-        </div>
-      );
     }
+    return (
+      <div className="loadingLogoContainer">
+        <img
+          className="loadingLogo"
+          src={loadingLogo()}
+          alt={injectedMetadata.branding.title + ' logo'}
+        />
+      </div>
+    );
   };
+
+  const favicon = injectedMetadata.branding.favicon;
 
   return (
     <html lang={locale}>
@@ -140,28 +165,39 @@ export const Template: FunctionComponent<Props> = ({
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href={`${uiPublicUrl}/favicons/apple-touch-icon.png`}
+          href={favicon ? favicon : `${uiPublicUrl}/favicons/apple-touch-icon.png`}
         />
         <link
           rel="icon"
           type="image/png"
           sizes="32x32"
-          href={`${uiPublicUrl}/favicons/favicon-32x32.png`}
+          href={favicon ? favicon : `${uiPublicUrl}/favicons/favicon-32x32.png`}
         />
         <link
           rel="icon"
           type="image/png"
           sizes="16x16"
-          href={`${uiPublicUrl}/favicons/favicon-16x16.png`}
+          href={favicon ? favicon : `${uiPublicUrl}/favicons/favicon-16x16.png`}
         />
-        <link rel="manifest" href={`${uiPublicUrl}/favicons/manifest.json`} />
+        {favicon ? (
+          <link />
+        ) : (
+          <link rel="manifest" href={`${uiPublicUrl}/favicons/manifest.json`} />
+        )}
         <link
           rel="mask-icon"
           color="#e8488b"
-          href={`${uiPublicUrl}/favicons/safari-pinned-tab.svg`}
+          href={favicon ? favicon : `${uiPublicUrl}/favicons/safari-pinned-tab.svg`}
         />
-        <link rel="shortcut icon" href={`${uiPublicUrl}/favicons/favicon.ico`} />
-        <meta name="msapplication-config" content={`${uiPublicUrl}/favicons/browserconfig.xml`} />
+        <link
+          rel="shortcut icon"
+          href={favicon ? favicon : `${uiPublicUrl}/favicons/favicon.ico`}
+        />
+        {favicon ? (
+          <meta />
+        ) : (
+          <meta name="msapplication-config" content={`${uiPublicUrl}/favicons/browserconfig.xml`} />
+        )}
         <meta name="theme-color" content="#ffffff" />
         <Styles darkMode={darkMode} />
 

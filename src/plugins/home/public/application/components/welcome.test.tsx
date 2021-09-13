@@ -51,6 +51,7 @@ test('should render a Welcome screen with the telemetry disclaimer', () => {
 */
 
 const branding = {
+  darkMode: false,
   mark: {
     defaultUrl: '/',
   },
@@ -92,8 +93,9 @@ test('fires opt-in seen when mounted', () => {
   expect(mockSetOptedInNoticeSeen).toHaveBeenCalled();
 });
 
-test('should render a Welcome screen with the default OpenSearch Dashboards branding', () => {
+test('should render a light mode Welcome screen with the default OpenSearch Dashboards mark', () => {
   const defaultBranding = {
+    darkMode: false,
     mark: {},
     title: 'OpenSearch Dashboards',
   };
@@ -103,11 +105,53 @@ test('should render a Welcome screen with the default OpenSearch Dashboards bran
   expect(component).toMatchSnapshot();
 });
 
-test('should render a Welcome screen with customized branding', () => {
+test('should render a light mode Welcome screen with customized light mode mark', () => {
   const customBranding = {
+    darkMode: false,
     mark: {
       defaultUrl: '/custom',
     },
+    title: 'custom title',
+  };
+  const component = shallow(
+    <Welcome urlBasePath="/" onSkip={() => {}} branding={customBranding} />
+  );
+  expect(component).toMatchSnapshot();
+});
+
+test('should render a dark mode Welcome screen with dark mode customized mark', () => {
+  const customBranding = {
+    darkMode: true,
+    mark: {
+      defaultUrl: '/defaultCustom',
+      darkModeUrl: '/darkModeCustom',
+    },
+    title: 'custom title',
+  };
+  const component = shallow(
+    <Welcome urlBasePath="/" onSkip={() => {}} branding={customBranding} />
+  );
+  expect(component).toMatchSnapshot();
+});
+
+test('should render a dark mode Welcome screen with light mode customized mark', () => {
+  const customBranding = {
+    darkMode: true,
+    mark: {
+      defaultUrl: '/defaultCustom',
+    },
+    title: 'custom title',
+  };
+  const component = shallow(
+    <Welcome urlBasePath="/" onSkip={() => {}} branding={customBranding} />
+  );
+  expect(component).toMatchSnapshot();
+});
+
+test('should render a dark mode Welcome screen with default opensearch mark', () => {
+  const customBranding = {
+    darkMode: true,
+    mark: {},
     title: 'custom title',
   };
   const component = shallow(

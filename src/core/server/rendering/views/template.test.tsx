@@ -84,9 +84,9 @@ function mockProps() {
 }
 
 describe('Template', () => {
-  it('renders with default OpenSearch loading logo', () => {
+  it('renders with default OpenSearch loading logo in light mode', () => {
     const branding = {
-      darkmode: false,
+      darkMode: false,
       logo: {},
       mark: {},
       loadingLogo: {},
@@ -97,9 +97,9 @@ describe('Template', () => {
     expect(component).toMatchSnapshot();
   });
 
-  it('renders with static logo with horizontal loading bar', () => {
+  it('renders with static logo with horizontal loading bar in light mode', () => {
     const branding = {
-      darkmode: false,
+      darkMode: false,
       logo: {},
       mark: { defaultUrl: '/' },
       loadingLogo: {},
@@ -110,12 +110,91 @@ describe('Template', () => {
     expect(component).toMatchSnapshot();
   });
 
-  it('renders with customized loading logo', () => {
+  it('renders with customized loading logo in light mode', () => {
     const branding = {
-      darkmode: false,
+      darkMode: false,
       logo: {},
       mark: { defaultUrl: '/' },
       loadingLogo: { defaultUrl: '/' },
+      title: '',
+    };
+    injectedMetadata.getBranding.mockReturnValue(branding);
+    const component = renderWithIntl(<Template metadata={mockProps()} />);
+    expect(component).toMatchSnapshot();
+  });
+
+  it('renders with customized dark mode loading logo in dark mode', () => {
+    const branding = {
+      darkMode: false,
+      logo: {},
+      mark: { defaultUrl: '/defaultMark', darkModeUrl: '/darkModeMark' },
+      loadingLogo: { defaultUrl: '/defaultLoadingLogo', darkModeUrl: '/darkModeLoadingLogo' },
+      title: '',
+    };
+    injectedMetadata.getBranding.mockReturnValue(branding);
+    const component = renderWithIntl(<Template metadata={mockProps()} />);
+    expect(component).toMatchSnapshot();
+  });
+
+  it('renders with customized light mode loading logo in dark mode', () => {
+    const branding = {
+      darkMode: false,
+      logo: {},
+      mark: { defaultUrl: '/defaultMark', darkModeUrl: '/darkModeMark' },
+      loadingLogo: { defaultUrl: '/defaultLoadingLogo' },
+      title: '',
+    };
+    injectedMetadata.getBranding.mockReturnValue(branding);
+    const component = renderWithIntl(<Template metadata={mockProps()} />);
+    expect(component).toMatchSnapshot();
+  });
+
+  it('renders with customized dark mode static logo with loading bar in dark mode', () => {
+    const branding = {
+      darkMode: false,
+      logo: {},
+      mark: { defaultUrl: '/defaultMark', darkModeUrl: '/darkModeMark' },
+      loadingLogo: {},
+      title: '',
+    };
+    injectedMetadata.getBranding.mockReturnValue(branding);
+    const component = renderWithIntl(<Template metadata={mockProps()} />);
+    expect(component).toMatchSnapshot();
+  });
+
+  it('renders with customized light mode static logo with loading bar in dark mode', () => {
+    const branding = {
+      darkMode: false,
+      logo: {},
+      mark: { defaultUrl: '/defaultMark' },
+      loadingLogo: {},
+      title: '',
+    };
+    injectedMetadata.getBranding.mockReturnValue(branding);
+    const component = renderWithIntl(<Template metadata={mockProps()} />);
+    expect(component).toMatchSnapshot();
+  });
+
+  it('renders with customized opensearch loading spinner in dark mode', () => {
+    const branding = {
+      darkMode: false,
+      logo: {},
+      mark: {},
+      loadingLogo: {},
+      title: '',
+    };
+    injectedMetadata.getBranding.mockReturnValue(branding);
+    const component = renderWithIntl(<Template metadata={mockProps()} />);
+    expect(component).toMatchSnapshot();
+  });
+
+  it('renders with customized favicon', () => {
+    const branding = {
+      darkMode: false,
+      logo: {},
+      mark: {},
+      loadingLogo: {},
+      favicon: '/',
       title: '',
     };
     injectedMetadata.getBranding.mockReturnValue(branding);

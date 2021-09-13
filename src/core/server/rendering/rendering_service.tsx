@@ -80,6 +80,11 @@ export class RenderingService {
       'loadingLogo default'
     );
 
+    const isFaviconValid = await this.checkUrlValid(
+      opensearchDashboardsConfig.branding.favicon,
+      'favicon'
+    );
+
     const isTitleValid = this.checkTitleValid(opensearchDashboardsConfig.branding.title, 'title');
 
     return {
@@ -98,28 +103,28 @@ export class RenderingService {
           defaults: uiSettings.getRegistered(),
           user: includeUserSettings ? await uiSettings.getUserProvided() : {},
         };
-        const darkmode = settings.user?.['theme:darkMode']?.userValue
+        const darkMode = settings.user?.['theme:darkMode']?.userValue
           ? Boolean(settings.user['theme:darkMode'].userValue)
           : false;
 
-        const isLogoDarkmodeValid = darkmode
+        const isLogoDarkmodeValid = darkMode
           ? await this.checkUrlValid(
               opensearchDashboardsConfig.branding.logo.darkModeUrl,
-              'logo darkmode'
+              'logo darkMode'
             )
           : undefined;
 
-        const isMarkDarkmodeValid = darkmode
+        const isMarkDarkmodeValid = darkMode
           ? await this.checkUrlValid(
               opensearchDashboardsConfig.branding.mark.darkModeUrl,
-              'mark darkmode'
+              'mark darkMode'
             )
           : undefined;
 
-        const isLoadingLogoDarkmodeValid = darkmode
+        const isLoadingLogoDarkmodeValid = darkMode
           ? await this.checkUrlValid(
               opensearchDashboardsConfig.branding.loadingLogo.darkModeUrl,
-              'loadingLogo darkmode'
+              'loadingLogo darkMode'
             )
           : undefined;
 
@@ -147,13 +152,15 @@ export class RenderingService {
           ? opensearchDashboardsConfig.branding.loadingLogo.darkModeUrl
           : undefined;
 
+        const favicon = isFaviconValid ? opensearchDashboardsConfig.branding.favicon : undefined;
+
         const metadata: RenderingMetadata = {
           strictCsp: http.csp.strict,
           uiPublicUrl: `${basePath}/ui`,
           bootstrapScriptUrl: `${basePath}/bootstrap.js`,
           i18n: i18n.translate,
           locale: i18n.getLocale(),
-          darkMode: darkmode,
+          darkMode,
           injectedMetadata: {
             version: env.packageInfo.version,
             buildNumber: env.packageInfo.buildNum,
@@ -178,7 +185,7 @@ export class RenderingService {
               uiSettings: settings,
             },
             branding: {
-              darkmode,
+              darkMode,
               logo: {
                 defaultUrl: logoDefault,
                 darkModeUrl: logoDarkmode,
@@ -191,7 +198,7 @@ export class RenderingService {
                 defaultUrl: loadingLogoDefault,
                 darkModeUrl: loadingLogoDarkmode,
               },
-              favicon: '',
+              favicon,
               title: isTitleValid ? opensearchDashboardsConfig.branding.title : DEFAULT_TITLE,
             },
           },

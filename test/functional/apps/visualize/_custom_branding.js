@@ -45,6 +45,8 @@ export default function ({ getService, getPageObjects }) {
       this.tags('includeFirefox');
       const expectedWelcomeLogo =
         'https://opensearch.org/assets/brand/SVG/Mark/opensearch_mark_default.svg';
+      const expectedWelcomeLogoDarkmode =
+        'https://opensearch.org/assets/brand/SVG/Mark/opensearch_mark_darkmode.svg';
       const expectedWelcomeMessage = 'Welcome to OpenSearch';
 
       //unloading any pre-existing settings so the welcome page will appear
@@ -84,20 +86,35 @@ export default function ({ getService, getPageObjects }) {
         );
         expect(actualLabel.toUpperCase()).to.equal(expectedWelcomeMessage.toUpperCase());
       });
+
+      it('with customized logo in dark mode', async () => {
+        await PageObjects.common.navigateToApp('management/opensearch-dashboards/settings');
+        PageObjects.settings.toggleAdvancedSettingCheckbox('theme:darkMode');
+        await testSubjects.click(`advancedSetting-saveButton`);
+        await PageObjects.header.waitUntilLoadingHasFinished();
+        await PageObjects.common.navigateToApp('home');
+        await testSubjects.existOrFail('welcomeCustomLogo');
+        const actualLabel = await testSubjects.getAttribute(
+          'welcomeCustomLogo',
+          'data-test-image-url'
+        );
+        expect(actualLabel.toUpperCase()).to.equal(expectedWelcomeLogoDarkmode.toUpperCase());
+      });
     });
 
     describe('should render home page', async () => {
       this.tags('includeFirefox');
-      const expectedUrl =
+      const expectedHeaderLogo =
         'https://opensearch.org/assets/brand/SVG/Logo/opensearch_logo_default.svg';
-      const expectedUrlDarkMode = "https://opensearch.org/assets/brand/SVG/Logo/opensearch_logo_darkmode.svg";
+      const expectedHeaderLogoDarkMode =
+        'https://opensearch.org/assets/brand/SVG/Logo/opensearch_logo_darkmode.svg';
 
       before(async function () {
         await PageObjects.common.navigateToApp('home');
       });
 
       it('with customized logo in header bar', async () => {
-        await globalNav.logoExistsOrFail(expectedUrl);
+        await globalNav.logoExistsOrFail(expectedHeaderLogo);
       });
 
       it('with customized logo that can take back to home page', async () => {
@@ -110,12 +127,12 @@ export default function ({ getService, getPageObjects }) {
 
       it('with customized logo in header bar in dark mode', async () => {
         await PageObjects.common.navigateToApp('management/opensearch-dashboards/settings');
-        PageObjects.settings.toggleAdvancedSettingCheckbox("theme:darkMode")
+        PageObjects.settings.toggleAdvancedSettingCheckbox('theme:darkMode');
         await testSubjects.click(`advancedSetting-saveButton`);
         await PageObjects.header.waitUntilLoadingHasFinished();
         await PageObjects.common.navigateToApp('home');
-        await globalNav.logoExistsOrFail(expectedUrlDarkMode);
-      })
+        await globalNav.logoExistsOrFail(expectedHeaderLogoDarkMode);
+      });
 
       it('with customized logo that can take back to home page in dark mode', async () => {
         await PageObjects.common.navigateToApp('settings');
@@ -123,7 +140,7 @@ export default function ({ getService, getPageObjects }) {
         await PageObjects.header.waitUntilLoadingHasFinished();
         const url = await browser.getCurrentUrl();
         expect(url.includes('/app/home')).to.be(true);
-      })
+      });
     });
   });
 }

@@ -47,7 +47,9 @@ run(
     try {
       const gitDir = await getGitDir();
       const installPath = Path.resolve(REPO_ROOT, gitDir, 'hooks/pre-commit');
-
+      log.info(REPO_ROOT);
+      log.info(gitDir);
+      log.info(installPath);
       log.info(`Registering OpenSearch Dashboards pre-commit git hook...`);
       await writeFileAsync(installPath, SCRIPT_SOURCE);
       await chmodAsync(installPath, 0o755);

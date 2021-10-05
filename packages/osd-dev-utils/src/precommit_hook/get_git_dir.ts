@@ -38,7 +38,7 @@ import { REPO_ROOT } from '@osd/utils';
 // every git setup (including git worktree)
 export async function getGitDir() {
   return (
-    await execa('git', ['rev-parse', '--git-common-dir'], {
+    await execa('git', ['rev-parse', '--git-dir'], {
       cwd: REPO_ROOT,
     })
   ).stdout.trim();

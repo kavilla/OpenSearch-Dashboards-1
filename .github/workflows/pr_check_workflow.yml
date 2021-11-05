@@ -28,9 +28,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup dependencies
-        run: apt-get update && apt-get install python -y
-
+      - run: git init
       
       # - name: Setup Node
       #   uses: actions/setup-node@v1

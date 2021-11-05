@@ -25,10 +25,8 @@ jobs:
     container: node:10.24.1
     name: Build and Verify
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - run: git init
+      # - name: Checkout code
+      #   uses: actions/checkout@v2
       
       # - name: Setup Node
       #   uses: actions/setup-node@v1

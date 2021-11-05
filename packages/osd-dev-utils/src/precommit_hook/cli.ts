@@ -44,7 +44,7 @@ const chmodAsync = promisify(chmod);
 const writeFileAsync = promisify(writeFile);
 
 function validateGitDir(gitDir: string) {
-  if (gitDir === '--git-common-dir') {
+  if (gitDir === '--git-common-dir' || process.env.SKIP_GIT_HOOK === 'true') {
     throw createFailError(
       `--git-common-dir not accessible on current git version. Skipping installation of pre-commit git hook.`
     );

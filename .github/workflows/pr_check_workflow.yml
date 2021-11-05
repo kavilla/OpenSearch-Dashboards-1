@@ -22,6 +22,7 @@ env:
 jobs:
   build-lint-test:
     runs-on: ubuntu-latest
+    container: node:10.24.1-alpine
     name: Build and Verify
     steps:
       - name: Checkout code
@@ -48,7 +49,6 @@ jobs:
         run: yarn test:jest
         env:
           SKIP_BAD_APPLES: true
-          CI: false
 
       # - name: Run integration tests
       #   run: node scripts/jest_integration --ci --colors --max-old-space-size=5120 

@@ -39,6 +39,8 @@ jobs:
       #     npm uninstall -g yarn
       #     npm i -g yarn@1.22.10
 
+      - run: git init
+
       - name: Run bootstrap
         run: yarn osd bootstrap
         env:

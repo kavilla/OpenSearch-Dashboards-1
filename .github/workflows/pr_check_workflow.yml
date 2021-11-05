@@ -23,8 +23,9 @@ jobs:
   build-lint-test:
     runs-on: ubuntu-latest
     name: Build and Verify
-    container:
-      image: '../../../Dockerfile'
+    runs:
+      using: 'docker'
+      image: 'Dockerfile'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

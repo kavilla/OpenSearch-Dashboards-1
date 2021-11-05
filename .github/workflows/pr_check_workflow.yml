@@ -19,13 +19,14 @@ env:
   TEST_OPENSEARCH_TRANSPORT_PORT: 9403
   TEST_OPENSEARCH_PORT: 9400
 
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+
 jobs:
   build-lint-test:
     runs-on: ubuntu-latest
     name: Build and Verify
-    runs:
-      using: 'docker'
-      image: 'Dockerfile'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

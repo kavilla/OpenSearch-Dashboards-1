@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Verify
     container:
-      image: 'Dockerfile'
+      image: '../../../Dockerfile'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

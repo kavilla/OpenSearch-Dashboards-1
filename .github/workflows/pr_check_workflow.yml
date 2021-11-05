@@ -19,10 +19,6 @@ env:
   TEST_OPENSEARCH_TRANSPORT_PORT: 9403
   TEST_OPENSEARCH_PORT: 9400
 
-runs:
-  using: 'docker'
-  image: 'Dockerfile'
-
 jobs:
   build-lint-test:
     runs-on: ubuntu-latest
@@ -31,16 +27,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       
-      # - name: Setup Node
-      #   uses: actions/setup-node@v1
-      #   with:
-      #     node-version: "10.24.1"
-      #     registry-url: 'https://registry.npmjs.org'
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "10.24.1"
+          registry-url: 'https://registry.npmjs.org'
 
-      # - name: Setup Yarn
-      #   run: |
-      #     npm uninstall -g yarn
-      #     npm i -g yarn@1.22.10
+      - name: Setup Yarn
+        run: |
+          npm uninstall -g yarn
+          npm i -g yarn@1.22.10
 
       - name: Run bootstrap
         run: yarn osd bootstrap
@@ -49,7 +45,7 @@ jobs:
       #   run: yarn lint
 
       - name: Run unit tests
-        run: yarn test:jest #node scripts/jest --ci --colors --maxWorkers=10
+        run: node scripts/jest --ci --colors --maxWorkers=50%
         env:
           SKIP_BAD_APPLES: true
 

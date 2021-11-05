@@ -66,7 +66,7 @@
     "osd:watch": "node scripts/opensearch_dashboards --dev --logging.json=false",
     "build:types": "rm -rf ./target/types && tsc --p tsconfig.types.json",
     "docs:acceptApiChanges": "node --max-old-space-size=6144 scripts/check_published_api_changes.js --accept",
-    "osd:bootstrap": "node scripts/build_ts_refs && node scripts/register_git_hook",
+    "osd:bootstrap": "node scripts/build_ts_refs",
     "spec_to_console": "node scripts/spec_to_console",
     "storybook": "node scripts/storybook"
   },

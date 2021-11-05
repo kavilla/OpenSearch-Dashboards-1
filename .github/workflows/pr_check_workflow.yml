@@ -45,9 +45,10 @@ jobs:
       #   run: yarn lint
 
       - name: Run unit tests
-        run: node scripts/jest --ci --colors --maxWorkers=50%
+        run: yarn test:jest
         env:
           SKIP_BAD_APPLES: true
+          CI: false
 
       # - name: Run integration tests
       #   run: node scripts/jest_integration --ci --colors --max-old-space-size=5120 

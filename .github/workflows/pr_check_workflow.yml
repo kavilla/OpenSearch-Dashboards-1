@@ -22,7 +22,7 @@ env:
 jobs:
   build-lint-test:
     runs-on: ubuntu-latest
-    container: node:10.24.1
+    #  container: node:10.24.1
     name: Build and Verify
     steps:
       - name: Checkout code

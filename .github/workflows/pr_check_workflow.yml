@@ -47,8 +47,8 @@ jobs:
       # - name: Run linter
       #   run: yarn lint
 
+      - uses: docker://node:10.24.1
       - name: Run unit tests
-        uses: docker://node:10.24.1
         run: yarn test:jest
         env:
           SKIP_BAD_APPLES: true

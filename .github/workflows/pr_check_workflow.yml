@@ -28,17 +28,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       
-      # - name: Setup Node
-      #   uses: actions/setup-node@v1
-      #   with:
-      #     node-version: "10.24.1"
-      #     registry-url: 'https://registry.npmjs.org'
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "10.24.1"
+          registry-url: 'https://registry.npmjs.org'
 
-      # - name: Setup Yarn
-      #   run: |
-      #     npm uninstall -g yarn
-      #     npm i -g yarn@1.22.10
-
+      - name: Setup Yarn
+        run: |
+          npm uninstall -g yarn
+          npm i -g yarn@1.22.10
 
       - name: Run bootstrap
         run: yarn osd bootstrap
@@ -49,6 +48,7 @@ jobs:
       #   run: yarn lint
 
       - name: Run unit tests
+        uses: docker://node:10.24.1
         run: yarn test:jest
         env:
           SKIP_BAD_APPLES: true

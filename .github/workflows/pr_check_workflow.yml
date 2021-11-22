@@ -49,7 +49,7 @@ jobs:
 
       - uses: docker://node:10.24.1
       - name: Run unit tests
-        run: yarn test:jest
+        run: yarn test:jest --ci
         env:
           SKIP_BAD_APPLES: true
 

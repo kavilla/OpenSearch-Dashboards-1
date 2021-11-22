@@ -45,7 +45,7 @@ jobs:
         run: yarn lint
 
       - name: Run unit tests
-        run: node scripts/jest --ci --colors --maxWorkers=66%
+        run: node scripts/jest --ci --colors --maxWorkers=50%
         env:
           SKIP_BAD_APPLES: true
 

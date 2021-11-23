@@ -62,34 +62,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup Node
-        uses: actions/setup-node@v1
+      - name: Build OpenSearch Dashboards
+        uses: ./../actions/build_opensearch_dashboards.yml
         with:
-          node-version: "10.24.1"
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Setup Yarn
-        run: |
-          npm uninstall -g yarn
-          npm i -g yarn@1.22.10
-
-      - name: Get cache path
-        id: cache-path
-        run: echo "::set-output name=CACHE_DIR::$(yarn cache dir)"
-
-      - name: Setup cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.cache-path.outputs.CACHE_DIR }}
-          key: ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-
-            ${{ runner.os }}-yarn-
-            ${{ runner.os }}-
-
-      - name: Run bootstrap
-        run: yarn osd bootstrap
-
+          cache-name: ${{ env.CACHE_NAME }}
+      
       - name: Run unit tests
         run: node scripts/jest --ci --colors --maxWorkers=10
         env:
@@ -101,33 +78,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup Node
-        uses: actions/setup-node@v1
+      - name: Build OpenSearch Dashboards
+        uses: ./../actions/build_opensearch_dashboards.yml
         with:
-          node-version: "10.24.1"
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Setup Yarn
-        run: |
-          npm uninstall -g yarn
-          npm i -g yarn@1.22.10
-
-          - name: Get cache path
-        id: cache-path
-        run: echo "::set-output name=CACHE_DIR::$(yarn cache dir)"
-
-      - name: Setup cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.cache-path.outputs.CACHE_DIR }}
-          key: ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-
-            ${{ runner.os }}-yarn-
-            ${{ runner.os }}-
-
-      - name: Run bootstrap
-        run: yarn osd bootstrap
+          cache-name: ${{ env.CACHE_NAME }}
 
       - name: Run integration tests
         run: node scripts/jest_integration --ci --colors --max-old-space-size=5120 

@@ -86,7 +86,7 @@ jobs:
       - name: Run integration tests
         run: node scripts/jest_integration --ci --colors --max-old-space-size=5120 
   functional-tests:
-    needs: [ build-lint-test ]
+    needs: [ setup, lint, unit-tests, integration-tests ]
     runs-on: ubuntu-latest
     name: Run functional tests
     strategy: 

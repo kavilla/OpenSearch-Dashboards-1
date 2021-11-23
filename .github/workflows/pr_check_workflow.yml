@@ -46,10 +46,9 @@ jobs:
     needs: [ setup ]
     runs-on: ubuntu-latest
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - uses: actions/checkout@v2
       - name: Build OpenSearch Dashboards
         uses: ./.github/actions/build_opensearch_dashboards
         with:
@@ -60,28 +59,31 @@ jobs:
   unit-tests:
     needs: [ setup ]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - uses: actions/checkout@v2
       - name: Build OpenSearch Dashboards
         uses: ./.github/actions/build_opensearch_dashboards
         with:
           cache-name: ${{ env.CACHE_NAME }}
       
       - name: Run unit tests
-        run: node scripts/jest --ci --colors --maxWorkers=10
+        #run: node scripts/jest --ci --colors --maxWorkers=10
+        run: echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node scripts/jest --ci --colors --maxWorkers=10
         env:
           SKIP_BAD_APPLES: true
+          CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
   integration-tests:
     needs: [ setup ]
     runs-on: ubuntu-latest
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - uses: actions/checkout@v2
       - name: Build OpenSearch Dashboards
         uses: ./.github/actions/build_opensearch_dashboards
         with:

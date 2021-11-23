@@ -42,20 +42,20 @@ jobs:
         run: echo "::set-output name=test-chunk-ids::$(echo $CHUNKS | jq -cM 'to_entries | map(.key)')"
         env:
           CHUNKS: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
-  lint:
-    needs: [ setup ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  # lint:
+  #   needs: [ setup ]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Build OpenSearch Dashboards
-        uses: ./.github/actions/build_opensearch_dashboards
-        with:
-          cache-name: ${{ env.CACHE_NAME }}
+  #     - name: Build OpenSearch Dashboards
+  #       uses: ./.github/actions/build_opensearch_dashboards
+  #       with:
+  #         cache-name: ${{ env.CACHE_NAME }}
 
-      - name: Run linter
-        run: yarn lint
+  #     - name: Run linter
+  #       run: yarn lint
   unit-tests:
     needs: [ setup ]
     runs-on: ubuntu-latest
@@ -77,71 +77,71 @@ jobs:
         env:
           SKIP_BAD_APPLES: true
           CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
-  integration-tests:
-    needs: [ setup ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  # integration-tests:
+  #   needs: [ setup ]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Build OpenSearch Dashboards
-        uses: ./.github/actions/build_opensearch_dashboards
-        with:
-          cache-name: ${{ env.CACHE_NAME }}
+  #     - name: Build OpenSearch Dashboards
+  #       uses: ./.github/actions/build_opensearch_dashboards
+  #       with:
+  #         cache-name: ${{ env.CACHE_NAME }}
 
-      - name: Run integration tests
-        run: node scripts/jest_integration --ci --colors --max-old-space-size=5120 
-  functional-tests:
-    needs: [ setup, lint, unit-tests, integration-tests ]
-    runs-on: ubuntu-latest
-    name: Run functional tests
-    strategy: 
-      matrix:
-        group: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
-    steps:
-      - run: echo Running functional tests for ciGroup${{ matrix.group }}
+  #     - name: Run integration tests
+  #       run: node scripts/jest_integration --ci --colors --max-old-space-size=5120 
+  # functional-tests:
+  #   needs: [ setup, lint, unit-tests, integration-tests ]
+  #   runs-on: ubuntu-latest
+  #   name: Run functional tests
+  #   strategy: 
+  #     matrix:
+  #       group: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
+  #   steps:
+  #     - run: echo Running functional tests for ciGroup${{ matrix.group }}
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: "10.24.1"
-          registry-url: 'https://registry.npmjs.org'
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: "10.24.1"
+  #         registry-url: 'https://registry.npmjs.org'
 
-      - name: Setup Yarn
-        run: |
-          npm uninstall -g yarn
-          npm i -g yarn@1.22.10
+  #     - name: Setup Yarn
+  #       run: |
+  #         npm uninstall -g yarn
+  #         npm i -g yarn@1.22.10
 
-      - name: Get cache path
-        id: cache-path
-        run: echo "::set-output name=E2E_CACHE_DIR::$(yarn cache dir)"
+  #     - name: Get cache path
+  #       id: cache-path
+  #       run: echo "::set-output name=E2E_CACHE_DIR::$(yarn cache dir)"
 
-      - name: Setup cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.cache-path.outputs.E2E_CACHE_DIR }}
-          key: ${{ runner.os }}-yarn-${{ env.E2E_CACHE_NAME }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-${{ env.E2E_CACHE_NAME }}-
-            ${{ runner.os }}-yarn-
-            ${{ runner.os }}-
+  #     - name: Setup cache
+  #       uses: actions/cache@v2
+  #       with:
+  #         path: ${{ steps.cache-path.outputs.E2E_CACHE_DIR }}
+  #         key: ${{ runner.os }}-yarn-${{ env.E2E_CACHE_NAME }}-${{ hashFiles('**/yarn.lock') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-yarn-${{ env.E2E_CACHE_NAME }}-
+  #           ${{ runner.os }}-yarn-
+  #           ${{ runner.os }}-
 
-      # github virtual env is the latest chrome
-      - name: Setup chromedriver
-        run: yarn add --dev chromedriver@latest
+  #     # github virtual env is the latest chrome
+  #     - name: Setup chromedriver
+  #       run: yarn add --dev chromedriver@latest
 
-      - name: Run bootstrap
-        run: yarn osd bootstrap
+  #     - name: Run bootstrap
+  #       run: yarn osd bootstrap
 
-      - name: Build plugins
-        run: node scripts/build_opensearch_dashboards_platform_plugins --no-examples --workers 10
+  #     - name: Build plugins
+  #       run: node scripts/build_opensearch_dashboards_platform_plugins --no-examples --workers 10
 
-      - run: node scripts/functional_tests.js --config test/functional/config.js --include ciGroup${{ matrix.group }}
-        env:
-          CI_GROUP: ciGroup${{ matrix.group }}
-          CI_PARALLEL_PROCESS_NUMBER: ciGroup${{ matrix.group }}
-          JOB: ci${{ matrix.group }}
-          CACHE_DIR: ciGroup${{ matrix.group }}
+  #     - run: node scripts/functional_tests.js --config test/functional/config.js --include ciGroup${{ matrix.group }}
+  #       env:
+  #         CI_GROUP: ciGroup${{ matrix.group }}
+  #         CI_PARALLEL_PROCESS_NUMBER: ciGroup${{ matrix.group }}
+  #         JOB: ci${{ matrix.group }}
+  #         CACHE_DIR: ciGroup${{ matrix.group }}

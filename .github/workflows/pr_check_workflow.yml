@@ -38,7 +38,7 @@ jobs:
 
       - name: Set Chunks
         id: set-test-chunks
-        run: echo "::set-output name=test-chunks::$(node scripts/jest --ci --listTests --json | jq -cM '[_nwise(length / 50 | floor)]')"
+        run: echo "::set-output name=test-chunks::$(node scripts/jest --ci --listTests --json | jq -cM '[_nwise(length / 25 | floor)]')"
   # lint:
   #   needs: [ setup ]
   #   runs-on: ubuntu-latest
@@ -73,7 +73,6 @@ jobs:
         run: echo $ ${{ needs.setup.outputs['test-chunks'] }} | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node scripts/jest --ci --colors --maxWorkers=10
         env:
           SKIP_BAD_APPLES: true
-          CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
   # integration-tests:
   #   needs: [ setup ]
   #   runs-on: ubuntu-latest

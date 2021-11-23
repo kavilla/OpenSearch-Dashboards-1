@@ -27,8 +27,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - uses: actions/checkout@v1
       - name: Build OpenSearch Dashboards
-        uses: ./../.github/actions/build_opensearch_dashboards.yml
+        uses: ./../.github/actions/build_opensearch_dashboards
         with:
           cache-name: ${{ env.CACHE_NAME }}
 
@@ -63,7 +64,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build OpenSearch Dashboards
-        uses: ./../.github/actions/build_opensearch_dashboards.yml
+        uses: ./../.github/actions/build_opensearch_dashboards
         with:
           cache-name: ${{ env.CACHE_NAME }}
       
@@ -79,7 +80,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build OpenSearch Dashboards
-        uses: ./../.github//actions/build_opensearch_dashboards.yml
+        uses: ./../.github//actions/build_opensearch_dashboards
         with:
           cache-name: ${{ env.CACHE_NAME }}
 

@@ -9,9 +9,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
     - name: Setup Node
       uses: actions/setup-node@v1
       with:
@@ -36,3 +33,6 @@ runs:
           ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-
           ${{ runner.os }}-yarn-
           ${{ runner.os }}-
+
+    - name: Run bootstrap
+      run: yarn osd bootstrap

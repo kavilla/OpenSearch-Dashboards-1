@@ -1,0 +1,38 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Build OpenSearch Dashboards
+inputs:
+  cache-name: 
+    required: true
+    default: osd-node-modules
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: "10.24.1"
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Setup Yarn
+      run: |
+        npm uninstall -g yarn
+        npm i -g yarn@1.22.10
+
+    - name: Get cache path
+      id: cache-path
+      run: echo "::set-output name=CACHE_DIR::$(yarn cache dir)"
+
+    - name: Setup cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.cache-path.outputs.CACHE_DIR }}
+        key: ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-
+          ${{ runner.os }}-yarn-
+          ${{ runner.os }}-

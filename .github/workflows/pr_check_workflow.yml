@@ -11,6 +11,7 @@ on:
 
 env:
   CACHE_NAME: osd-node-modules
+  E2E_CACHE_NAME: osd-e2e-node-modules
   TEST_BROWSER_HEADLESS: 1
   CI: 1
   GCS_UPLOAD_PREFIX: fake
@@ -20,9 +21,43 @@ env:
   TEST_OPENSEARCH_PORT: 9400
 
 jobs:
-  build-lint-test:
+  setup:
     runs-on: ubuntu-latest
-    name: Build and Verify
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build OpenSearch Dashboards
+        uses: ./../actions/build_opensearch_dashboards.yml
+        with:
+          cache-name: ${{ env.CACHE_NAME }}
+
+      - name: Set Chunks
+        id: set-test-chunks
+        run: echo "::set-output name=test-chunks::$(yarn test:jest --listTests --json | jq -cM '[_nwise(length / 2 | floor)]')"
+
+      - name: Set Chunk IDs
+        id: set-test-chunk-ids
+        run: echo "::set-output name=test-chunk-ids::$(echo $CHUNKS | jq -cM 'to_entries | map(.key)')"
+        env:
+          CHUNKS: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
+  lint:
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build OpenSearch Dashboards
+        uses: ./../actions/build_opensearch_dashboards.yml
+        with:
+          cache-name: ${{ env.CACHE_NAME }}
+
+      - name: Run linter
+        run: yarn lint
+  unit-tests:
+    needs: [ setup ]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -38,16 +73,61 @@ jobs:
           npm uninstall -g yarn
           npm i -g yarn@1.22.10
 
+      - name: Get cache path
+        id: cache-path
+        run: echo "::set-output name=CACHE_DIR::$(yarn cache dir)"
+
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.cache-path.outputs.CACHE_DIR }}
+          key: ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-
+            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-
+
       - name: Run bootstrap
         run: yarn osd bootstrap
 
-      - name: Run linter
-        run: yarn lint
-
       - name: Run unit tests
-        run: node scripts/jest --ci --colors --maxWorkers=50%
+        run: node scripts/jest --ci --colors --maxWorkers=10
         env:
           SKIP_BAD_APPLES: true
+  integration-tests:
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "10.24.1"
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup Yarn
+        run: |
+          npm uninstall -g yarn
+          npm i -g yarn@1.22.10
+
+          - name: Get cache path
+        id: cache-path
+        run: echo "::set-output name=CACHE_DIR::$(yarn cache dir)"
+
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.cache-path.outputs.CACHE_DIR }}
+          key: ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-
+            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-
+
+      - name: Run bootstrap
+        run: yarn osd bootstrap
 
       - name: Run integration tests
         run: node scripts/jest_integration --ci --colors --max-old-space-size=5120 
@@ -77,15 +157,15 @@ jobs:
 
       - name: Get cache path
         id: cache-path
-        run: echo "::set-output name=CACHE_DIR::$(yarn cache dir)"
+        run: echo "::set-output name=E2E_CACHE_DIR::$(yarn cache dir)"
 
       - name: Setup cache
         uses: actions/cache@v2
         with:
-          path: ${{ steps.cache-path.outputs.CACHE_DIR }}
-          key: ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-${{ hashFiles('**/yarn.lock') }}
+          path: ${{ steps.cache-path.outputs.E2E_CACHE_DIR }}
+          key: ${{ runner.os }}-yarn-${{ env.E2E_CACHE_NAME }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-${{ env.CACHE_NAME }}-
+            ${{ runner.os }}-yarn-${{ env.E2E_CACHE_NAME }}-
             ${{ runner.os }}-yarn-
             ${{ runner.os }}-
 

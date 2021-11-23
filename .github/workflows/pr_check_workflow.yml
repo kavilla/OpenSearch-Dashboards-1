@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
+        chunk: ${{fromJson(needs.setup.outputs['test-chunk-ids'])}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

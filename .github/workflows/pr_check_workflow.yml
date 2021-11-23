@@ -24,12 +24,12 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      # - name: Checkout code
+      #   uses: actions/checkout@v2
 
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Build OpenSearch Dashboards
-        uses: ./.github/actions/build_opensearch_dashboards/action.yml
+        uses: ./.github/actions/build_opensearch_dashboards
         with:
           cache-name: ${{ env.CACHE_NAME }}
 
@@ -46,11 +46,12 @@ jobs:
     needs: [ setup ]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      # - name: Checkout code
+      #   uses: actions/checkout@v2
 
+      - uses: actions/checkout@v2
       - name: Build OpenSearch Dashboards
-        uses: ./.github/actions/build_opensearch_dashboards/action.yml
+        uses: ./.github/actions/build_opensearch_dashboards
         with:
           cache-name: ${{ env.CACHE_NAME }}
 
@@ -60,11 +61,12 @@ jobs:
     needs: [ setup ]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      # - name: Checkout code
+      #   uses: actions/checkout@v2
 
+      - uses: actions/checkout@v2
       - name: Build OpenSearch Dashboards
-        uses: ./.github/actions/build_opensearch_dashboards/action.yml
+        uses: ./.github/actions/build_opensearch_dashboards
         with:
           cache-name: ${{ env.CACHE_NAME }}
       
@@ -76,11 +78,12 @@ jobs:
     needs: [ setup ]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      # - name: Checkout code
+      #   uses: actions/checkout@v2
 
+      - uses: actions/checkout@v2
       - name: Build OpenSearch Dashboards
-        uses: ./.github/actions/build_opensearch_dashboards/action.yml
+        uses: ./.github/actions/build_opensearch_dashboards
         with:
           cache-name: ${{ env.CACHE_NAME }}
 

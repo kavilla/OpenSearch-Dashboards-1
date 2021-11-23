@@ -23,6 +23,9 @@ env:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    outputs:
+      test-chunks: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
+      test-chunk-ids: ${{ steps['set-test-chunk-ids'].outputs['test-chunk-ids'] }}
     steps:
       # - name: Checkout code
       #   uses: actions/checkout@v2

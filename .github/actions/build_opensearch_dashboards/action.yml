@@ -9,7 +9,7 @@ inputs:
     description: Cache location
     default: osd-node-modules
 runs:
-  #using: "composite"
+  using: "composite"
   steps:
     - name: Setup Node
       uses: actions/setup-node@v1
@@ -21,10 +21,12 @@ runs:
       run: |
         npm uninstall -g yarn
         npm i -g yarn@1.22.10
+      shell: bash
 
     - name: Get cache path
       id: cache-path
       run: echo "::set-output name=CACHE_DIR::$(yarn cache dir)"
+      shell: bash
 
     - name: Setup cache
       uses: actions/cache@v2
@@ -38,3 +40,4 @@ runs:
 
     - name: Run bootstrap
       run: yarn osd bootstrap
+      shell: bash

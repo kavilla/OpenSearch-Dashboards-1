@@ -42,9 +42,7 @@ jobs:
 
       - name: Set Chunk IDs
         id: set-test-chunk-ids
-        run: echo "::set-output name=test-chunk-ids::$(echo $CHUNKS | jq -cM 'to_entries | map(.key)')"
-        env:
-          CHUNKS: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
+        run: echo "::set-output name=test-chunk-ids::$(echo ${{ steps['set-test-chunks'].outputs['test-chunks'] }} | jq -cM 'to_entries | map(.key)')"
   # lint:
   #   needs: [ setup ]
   #   runs-on: ubuntu-latest
@@ -76,10 +74,9 @@ jobs:
       
       - name: Run unit tests
         #run: node scripts/jest --ci --colors --maxWorkers=10
-        run: echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node scripts/jest --ci --colors --maxWorkers=10
+        run: echo ${{ needs.setup.outputs['test-chunks'] }} | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node scripts/jest --ci --colors --maxWorkers=10
         env:
           SKIP_BAD_APPLES: true
-          CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
   # integration-tests:
   #   needs: [ setup ]
   #   runs-on: ubuntu-latest

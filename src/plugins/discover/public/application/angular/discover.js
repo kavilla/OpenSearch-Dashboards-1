@@ -495,6 +495,7 @@ function discoverController($element, $route, $scope, $timeout, $window, Promise
   $scope.searchSource
     .setField('index', $scope.indexPattern)
     .setField('highlightAll', true)
+    .setField('trackTotalHits', true)
     .setField('version', true);
 
   // Even when searching rollups, we want to use the default strategy so that we get back a

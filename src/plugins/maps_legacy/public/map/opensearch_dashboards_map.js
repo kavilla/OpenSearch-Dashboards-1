@@ -696,7 +696,7 @@ export class OpenSearchDashboardsMap extends EventEmitter {
     removeRegionBlockedWarning();
     const tiles = $('img.leaflet-tile-loaded');
     // Don't apply client-side styling to EMS basemaps
-    if (get(this._baseLayerSettings, 'options.origin') === ORIGIN.EMS) {
+    if (get(this._baseLayerSettings, 'options.origin') === ORIGIN.OPENSEARCH_MAPS) {
       tiles.addClass('filters-off');
     } else {
       if (this._baseLayerIsDesaturated) {

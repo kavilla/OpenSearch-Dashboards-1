@@ -117,7 +117,8 @@ export function createRegionMapVisualization({
 
       if (
         fileLayerConfig.isEMS || //Hosted by EMS. Metadata needs to be resolved through EMS
-        (fileLayerConfig.layerId && fileLayerConfig.layerId.startsWith(`${ORIGIN.EMS}.`)) //fallback for older saved objects
+        (fileLayerConfig.layerId &&
+          fileLayerConfig.layerId.startsWith(`${ORIGIN.OPENSEARCH_MAPS}.`)) //fallback for older saved objects
       ) {
         const serviceSettings = await getServiceSettings();
         return await serviceSettings.loadFileLayerConfig(fileLayerConfig);

@@ -36,5 +36,5 @@ import { ORIGIN } from '../../maps_legacy/public';
 export const mapToLayerWithId = (prefix: string, layer: FileLayer): VectorLayer => ({
   ...layer,
   layerId: `${prefix}.${layer.name}`,
-  isEMS: ORIGIN.EMS === prefix,
+  isEMS: ORIGIN.OPENSEARCH_MAPS === prefix,
 });

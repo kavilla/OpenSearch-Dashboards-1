@@ -127,7 +127,7 @@ provided base maps, or add your own. Darker colors represent higher values.',
       if (regionmapsConfig.includeOpenSearchMapsService) {
         const layers = await serviceSettings.getFileLayers();
         const newLayers = layers
-          .map(mapToLayerWithId.bind(null, ORIGIN.EMS))
+          .map(mapToLayerWithId.bind(null, ORIGIN.OPENSEARCH_MAPS))
           .filter(
             (layer) => !vectorLayers.some((vectorLayer) => vectorLayer.layerId === layer.layerId)
           );

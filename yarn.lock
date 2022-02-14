@@ -1113,14 +1113,6 @@
     pump "^3.0.0"
     secure-json-parse "^2.1.0"
 
-"@elastic/ems-client@7.10.0":
-  version "7.10.0"
-  resolved "https://registry.yarnpkg.com/@elastic/ems-client/-/ems-client-7.10.0.tgz#6d0e12ce99acd122d8066aa0a8685ecfd21637d3"
-  integrity sha512-84XqAhY4iaKwo2PnDwskNLvnprR3EYcS1AhN048xa8mIZlRJuycB4DwWnB699qvUTQqKcg5qLS0o5sEUs2HDeA==
-  dependencies:
-    lodash "^4.17.15"
-    semver "7.3.2"
-
 "@elastic/eslint-plugin-eui@0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@elastic/eslint-plugin-eui/-/eslint-plugin-eui-0.0.2.tgz#56b9ef03984a05cc213772ae3713ea8ef47b0314"
@@ -2370,6 +2362,12 @@
   integrity sha512-wWPSynU4oLy3i4KGyk+J1BLwRKyoeW2TwRHgwbDz17WtVFzSK2GOErGliruIx8c+MaYtHSYTx36DSmLNoNbtgA==
   dependencies:
     "@octokit/openapi-types" "^7.2.3"
+
+"@opensearch-project/opensearch-maps-client@../opensearch-maps-client":
+  version "1.0.0"
+  dependencies:
+    lodash "^4.17.15"
+    semver "7.3.2"
 
 "@percy/cli-build@1.0.0-beta.74":
   version "1.0.0-beta.74"

@@ -31,7 +31,6 @@
  */
 
 export const ORIGIN = {
-  // TODO: Rename EMS
-  EMS: 'elastic_maps_service',
+  OPENSEARCH_MAPS: 'opensearch_maps',
   OPENSEARCH_DASHBOARDS_YML: 'self_hosted',
 };

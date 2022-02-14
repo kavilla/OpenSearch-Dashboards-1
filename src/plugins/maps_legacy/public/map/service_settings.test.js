@@ -292,7 +292,7 @@ describe('service_settings (FKA tile_map test)', function () {
       const fileLayers = await serviceSettings.getFileLayers();
       expect(fileLayers.length).toEqual(19);
       const assertions = fileLayers.map(async function (fileLayer) {
-        expect(fileLayer.origin).toEqual(ORIGIN.EMS);
+        expect(fileLayer.origin).toEqual(ORIGIN.OPENSEARCH_MAPS);
         const fileUrl = await serviceSettings.getUrlForRegionLayer(fileLayer);
         const urlObject = url.parse(fileUrl, true);
         Object.keys({ foo: 'bar', opensearch_tile_service_tos: 'agree' }).forEach((key) => {

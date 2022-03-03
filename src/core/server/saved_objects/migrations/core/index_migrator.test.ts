@@ -138,7 +138,7 @@ describe('IndexMigrator', () => {
     });
 
     await expect(new IndexMigrator(testOpts).migrate()).rejects.toThrow(
-      /use the X-Pack upgrade assistant/
+      /Please verify the mappings and data within the index/
     );
   });
 
@@ -161,7 +161,7 @@ describe('IndexMigrator', () => {
     });
 
     await expect(new IndexMigrator(testOpts).migrate()).rejects.toThrow(
-      /use the X-Pack upgrade assistant/
+      /Please verify the mappings and data within the index/
     );
   });
 

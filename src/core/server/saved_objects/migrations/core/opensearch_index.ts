@@ -301,12 +301,12 @@ export async function claimAlias(
  */
 function assertIsSupportedIndex(indexInfo: FullIndexInfo) {
   const mappings = indexInfo.mappings as any;
-  const isV7Index = !!mappings.properties;
+  const isCompatible = !!mappings.properties;
 
-  if (!isV7Index) {
+  if (!isCompatible) {
     throw new Error(
       `Index ${indexInfo.indexName} belongs to a version of OpenSearch Dashboards ` +
-        `that cannot be automatically migrated. Reset it or use the X-Pack upgrade assistant.`
+        `that cannot be automatically migrated. Please verify the mappings and data within the index.`
     );
   }
 

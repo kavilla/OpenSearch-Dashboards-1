@@ -2,7 +2,7 @@
 
 set -e
 
-DEFAULT_VERSIONS="osd-1.1.0,odfe-1.13.2"
+DEFAULT_VERSIONS="osd-1.1.0,osd-1.0.0,odfe-1.13.2,odfe-0.10.0"
 
 function usage() {
     echo ""

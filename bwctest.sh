@@ -2,8 +2,7 @@
 
 set -e
 
-# TODO: Update to include all known BWC of data
-DEFAULT_VERSIONS="osd-1.1.0"
+DEFAULT_VERSIONS="osd-1.1.0,odfe-1.13.2"
 
 function usage() {
     echo ""
@@ -69,7 +68,7 @@ done
 if [ -z "$OPENSEARCH" ]; then
     IFS='/' read -ra SLASH_ARR <<< "$DASHBOARDS"
     # Expected to be opensearch-x.y.z-platform-arch.tar.gz
-    TARBALL="${SLASH_ARR[12]}"
+    [[ "$DASHBOARDS" == *"Playground"* ]] && TARBALL="${SLASH_ARR[13]}" || TARBALL="${SLASH_ARR[12]}"
     IFS='-' read -ra DASH_ARR <<< "$TARBALL"
     # Expected to be arch.tar.gz
     DOTS="${DASH_ARR[4]}"
@@ -82,4 +81,4 @@ if [ -z "$OPENSEARCH" ]; then
     OPENSEARCH="https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/$VERSION/latest/$PLATFORM/$ARCH/dist/opensearch/opensearch-$VERSION-$PLATFORM-$ARCH.tar.gz"
 fi
 
-./scripts/bwctest_osd.sh -b $BIND_ADDRESS -p $BIND_PORT -s $SECURITY_ENABLED -c $CREDENTIAL -o $OPENSEARCH -d $DASHBOARDS -v $DEFAULT_VERSIONS
+source scripts/bwctest_osd.sh -b $BIND_ADDRESS -p $BIND_PORT -s $SECURITY_ENABLED -c $CREDENTIAL -o $OPENSEARCH -d $DASHBOARDS -v $DEFAULT_VERSIONS

@@ -11,7 +11,7 @@ sort-direction: ascending
 replacers:
   - search: "##"
     replace: "###"
-include-labels: "v1.3.0"
+include-labels: ["v1.3.0"]
 
 # Organizing the tagged PRs into unified categories
 categories:

@@ -47,7 +47,13 @@ export const configSchema = schema.object({
   emsFileApiUrl: schema.string({
     defaultValue: 'https://vectors.maps.opensearch.org',
   }),
+  emsManifestFileApiUrl: schema.string({
+    defaultValue: 'https://maps.opensearch.org/vectors/v2.json',
+  }),
   emsTileApiUrl: schema.string({ defaultValue: 'https://tiles.maps.opensearch.org' }),
+  emsManifestTileApiUrl: schema.string({
+    defaultValue: 'https://maps.opensearch.org/tiles/v2.json',
+  }),
   emsLandingPageUrl: schema.string({ defaultValue: 'https://maps.opensearch.org' }),
   emsFontLibraryUrl: schema.string({
     defaultValue: 'https://tiles.maps.opensearch.org/fonts/{fontstack}/{range}.pbf',

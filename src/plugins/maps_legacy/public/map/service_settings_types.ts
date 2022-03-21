@@ -54,11 +54,11 @@ export interface FileLayerField {
 
 export interface VectorLayer extends FileLayer {
   layerId: string;
-  isEMS: boolean;
+  isOpenSearchMaps: boolean;
 }
 
 export interface IServiceSettings {
-  getEMSHotLink(layer: FileLayer): Promise<string>;
+  getOpenSearchMpasHotLink(layer: FileLayer): Promise<string>;
   getTMSServices(): Promise<TmsLayer[]>;
   getFileLayers(): Promise<FileLayer[]>;
   getUrlForRegionLayer(layer: FileLayer): Promise<string>;

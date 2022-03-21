@@ -34,6 +34,7 @@ import { schema, TypeOf } from '@osd/config-schema';
 
 export const configSchema = schema.object({
   url: schema.maybe(schema.string()),
+  manifestUrl: schema.maybe(schema.string()),
   options: schema.object({
     attribution: schema.string({ defaultValue: '' }),
     minZoom: schema.number({ defaultValue: 0, min: 0 }),

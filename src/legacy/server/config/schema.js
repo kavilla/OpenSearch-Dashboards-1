@@ -159,6 +159,7 @@ export default () =>
       showRegionBlockedWarning: Joi.boolean().default(false),
       tilemap: Joi.object({
         url: Joi.string(),
+        manifestUrl: Joi.string(),
         options: Joi.object({
           attribution: Joi.string(),
           minZoom: Joi.number().min(0, 'Must be 0 or higher').default(0),
@@ -205,7 +206,9 @@ export default () =>
       manifestServiceUrl: Joi.string().default('').allow(''),
       opensearchManifestServiceUrl: Joi.string().default('https://maps.opensearch.org/manifest'),
       emsFileApiUrl: Joi.string().default('https://vectors.maps.opensearch.org'),
+      emsManifestFileApiUrl: Joi.string().default('https://maps.opensearch.org/vectors/v2.json'),
       emsTileApiUrl: Joi.string().default('https://tiles.maps.opensearch.org'),
+      emsManifestTileApiUrl: Joi.string().default('https://maps.opensearch.org/tiles/v2.json'),
       emsLandingPageUrl: Joi.string().default('https://maps.opensearch.org'),
       emsFontLibraryUrl: Joi.string().default(
         'https://tiles.maps.opensearch.org/fonts/{fontstack}/{range}.pbf'

@@ -32,8 +32,7 @@
 
 import _ from 'lodash';
 import MarkdownIt from 'markdown-it';
-import { EMSClient } from '@elastic/ems-client';
-import { OpenSearchMapsClient } from '../common/opensearch_maps_client.js';
+import { OpenSearchMapsClient } from '@opensearch-project/opensearch-maps-client';
 import { i18n } from '@osd/i18n';
 import { getOpenSearchDashboardsVersion } from '../opensearch_dashboards_services';
 import { ORIGIN } from '../common/constants/origin';
@@ -47,13 +46,14 @@ export class ServiceSettings {
     this._hasTmsConfigured = typeof tilemapsConfig.url === 'string' && tilemapsConfig.url !== '';
 
     this._showZoomMessage = true;
-    this._emsClient = null;
     this._opensearchMapsClient = new OpenSearchMapsClient({
       language: i18n.getLocale(),
       appVersion: getOpenSearchDashboardsVersion(),
       appName: 'opensearch-dashboards',
       fileApiUrl: this._mapConfig.emsFileApiUrl,
+      manifestFileApiUrl: this._mapConfig.emsManifestFileApiUrl,
       tileApiUrl: this._mapConfig.emsTileApiUrl,
+      manifestTileApiUrl: this._mapConfig.emsManifestTileApiUrl,
       landingPageUrl: '',
       manifestServiceUrl: this._mapConfig.opensearchManifestServiceUrl,
       // Wrap to avoid errors passing window fetch
@@ -74,11 +74,12 @@ export class ServiceSettings {
     this.tmsOptionsFromConfig = _.assign({}, this._tilemapsConfig.options, {
       attribution: _.escape(markdownIt.render(this._tilemapsConfig.options.attribution || '')),
       url: this._tilemapsConfig.url,
+      manifestUrl: this._tilemapsConfig.manifestUrl,
     });
   }
 
   shouldShowZoomMessage({ origin }) {
-    return origin === ORIGIN.EMS && this._showZoomMessage;
+    return origin === ORIGIN.OPENSEARCH_MAPS && this._showZoomMessage;
   }
 
   enableZoomMessage() {
@@ -90,22 +91,21 @@ export class ServiceSettings {
   }
 
   __debugStubManifestCalls(manifestRetrieval) {
-    this._emsClient = this._opensearchMapsClient;
-    const oldGetManifest = this._emsClient.getManifest;
-    this._emsClient.getManifest = manifestRetrieval;
+    const oldGetManifest = this._opensearchMapsClient.getManifest;
+    this._opensearchMapsClient.getManifest = manifestRetrieval;
     return {
       removeStub: () => {
-        delete this._emsClient.getManifest;
+        delete this._opensearchMapsClient.getManifest;
         //not strictly necessary since this is prototype method
-        if (this._emsClient.getManifest !== oldGetManifest) {
-          this._emsClient.getManifest = oldGetManifest;
+        if (this._opensearchMapsClient.getManifest !== oldGetManifest) {
+          this._opensearchMapsClient.getManifest = oldGetManifest;
         }
       },
     };
   }
 
   _backfillSettings = (fileLayer) => {
-    // Older version of OpenSearch Dashboards stored EMS state in the URL-params
+    // Older version of OpenSearch Dashboards stored OpenSearch Maps state in the URL-params
     // Creates object literal with required parameters as key-value pairs
     const format = fileLayer.getDefaultFormatType();
     const meta = fileLayer.getDefaultFormatMeta();
@@ -122,45 +122,17 @@ export class ServiceSettings {
     };
   };
 
-  // anyone using this._emsClient should call this method before, to set the right client
-  async _setMapServices() {
-    // if client is not null, return immediately.
-    // Effectively, client creation will be called only once.
-    if (this._emsClient) {
-      return;
-    }
-    const useOpenSearchMaps = await this._opensearchMapsClient.isEnabled();
-    if (useOpenSearchMaps) {
-      // using OpenSearch Maps.
-      this._emsClient = this._opensearchMapsClient;
-    } else {
-      // not using OpenSearch Maps, fallback to default maps.
-      this._emsClient = new EMSClient({
-        language: i18n.getLocale(),
-        appVersion: getOpenSearchDashboardsVersion(),
-        appName: 'opensearch-dashboards',
-        fileApiUrl: this._mapConfig.emsFileApiUrl,
-        tileApiUrl: this._mapConfig.emsTileApiUrl,
-        landingPageUrl: this._mapConfig.emsLandingPageUrl,
-        fetchFunction: function (...args) {
-          return fetch(...args);
-        },
-      });
-    }
-  }
-
   async getFileLayers() {
     if (!this._mapConfig.includeOpenSearchMapsService) {
       return [];
     }
 
-    await this._setMapServices();
-    const fileLayers = await this._emsClient.getFileLayers();
+    const fileLayers = await this._opensearchMapsClient.getFileLayers();
     return fileLayers.map(this._backfillSettings);
   }
 
   /**
-   * Returns all the services published by EMS (if configures)
+   * Returns all the services published by OpenSearch Maps (if configures)
    * It also includes the service configured in tilemap (override)
    */
   async getTMSServices() {
@@ -173,9 +145,8 @@ export class ServiceSettings {
       allServices.push(tmsService);
     }
 
-    await this._setMapServices();
     if (this._mapConfig.includeOpenSearchMapsService) {
-      const servicesFromManifest = await this._emsClient.getTMSServices();
+      const servicesFromManifest = await this._opensearchMapsClient.getTMSServices();
       const strippedServiceFromManifest = await Promise.all(
         servicesFromManifest
           .filter((tmsService) => tmsService.getId() === this._mapConfig.emsTileLayerId.bright)
@@ -202,12 +173,12 @@ export class ServiceSettings {
    * @param additionalQueryParams
    */
   setQueryParams(additionalQueryParams) {
-    // Functions more as a "set" than an "add" in ems-client
-    this._emsClient.addQueryParams(additionalQueryParams);
+    // Functions more as a "set" than an "add" in opensearch-maps-client
+    this._opensearchMapsClient.addQueryParams(additionalQueryParams);
   }
 
   async getFileLayerFromConfig(fileLayerConfig) {
-    const fileLayers = await this._emsClient.getFileLayers();
+    const fileLayers = await this._opensearchMapsClient.getFileLayers();
     return fileLayers.find((fileLayer) => {
       const hasIdByName = fileLayer.hasId(fileLayerConfig.name); //legacy
       const hasIdById = fileLayer.hasId(fileLayerConfig.id);
@@ -216,7 +187,6 @@ export class ServiceSettings {
   }
 
   async getEMSHotLink(fileLayerConfig) {
-    await this._setMapServices();
     const layer = await this.getFileLayerFromConfig(fileLayerConfig);
     return layer ? layer.getEMSHotLink() : null;
   }
@@ -227,8 +197,7 @@ export class ServiceSettings {
   }
 
   async _getAttributesForEMSTMSLayer(isDesaturated, isDarkMode) {
-    await this._setMapServices();
-    const tmsServices = await this._emsClient.getTMSServices();
+    const tmsServices = await this._opensearchMapsClient.getTMSServices();
     const emsTileLayerId = this._mapConfig.emsTileLayerId;
     let serviceId;
     if (isDarkMode) {
@@ -248,20 +217,32 @@ export class ServiceSettings {
       minZoom: await tmsService.getMinZoom(),
       maxZoom: await tmsService.getMaxZoom(),
       attribution: getAttributionString(tmsService),
-      origin: ORIGIN.EMS,
+      origin: ORIGIN.OPENSEARCH_MAPS,
     };
   }
 
   async getAttributesForTMSLayer(tmsServiceConfig, isDesaturated, isDarkMode) {
-    if (tmsServiceConfig.origin === ORIGIN.EMS) {
+    if (tmsServiceConfig.origin === ORIGIN.OPENSEARCH_MAPS) {
       return this._getAttributesForEMSTMSLayer(isDesaturated, isDarkMode);
     } else if (tmsServiceConfig.origin === ORIGIN.OPENSEARCH_DASHBOARDS_YML) {
-      const attrs = _.pick(this._tilemapsConfig, ['url', 'minzoom', 'maxzoom', 'attribution']);
+      const attrs = _.pick(this._tilemapsConfig, [
+        'url',
+        'manifestUrl',
+        'minzoom',
+        'maxzoom',
+        'attribution',
+      ]);
       return { ...attrs, ...{ origin: ORIGIN.OPENSEARCH_DASHBOARDS_YML } };
     } else {
       //this is an older config. need to resolve this dynamically.
       if (tmsServiceConfig.id === TMS_IN_YML_ID) {
-        const attrs = _.pick(this._tilemapsConfig, ['url', 'minzoom', 'maxzoom', 'attribution']);
+        const attrs = _.pick(this._tilemapsConfig, [
+          'url',
+          'manifestUrl',
+          'minzoom',
+          'maxzoom',
+          'attribution',
+        ]);
         return { ...attrs, ...{ origin: ORIGIN.OPENSEARCH_DASHBOARDS_YML } };
       } else {
         //assume ems
@@ -271,8 +252,7 @@ export class ServiceSettings {
   }
 
   async _getFileUrlFromEMS(fileLayerConfig) {
-    await this._setMapServices();
-    const fileLayers = await this._emsClient.getFileLayers();
+    const fileLayers = await this._opensearchMapsClient.getFileLayers();
     const layer = fileLayers.find((fileLayer) => {
       const hasIdByName = fileLayer.hasId(fileLayerConfig.name); //legacy
       const hasIdById = fileLayer.hasId(fileLayerConfig.id);
@@ -288,9 +268,12 @@ export class ServiceSettings {
 
   async getUrlForRegionLayer(fileLayerConfig) {
     let url;
-    if (fileLayerConfig.origin === ORIGIN.EMS) {
+    if (fileLayerConfig.origin === ORIGIN.OPENSEARCH_MAPS) {
       url = this._getFileUrlFromEMS(fileLayerConfig);
-    } else if (fileLayerConfig.layerId && fileLayerConfig.layerId.startsWith(`${ORIGIN.EMS}.`)) {
+    } else if (
+      fileLayerConfig.layerId &&
+      fileLayerConfig.layerId.startsWith(`${ORIGIN.OPENSEARCH_MAPS}.`)
+    ) {
       //fallback for older saved objects
       url = this._getFileUrlFromEMS(fileLayerConfig);
     } else if (

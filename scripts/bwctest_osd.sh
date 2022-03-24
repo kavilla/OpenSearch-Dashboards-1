@@ -101,21 +101,21 @@ done
 [ $SECURITY_ENABLED == "false" ] && releases_array=() || IFS=',' read -r -a releases_array <<<"$RELEASES"
 [ -z "$CREDENTIAL" ] && CREDENTIAL="admin:admin"
 
-total_test_failures=0
+TOTAL_TEST_FAILURES=0
 # OpenSearch and OpenSearch Dashboards Process IDs
-parent_pid_list=()
+PARENT_PID_LIST=()
 # define test path
-cwd=$(pwd)
-dir="$cwd/bwc_tmp"
-test_dir="$dir/test"
-opensearch_dir="$dir/opensearch"
-dashboards_dir="$dir/opensearch-dashboards"
-[ ! -d "$dir" ] && mkdir "$dir"
-[ ! -d "$test_dir" ] && mkdir "$test_dir"
-[ -d "$opensearch_dir" ] && rm -rf "$opensearch_dir"
-mkdir "$opensearch_dir"
-[ -d "$dashboards_dir" ] && rm -rf "$dashboards_dir"
-mkdir "$dashboards_dir"
+CWD=$(pwd)
+DIR="$CWD/bwc_tmp"
+TEST_DIR="$DIR/test"
+OPENSEARCH_DIR="$DIR/opensearch"
+DASHBOARDS_DIR="$DIR/opensearch-dashboards"
+[ ! -d "$DIR" ] && mkdir "$DIR"
+[ ! -d "$TEST_DIR" ] && mkdir "$TEST_DIR"
+[ -d "$OPENSEARCH_DIR" ] && rm -rf "$OPENSEARCH_DIR"
+mkdir "$OPENSEARCH_DIR"
+[ -d "$DASHBOARDS_DIR" ] && rm -rf "$DASHBOARDS_DIR"
+mkdir "$DASHBOARDS_DIR"
 
 function open_artifact {
   artifact_dir=$1
@@ -134,30 +134,30 @@ function open_artifact {
 # un-tar OpenSearch and OpenSearch Dashboards
 echo "[ unzip OpenSearch and OpenSearch Dashboards ]"
 echo $OPENSEARCH
-open_artifact $opensearch_dir $OPENSEARCH
-open_artifact $dashboards_dir $DASHBOARDS
+open_artifact $OPENSEARCH_DIR $OPENSEARCH
+open_artifact $DASHBOARDS_DIR $DASHBOARDS
 
 # define other paths and tmp files
-opensearch_file='opensearch.txt'
-dashboards_file='dashboards.txt'
-opensearch_path="$dir/$opensearch_file"
-dashboards_path="$dir/$dashboards_file"
-dashboards_msg="\"state\":\"green\",\"title\":\"Green\",\"nickname\":\"Looking good\",\"icon\":\"success\""
-dashboards_url="http://$BIND_ADDRESS:$BIND_PORT/api/status"
+OPENSEARCH_FILE='opensearch.txt'
+DASHBOARDS_FILE='dashboards.txt'
+OPENSEARCH_PATH="$DIR/$OPENSEARCH_FILE"
+DASHBOARDS_PATH="$DIR/$DASHBOARDS_FILE"
+DASHBOARDS_MSG="\"state\":\"green\",\"title\":\"Green\",\"nickname\":\"Looking good\",\"icon\":\"success\""
+DASHBOARDS_URL="http://$BIND_ADDRESS:$BIND_PORT/api/status"
 if [ $SECURITY_ENABLED == "false" ]; 
 then 
-  opensearch_msg="\"status\":\"green\""
-  opensearch_url="http://$BIND_ADDRESS:9200/_cluster/health"
-  opensearch_args=""
+  OPENSEARCH_MSG="\"status\":\"green\""
+  OPENSEARCH_URL="http://$BIND_ADDRESS:9200/_cluster/health"
+  OPENSEARCH_ARGS=""
 else 
-  opensearch_msg="\"status\":\"yellow\""
-  opensearch_url="https://$BIND_ADDRESS:9200/_cluster/health"
-  opensearch_args="-u $CREDENTIAL --insecure"
+  OPENSEARCH_MSG="\"status\":\"yellow\""
+  OPENSEARCH_URL="https://$BIND_ADDRESS:9200/_cluster/health"
+  OPENSEARCH_ARGS="-u $CREDENTIAL --insecure"
 fi
 
 # define test groups to test suites
-declare -A test_suites
-test_suites=(
+declare -A TEST_SUITES
+TEST_SUITES=(
   ["odfe-0.10.0"]=$TEST_GROUP_1 
   ["odfe-1.0.2"]=$TEST_GROUP_2 
   ["odfe-1.1.0"]=$TEST_GROUP_2
@@ -175,13 +175,13 @@ test_suites=(
 
 # remove the running opensearch process
 function clean {
-  echo "Attempt to Terminate Process with PID: ${parent_pid_list[*]}"
-  for pid_kill in "${parent_pid_list[@]}"
+  echo "Attempt to Terminate Process with PID: ${PARENT_PID_LIST[*]}"
+  for pid_kill in "${PARENT_PID_LIST[@]}"
   do
     echo "Closing PID $pid_kill"
     kill $pid_kill
   done
-  parent_pid_list=()
+  PARENT_PID_LIST=()
 }
 
 function spawn_process_and_save_PID {
@@ -189,7 +189,7 @@ function spawn_process_and_save_PID {
     eval $@
     curr_pid=$!
     echo "PID: $curr_pid"
-    parent_pid_list+=( $curr_pid )
+    PARENT_PID_LIST+=( $curr_pid )
 }
 
 # Print out a textfile line by line
@@ -218,10 +218,10 @@ function check_status {
 # and copies the backwards compatibility tests into the folder
 function setup_cypress {
   echo "[ Setup the cypress test environment ]"
-  git clone https://github.com/opensearch-project/opensearch-dashboards-functional-test "$test_dir"
-  rm -rf "$test_dir/cypress/integration"
-  cp -r "$cwd/cypress/integration" "$test_dir/cypress"
-  cd "$test_dir"
+  git clone https://github.com/opensearch-project/opensearch-dashboards-functional-test "$TEST_DIR"
+  rm -rf "$TEST_DIR/cypress/integration"
+  cp -r "$CWD/cypress/integration" "$TEST_DIR/cypress"
+  cd "$TEST_DIR"
   npm install
   echo "Cypress is ready!"
 }
@@ -229,28 +229,28 @@ function setup_cypress {
 function run_cypress {
     [ $1 == "core" ] && is_core=true || is_core=false
     [ ! $is_core ] && echo "Running tests from plugins"
-    [ $is_core ] && spec="$test_dir/cypress/integration/$dashboards_type/$test.js" || "$test_dir/cypress/integration/$dashboards_type/plugins/*.js"
+    [ $is_core ] && spec="$TEST_DIR/cypress/integration/$dashboards_type/$test.js" || "$TEST_DIR/cypress/integration/$dashboards_type/plugins/*.js"
     [ $is_core ] && success_msg="BWC tests for core passed ($spec)" || success_msg="BWC tests for plugin passed ($spec)"
     [ $is_core ] && error_msg="BWC tests for core failed ($spec)" || error_msg="BWC tests for plugin failed ($spec)"
     env NO_COLOR=1 npx cypress run --headless --spec $spec
     test_failures=$?
     [ $test_failures == 0 ] && echo $success_msg || echo $error_msg
-    total_test_failures=$(( $total_test_failures + $test_failures ))
+    TOTAL_TEST_FAILURES=$(( $TOTAL_TEST_FAILURES + $test_failures ))
 }
 
 # this function copies the tested data for the required version to the opensearch data folder
 # $1 is the required version
 function upload_data {
-  rm -rf "$opensearch_dir/data"
-  cd $opensearch_dir
-  cp "$cwd/cypress/test-data/$dashboards_type/$1.tar.gz" . 
-  tar -xvf "$opensearch_dir/$1.tar.gz" >> /dev/null 2>&1
+  rm -rf "$OPENSEARCH_DIR/data"
+  cd $OPENSEARCH_DIR
+  cp "$CWD/cypress/test-data/$dashboards_type/$1.tar.gz" . 
+  tar -xvf "$OPENSEARCH_DIR/$1.tar.gz" >> /dev/null 2>&1
   rm "$1.tar.gz"
   echo "Data has been uploaded and ready to test"
 }
 
 function setup_opensearch {
-  cd "$opensearch_dir"
+  cd "$OPENSEARCH_DIR"
   # Required for IM
   [ -d "plugins/opensearch-index-management" ] && echo "path.repo: [/tmp]" >> config/opensearch.yml
   # Required for Alerting
@@ -265,12 +265,12 @@ function setup_opensearch {
 # Starts OpenSearch, if verifying a distribution it will install the certs then start.
 function run_opensearch {
   echo "[ Attempting to start OpenSearch... ]"
-  cd "$opensearch_dir"
+  cd "$OPENSEARCH_DIR"
   spawn_process_and_save_PID "./opensearch-tar-install.sh > ./bin/opensearch.log 2>&1 &"
 }
 
 function setup_dashboards {
-  cd "$dashboards_dir"
+  cd "$DASHBOARDS_DIR"
   [ $SECURITY_ENABLED == "false" ] && ./bin/opensearch-dashboards-plugin remove securityDashboards
   [ $SECURITY_ENABLED == "false" ] && rm config/opensearch_dashboards.yml && touch config/opensearch_dashboards.yml
   [ $SECURITY_ENABLED == "false" ] && echo "server.host: 0.0.0.0" >> config/opensearch_dashboards.yml
@@ -279,7 +279,7 @@ function setup_dashboards {
 # Starts OpenSearch Dashboards
 function run_dashboards {
   echo "[ Attempting to start OpenSearch Dashboards... ]"
-  cd "$dashboards_dir"
+  cd "$DASHBOARDS_DIR"
   spawn_process_and_save_PID "./bin/opensearch-dashboards > ./bin/opensearch-dashboards.log 2>&1 &"
 }
 
@@ -288,8 +288,8 @@ function run_dashboards {
 # if success, the while loop in the check_status will end and it prints out "OpenSearch is up!"
 function check_opensearch_status {
   echo "Checking the status OpenSearch..."
-  cd "$dir"
-  check_status $opensearch_path "$opensearch_msg" $opensearch_url "$opensearch_args" >> /dev/null 2>&1  &
+  cd "$DIR"
+  check_status $OPENSEARCH_PATH "$OPENSEARCH_MSG" $OPENSEARCH_URL "$OPENSEARCH_ARGS" >> /dev/null 2>&1  &
   echo "OpenSearch is up!" 
 } 
 
@@ -298,23 +298,23 @@ function check_opensearch_status {
 # if success, the while loop in the check_status will end and it prints out "OpenSearch Dashboards is up!"
 function check_dashboards_status {
   echo "Checking the OpenSearch Dashboards..."
-  cd "$dir"
-  check_status $dashboards_path "$dashboards_msg" $dashboards_url "" >> /dev/null 2>&1
+  cd "$DIR"
+  check_status $DASHBOARDS_PATH "$DASHBOARDS_MSG" $DASHBOARDS_URL "" >> /dev/null 2>&1
   echo "OpenSearch Dashboards is up!"
 } 
 
 # Runs the backwards compatibility test using cypress for the required version
 # $1 is the requested version 
 function run_bwc {
-  cd "$test_dir"
-  [ -z "${test_suites[$1]}" ] && test_suite=$TEST_GROUP_DEFAULT || test_suite="${test_suites[$1]}"
+  cd "$TEST_DIR"
+  [ -z "${TEST_SUITES[$1]}" ] && test_suite=$TEST_GROUP_DEFAULT || test_suite="${TEST_SUITES[$1]}"
   IFS=',' read -r -a tests <<<"$test_suite"
   for test in "${tests[@]}"
   do
     run_cypress "core"
   done
   # Check if $dashboards_type/plugins has tests in them to execute
-  if [ "$(ls -A $test_dir/cypress/integration/$dashboards_type/plugins | wc -l)" -gt 1 ]; then
+  if [ "$(ls -A $TEST_DIR/cypress/integration/$dashboards_type/plugins | wc -l)" -gt 1 ]; then
     run_cypress "plugins"
   fi
 }
@@ -349,7 +349,7 @@ function execute_tests {
 
 # Executes the main function with different versions of OpenSearch downloaded
 function execute_mismatch_tests {
-  PACKAGE_VERSION=$(cat $dashboards_dir/package.json \
+  PACKAGE_VERSION=$(cat $DASHBOARDS_DIR/package.json \
   | grep version \
   | head -1 \
   | awk -F: '{ print $2 }' \
@@ -360,19 +360,19 @@ function execute_mismatch_tests {
   do
     echo "Running tests with OpenSearch Dashboards $PACKAGE_VERSION and OpenSearch $release"
     (
-      rm -rf $opensearch_dir && mkdir "$opensearch_dir"
+      rm -rf $OPENSEARCH_DIR && mkdir "$OPENSEARCH_DIR"
       # TODO: support multiple platforms and architectures
-      cd $opensearch_dir && curl https://artifacts.opensearch.org/releases/bundle/opensearch/$release/opensearch-$release-linux-x64.tar.gz | tar -xz --strip-components=1
+      cd $OPENSEARCH_DIR && curl https://artifacts.opensearch.org/releases/bundle/opensearch/$release/opensearch-$release-linux-x64.tar.gz | tar -xz --strip-components=1
     )
     execute_tests
   done
 }
  
 # setup the cypress test env
-[ ! -d "$test_dir/cypress" ] && setup_cypress
+[ ! -d "$TEST_DIR/cypress" ] && setup_cypress
 execute_tests
 (( ${#releases_array[@]} )) && execute_mismatch_tests
 
 echo "Completed BWC tests for $test_array [$dashboards_type]"
-echo "Total test failures: $total_test_failures"
-exit $total_test_failures
+echo "Total test failures: $TOTAL_TEST_FAILURES"
+exit $TOTAL_TEST_FAILURES

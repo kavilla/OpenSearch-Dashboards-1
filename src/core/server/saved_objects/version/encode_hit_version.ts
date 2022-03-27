@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -31,6 +34,6 @@ import { encodeVersion } from './encode_version';
  * Helper for encoding a version from a "hit" (hits.hits[#] from _search) or
  * "doc" (body from GET, update, etc) object
  */
-export function encodeHitVersion(response: { _seq_no: number; _primary_term: number }) {
+export function encodeHitVersion(response: { _seq_no?: number; _primary_term?: number }) {
   return encodeVersion(response._seq_no, response._primary_term);
 }

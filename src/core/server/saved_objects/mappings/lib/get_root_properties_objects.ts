@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,11 +28,7 @@
  * under the License.
  */
 
-import {
-  SavedObjectsComplexFieldMapping,
-  IndexMapping,
-  SavedObjectsMappingProperties,
-} from '../types';
+import { SavedObjectsFieldMapping, IndexMapping, SavedObjectsMappingProperties } from '../types';
 import { getRootProperties } from './get_root_properties';
 
 /**
@@ -55,7 +54,7 @@ export function getRootPropertiesObjects(mappings: IndexMapping) {
     // we consider the existence of the properties or type of object to designate that this is an object datatype
     if (
       !omittedRootProps.includes(key) &&
-      ((value as SavedObjectsComplexFieldMapping).properties || value.type === 'object')
+      ((value as SavedObjectsFieldMapping).properties || value.type === 'object')
     ) {
       acc[key] = value;
     }

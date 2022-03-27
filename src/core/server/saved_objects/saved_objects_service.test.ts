@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,11 +28,6 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
-
 import {
   OpenSearchDashboardsMigratorMock,
   migratorInstanceMock,
@@ -38,7 +36,7 @@ import {
 } from './saved_objects_service.test.mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ByteSizeValue } from '@osd/config-schema';
-import { errors as opensearchErrors } from '@elastic/elasticsearch';
+import { errors as opensearchErrors } from '@opensearch-project/opensearch';
 
 import { SavedObjectsService } from './saved_objects_service';
 import { mockCoreContext } from '../core_context.mock';

@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,10 +28,6 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
 import { diffMappings } from './build_active_mappings';
 import * as Index from './opensearch_index';
 import { migrateRawDocs } from './migrate_raw_docs';
@@ -169,7 +168,7 @@ async function deleteIndexTemplates({ client, log, obsoleteIndexTemplatePattern 
 
   log.info(`Removing index templates: ${templateNames}`);
 
-  return Promise.all(templateNames.map((name) => client.indices.deleteTemplate({ name })));
+  return Promise.all(templateNames.map((name) => client.indices.deleteTemplate({ name: name! })));
 }
 
 /**
@@ -207,6 +206,7 @@ async function migrateSourceToDest(context: Context) {
     await Index.write(
       client,
       dest.indexName,
+      // @ts-expect-error @opensearch-project/opensearch _source is optional
       await migrateRawDocs(serializer, documentMigrator.migrate, docs, log)
     );
   }

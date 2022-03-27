@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,11 +28,6 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
-
 /**
  * OpenSearch and OpenSearch Dashboards versions are locked, so OpenSearch Dashboards should require that OpenSearch has the same version as
  * that defined in OpenSearch Dashboards's package.json.
@@ -38,6 +36,7 @@
 import { timer, of, from, Observable } from 'rxjs';
 import { map, distinctUntilChanged, catchError, exhaustMap, mergeMap } from 'rxjs/operators';
 import { get } from 'lodash';
+import { ApiResponse } from '@opensearch-project/opensearch';
 import {
   opensearchVersionCompatibleWithOpenSearchDashboards,
   opensearchVersionEqualsOpenSearchDashboards,
@@ -61,9 +60,9 @@ export const getNodeId = async (
   healthcheckAttributeName: string
 ): Promise<string | null> => {
   try {
-    const state = await internalClient.cluster.state({
+    const state = (await internalClient.cluster.state({
       filter_path: [`nodes.*.attributes.${healthcheckAttributeName}`],
-    });
+    })) as ApiResponse;
     /* Aggregate different cluster_ids from the OpenSearch nodes
      * if all the nodes have the same cluster_id, retrieve nodes.info from _local node only
      * Using _cluster/state/nodes to retrieve the cluster_id of each node from master node which is considered to be a lightweight operation
@@ -97,7 +96,7 @@ export interface PollOpenSearchNodesVersionOptions {
 interface NodeInfo {
   version: string;
   ip: string;
-  http: {
+  http?: {
     publish_address: string;
   };
   name: string;
@@ -115,6 +114,7 @@ export interface NodesVersionCompatibility {
   incompatibleNodes: NodeInfo[];
   warningNodes: NodeInfo[];
   opensearchDashboardsVersion: string;
+  nodesInfoRequestError?: Error;
 }
 
 function getHumanizedNodeName(node: NodeInfo) {
@@ -225,8 +225,8 @@ export const pollOpenSearchNodesVersion = ({
               })
             ).pipe(
               map(({ body }) => body),
-              catchError((_err: any) => {
-                return of({ nodes: {} });
+              catchError((nodesInfoRequestError: any) => {
+                return of({ nodes: {}, nodesInfoRequestError });
               })
             )
           )
@@ -238,8 +238,8 @@ export const pollOpenSearchNodesVersion = ({
           })
         ).pipe(
           map(({ body }) => body),
-          catchError((_err) => {
-            return of({ nodes: {} });
+          catchError((nodesInfoRequestError: any) => {
+            return of({ nodes: {}, nodesInfoRequestError });
           })
         );
       }

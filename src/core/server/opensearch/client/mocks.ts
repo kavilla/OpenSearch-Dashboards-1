@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,12 +28,8 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
-import { Client, ApiResponse } from '@elastic/elasticsearch';
-import { TransportRequestPromise } from '@elastic/elasticsearch/lib/Transport';
+import { Client, ApiResponse } from '@opensearch-project/opensearch';
+import { TransportRequestPromise } from '@opensearch-project/opensearch/lib/Transport';
 import { OpenSearchClient } from './types';
 import { ICustomClusterClient } from './cluster_client';
 
@@ -63,7 +62,7 @@ const createInternalClientMock = (): DeeplyMockedKeys<Client> => {
   };
 
   const mockify = (obj: Record<string, any>, omitted: string[] = []) => {
-    // the @elastic/elasticsearch::Client uses prototypical inheritance
+    // the @opensearch-project/opensearch::Client uses prototypical inheritance
     // so we have to crawl up the prototype chain and get all descriptors
     // to find everything that we should be mocking
     const descriptors = getAllPropertyDescriptors(obj);
@@ -176,9 +175,11 @@ const createErrorTransportRequestPromise = (err: any): MockedTransportRequestPro
   return promise as MockedTransportRequestPromise<never>;
 };
 
-function createApiResponse(opts: Partial<ApiResponse> = {}): ApiResponse {
+function createApiResponse<TResponse = Record<string, any>>(
+  opts: Partial<ApiResponse> = {}
+): ApiResponse<TResponse> {
   return {
-    body: {},
+    body: {} as any,
     statusCode: 200,
     headers: {},
     warnings: [],

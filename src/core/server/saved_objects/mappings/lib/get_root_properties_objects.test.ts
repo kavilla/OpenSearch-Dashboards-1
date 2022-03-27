@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -34,7 +37,7 @@ test(`returns single object with properties`, () => {
         properties: {},
       },
     },
-  };
+  } as const;
 
   const result = getRootPropertiesObjects(mappings);
   expect(result).toEqual({
@@ -51,7 +54,7 @@ test(`returns single object with type === 'object'`, () => {
         type: 'object',
       },
     },
-  };
+  } as const;
 
   const result = getRootPropertiesObjects(mappings);
   expect(result).toEqual({
@@ -71,7 +74,7 @@ test(`returns two objects with properties`, () => {
         properties: {},
       },
     },
-  };
+  } as const;
 
   const result = getRootPropertiesObjects(mappings);
   expect(result).toEqual({
@@ -94,7 +97,7 @@ test(`returns two objects with type === 'object'`, () => {
         type: 'object',
       },
     },
-  };
+  } as const;
 
   const result = getRootPropertiesObjects(mappings);
   expect(result).toEqual({
@@ -114,7 +117,7 @@ test(`excludes objects without properties and type of keyword`, () => {
         type: 'keyword',
       },
     },
-  };
+  } as const;
 
   const result = getRootPropertiesObjects(mappings);
   expect(result).toEqual({});
@@ -130,7 +133,7 @@ test(`excludes two objects without properties and type of keyword`, () => {
         type: 'keyword',
       },
     },
-  };
+  } as const;
 
   const result = getRootPropertiesObjects(mappings);
   expect(result).toEqual({});
@@ -146,7 +149,7 @@ test(`includes one object with properties and excludes one object without proper
         type: 'keyword',
       },
     },
-  };
+  } as const;
 
   const result = getRootPropertiesObjects(mappings);
   expect(result).toEqual({
@@ -166,7 +169,7 @@ test(`includes one object with type === 'object' and excludes one object without
         type: 'keyword',
       },
     },
-  };
+  } as const;
 
   const result = getRootPropertiesObjects(mappings);
   expect(result).toEqual({
@@ -189,7 +192,7 @@ test('excludes references and migrationVersion which are part of the blacklist',
         type: 'object',
       },
     },
-  };
+  } as const;
   const result = getRootPropertiesObjects(mappings);
   expect(result).toEqual({
     foo: {

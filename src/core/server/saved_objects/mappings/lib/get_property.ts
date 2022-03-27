@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -26,7 +29,7 @@
  */
 
 import { toPath } from 'lodash';
-import { SavedObjectsCoreFieldMapping, SavedObjectsFieldMapping, IndexMapping } from '../types';
+import { SavedObjectsFieldMapping, IndexMapping } from '../types';
 
 function getPropertyMappingFromObjectMapping(
   mapping: IndexMapping | SavedObjectsFieldMapping,
@@ -34,7 +37,7 @@ function getPropertyMappingFromObjectMapping(
 ): SavedObjectsFieldMapping | undefined {
   const props =
     (mapping && (mapping as IndexMapping).properties) ||
-    (mapping && (mapping as SavedObjectsCoreFieldMapping).fields);
+    (mapping && (mapping as SavedObjectsFieldMapping).fields);
 
   if (!props) {
     return undefined;

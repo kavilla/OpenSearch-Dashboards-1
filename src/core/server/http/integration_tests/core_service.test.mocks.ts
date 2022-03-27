@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,10 +28,6 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
 import { opensearchServiceMock } from '../../opensearch/opensearch_service.mock';
 
 export const MockLegacyScopedClusterClient = jest.fn();
@@ -51,8 +50,8 @@ jest.doMock('elasticsearch', () => {
 });
 
 export const MockOpenSearchClient = jest.fn();
-jest.doMock('@elastic/elasticsearch', () => {
-  const real = jest.requireActual('@elastic/elasticsearch');
+jest.doMock('@opensearch-project/opensearch', () => {
+  const real = jest.requireActual('@opensearch-project/opensearch');
   return {
     ...real,
     Client: MockOpenSearchClient,

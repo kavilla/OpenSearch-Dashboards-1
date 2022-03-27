@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -38,19 +41,19 @@ describe('buildActiveMappings', () => {
     const properties = {
       aaa: { type: 'text' },
       bbb: { type: 'long' },
-    };
+    } as const;
 
     expect(buildActiveMappings(properties)).toMatchSnapshot();
   });
 
   test('disallows duplicate mappings', () => {
-    const properties = { type: { type: 'long' } };
+    const properties = { type: { type: 'long' } } as const;
 
     expect(() => buildActiveMappings(properties)).toThrow(/Cannot redefine core mapping \"type\"/);
   });
 
   test('disallows mappings with leading underscore', () => {
-    const properties = { _hm: { type: 'keyword' } };
+    const properties = { _hm: { type: 'keyword' } } as const;
 
     expect(() => buildActiveMappings(properties)).toThrow(
       /Invalid mapping \"_hm\"\. Mappings cannot start with _/
@@ -79,7 +82,7 @@ describe('buildActiveMappings', () => {
       aaa: { type: 'keyword', fields: { a: { type: 'keyword' }, b: { type: 'text' } } },
       bbb: { fields: { b: { type: 'text' }, a: { type: 'keyword' } }, type: 'keyword' },
       ccc: { fields: { b: { type: 'text' }, a: { type: 'text' } }, type: 'keyword' },
-    };
+    } as const;
 
     const mappings = buildActiveMappings(properties);
     const hashes = mappings._meta!.migrationMappingPropertyHashes!;
@@ -183,6 +186,7 @@ describe('diffMappings', () => {
       _meta: {
         migrationMappingPropertyHashes: { foo: 'bar' },
       },
+      // @ts-expect-error dynamic accepts boolean | "strict" | undefined. error is expected for test purpose.
       dynamic: 'abcde',
       properties: {},
     };

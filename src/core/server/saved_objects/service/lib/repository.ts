@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,19 +28,11 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
-
 import { omit } from 'lodash';
+import type { opensearchtypes } from '@opensearch-project/opensearch';
 import uuid from 'uuid';
-import {
-  OpenSearchClient,
-  DeleteDocumentResponse,
-  GetResponse,
-  SearchResponse,
-} from '../../../opensearch/';
+import type { ISavedObjectTypeRegistry } from '../../saved_objects_type_registry';
+import { OpenSearchClient, DeleteDocumentResponse } from '../../../opensearch/';
 import { getRootPropertiesObjects, IndexMapping } from '../../mappings';
 import {
   createRepositoryOpenSearchClient,
@@ -399,8 +394,8 @@ export class SavedObjectsRepository {
         return expectedBulkGetResult;
       }
 
-      let savedObjectNamespace;
-      let savedObjectNamespaces;
+      let savedObjectNamespace: string | undefined;
+      let savedObjectNamespaces: string[] | undefined;
       let versionProperties;
       const {
         opensearchRequestIndex,
@@ -412,8 +407,9 @@ export class SavedObjectsRepository {
         const actualResult = indexFound
           ? bulkGetResponse?.body.docs[opensearchRequestIndex]
           : undefined;
-        const docFound = indexFound && actualResult.found === true;
-        if (docFound && !this.rawDocExistsInNamespace(actualResult, namespace)) {
+        const docFound = indexFound && actualResult?.found === true;
+        // @ts-expect-error MultiGetHit._source is optional
+        if (docFound && !this.rawDocExistsInNamespace(actualResult!, namespace)) {
           const { id, type } = object;
           return {
             tag: 'Left' as 'Left',
@@ -428,11 +424,14 @@ export class SavedObjectsRepository {
           };
         }
         savedObjectNamespaces =
-          initialNamespaces || getSavedObjectNamespaces(namespace, docFound && actualResult);
+          initialNamespaces ||
+          // @ts-expect-error MultiGetHit._source is optional
+          getSavedObjectNamespaces(namespace, docFound ? actualResult : undefined);
+        // @ts-expect-error MultiGetHit._source is optional
         versionProperties = getExpectedVersionProperties(version, actualResult);
       } else {
         if (this._registry.isSingleNamespace(object.type)) {
-          savedObjectNamespace = namespace;
+          savedObjectNamespace = initialNamespaces ? initialNamespaces[0] : namespace;
         } else if (this._registry.isMultiNamespace(object.type)) {
           savedObjectNamespaces = initialNamespaces || getSavedObjectNamespaces(namespace);
         }
@@ -486,7 +485,7 @@ export class SavedObjectsRepository {
 
         const { requestedId, rawMigratedDoc, opensearchRequestIndex } = expectedResult.value;
         const { error, ...rawResponse } = Object.values(
-          bulkResponse?.body.items[opensearchRequestIndex]
+          bulkResponse?.body.items[opensearchRequestIndex] ?? {}
         )[0] as any;
 
         if (error) {
@@ -572,13 +571,14 @@ export class SavedObjectsRepository {
 
       const { type, id, opensearchRequestIndex } = expectedResult.value;
       const doc = bulkGetResponse?.body.docs[opensearchRequestIndex];
-      if (doc.found) {
+      if (doc?.found) {
         errors.push({
           id,
           type,
           error: {
             ...errorContent(SavedObjectsErrorHelpers.createConflictError(type, id)),
-            ...(!this.rawDocExistsInNamespace(doc, namespace) && {
+            // @ts-expect-error MultiGetHit._source is optional
+            ...(!this.rawDocExistsInNamespace(doc!, namespace) && {
               metadata: { isNotOverwritable: true },
             }),
           },
@@ -813,9 +813,12 @@ export class SavedObjectsRepository {
       },
     };
 
-    const { body, statusCode } = await this.client.search<SearchResponse<any>>(opensearchOptions, {
-      ignore: [404],
-    });
+    const { body, statusCode } = await this.client.search<SavedObjectsRawDocSource>(
+      opensearchOptions,
+      {
+        ignore: [404],
+      }
+    );
     if (statusCode === 404) {
       // 404 is only possible here if the index is missing, which
       // we don't want to leak, see "404s from missing index" above
@@ -832,9 +835,12 @@ export class SavedObjectsRepository {
       per_page: perPage,
       total: body.hits.total,
       saved_objects: body.hits.hits.map(
-        (hit: SavedObjectsRawDoc): SavedObjectsFindResult => ({
+        (hit: opensearchtypes.SearchHit<SavedObjectsRawDocSource>): SavedObjectsFindResult => ({
+          // @ts-expect-error @opensearch-project/opensearch _source is optional
           ...this._rawToSavedObject(hit),
-          score: (hit as any)._score,
+          score: hit._score!,
+          // @ts-expect-error @opensearch-project/opensearch _source is optional
+          sort: hit.sort,
         })
       ),
     } as SavedObjectsFindResponse<T>;
@@ -917,7 +923,8 @@ export class SavedObjectsRepository {
         const { type, id, opensearchRequestIndex } = expectedResult.value;
         const doc = bulkGetResponse?.body.docs[opensearchRequestIndex];
 
-        if (!doc.found || !this.rawDocExistsInNamespace(doc, namespace)) {
+        // @ts-expect-error MultiGetHit._source is optional
+        if (!doc?.found || !this.rawDocExistsInNamespace(doc, namespace)) {
           return ({
             id,
             type,
@@ -925,25 +932,8 @@ export class SavedObjectsRepository {
           } as any) as SavedObject<T>;
         }
 
-        const { originId, updated_at: updatedAt } = doc._source;
-        let namespaces = [];
-        if (!this._registry.isNamespaceAgnostic(type)) {
-          namespaces = doc._source.namespaces ?? [
-            SavedObjectsUtils.namespaceIdToString(doc._source.namespace),
-          ];
-        }
-
-        return {
-          id,
-          type,
-          namespaces,
-          ...(originId && { originId }),
-          ...(updatedAt && { updated_at: updatedAt }),
-          version: encodeHitVersion(doc),
-          attributes: doc._source[type],
-          references: doc._source.references || [],
-          migrationVersion: doc._source.migrationVersion,
-        };
+        // @ts-expect-error MultiGetHit._source is optional
+        return getSavedObjectFromSource(this._registry, type, id, doc);
       }),
     };
   }
@@ -968,7 +958,7 @@ export class SavedObjectsRepository {
 
     const namespace = normalizeNamespace(options.namespace);
 
-    const { body, statusCode } = await this.client.get<GetResponse<SavedObjectsRawDocSource>>(
+    const { body, statusCode } = await this.client.get<SavedObjectsRawDocSource>(
       {
         id: this._serializer.generateRawId(namespace, type, id),
         index: this.getIndexForType(type),
@@ -976,9 +966,12 @@ export class SavedObjectsRepository {
       { ignore: [404] }
     );
 
-    const docNotFound = body.found === false;
     const indexNotFound = statusCode === 404;
-    if (docNotFound || indexNotFound || !this.rawDocExistsInNamespace(body, namespace)) {
+    if (
+      !isFoundGetResponse(body) ||
+      indexNotFound ||
+      !this.rawDocExistsInNamespace(body, namespace)
+    ) {
       // see "404s from missing index" above
       throw SavedObjectsErrorHelpers.createGenericNotFoundError(type, id);
     }
@@ -1042,7 +1035,7 @@ export class SavedObjectsRepository {
       ...(Array.isArray(references) && { references }),
     };
 
-    const { body, statusCode } = await this.client.update(
+    const { body, statusCode } = await this.client.update<SavedObjectsRawDocSource>(
       {
         id: this._serializer.generateRawId(namespace, type, id),
         index: this.getIndexForType(type),
@@ -1062,11 +1055,11 @@ export class SavedObjectsRepository {
       throw SavedObjectsErrorHelpers.createGenericNotFoundError(type, id);
     }
 
-    const { originId } = body.get._source;
-    let namespaces = [];
+    const { originId } = body.get?._source ?? {};
+    let namespaces: string[] = [];
     if (!this._registry.isNamespaceAgnostic(type)) {
-      namespaces = body.get._source.namespaces ?? [
-        SavedObjectsUtils.namespaceIdToString(body.get._source.namespace),
+      namespaces = body.get?._source.namespaces ?? [
+        SavedObjectsUtils.namespaceIdToString(body.get?._source.namespace),
       ];
     }
 
@@ -1074,7 +1067,6 @@ export class SavedObjectsRepository {
       id,
       type,
       updated_at: time,
-      // @ts-expect-error update doesn't have _seq_no, _primary_term as Record<string, any> / any in LP
       version: encodeHitVersion(body),
       namespaces,
       ...(originId && { originId }),
@@ -1368,9 +1360,10 @@ export class SavedObjectsRepository {
           const actualResult = indexFound
             ? bulkGetResponse?.body.docs[opensearchRequestIndex]
             : undefined;
-          const docFound = indexFound && actualResult.found === true;
+          const docFound = indexFound && actualResult?.found === true;
           if (
             !docFound ||
+            // @ts-expect-error MultiGetHit is incorrectly missing _id, _source
             !this.rawDocExistsInNamespace(actualResult, getNamespaceId(objectNamespace))
           ) {
             return {
@@ -1382,9 +1375,12 @@ export class SavedObjectsRepository {
               },
             };
           }
-          namespaces = actualResult._source.namespaces ?? [
-            SavedObjectsUtils.namespaceIdToString(actualResult._source.namespace),
+          // @ts-expect-error MultiGetHit is incorrectly missing _id, _source
+          namespaces = actualResult!._source.namespaces ?? [
+            // @ts-expect-error MultiGetHit is incorrectly missing _id, _source
+            SavedObjectsUtils.namespaceIdToString(actualResult!._source.namespace),
           ];
+          // @ts-expect-error MultiGetHit is incorrectly missing _id, _source
           versionProperties = getExpectedVersionProperties(version, actualResult);
         } else {
           if (this._registry.isSingleNamespace(type)) {
@@ -1439,7 +1435,7 @@ export class SavedObjectsRepository {
           documentToSave,
           opensearchRequestIndex,
         } = expectedResult.value;
-        const response = bulkUpdateResponse?.body.items[opensearchRequestIndex];
+        const response = bulkUpdateResponse?.body.items[opensearchRequestIndex] ?? {};
         // When a bulk update operation is completed, any fields specified in `_sourceIncludes` will be found in the "get" value of the
         // returned object. We need to retrieve the `originId` if it exists so we can return it to the consumer.
         const { error, _seq_no: seqNo, _primary_term: primaryTerm, get } = Object.values(
@@ -1522,7 +1518,7 @@ export class SavedObjectsRepository {
 
     const raw = this._serializer.savedObjectToRaw(migrated as SavedObjectSanitizedDoc);
 
-    const { body } = await this.client.update({
+    const { body } = await this.client.update<SavedObjectsRawDocSource>({
       id: raw._id,
       index: this.getIndexForType(type),
       refresh,
@@ -1550,17 +1546,16 @@ export class SavedObjectsRepository {
       },
     });
 
-    const { originId } = body.get._source;
+    const { originId } = body.get?._source ?? {};
     return {
       id,
       type,
       ...(savedObjectNamespaces && { namespaces: savedObjectNamespaces }),
       ...(originId && { originId }),
       updated_at: time,
-      references: body.get._source.references,
-      // @ts-expect-error
+      references: body.get?._source.references ?? [],
       version: encodeHitVersion(body),
-      attributes: body.get._source[type],
+      attributes: body.get?._source[type],
     };
   }
 
@@ -1605,7 +1600,7 @@ export class SavedObjectsRepository {
    * WARNING: This should only be used for documents that were retrieved from OpenSearch. Otherwise, the guarantees of the document ID
    * format mentioned above do not apply.
    */
-  private rawDocExistsInNamespace(raw: SavedObjectsRawDoc, namespace?: string) {
+  private rawDocExistsInNamespace(raw: SavedObjectsRawDoc, namespace: string | undefined) {
     const rawDocType = raw._source.type;
 
     // if the type is namespace isolated, or namespace agnostic, we can continue to rely on the guarantees
@@ -1638,7 +1633,7 @@ export class SavedObjectsRepository {
       throw new Error(`Cannot make preflight get request for non-multi-namespace type '${type}'.`);
     }
 
-    const { body, statusCode } = await this.client.get<GetResponse<SavedObjectsRawDocSource>>(
+    const { body, statusCode } = await this.client.get<SavedObjectsRawDocSource>(
       {
         id: this._serializer.generateRawId(undefined, type, id),
         index: this.getIndexForType(type),
@@ -1649,8 +1644,7 @@ export class SavedObjectsRepository {
     );
 
     const indexFound = statusCode !== 404;
-    const docFound = indexFound && body.found === true;
-    if (docFound) {
+    if (indexFound && isFoundGetResponse(body)) {
       if (!this.rawDocExistsInNamespace(body, namespace)) {
         throw SavedObjectsErrorHelpers.createConflictError(type, id);
       }
@@ -1675,7 +1669,7 @@ export class SavedObjectsRepository {
     }
 
     const rawId = this._serializer.generateRawId(undefined, type, id);
-    const { body, statusCode } = await this.client.get<GetResponse<SavedObjectsRawDocSource>>(
+    const { body, statusCode } = await this.client.get<SavedObjectsRawDocSource>(
       {
         id: rawId,
         index: this.getIndexForType(type),
@@ -1684,11 +1678,14 @@ export class SavedObjectsRepository {
     );
 
     const indexFound = statusCode !== 404;
-    const docFound = indexFound && body.found === true;
-    if (!docFound || !this.rawDocExistsInNamespace(body, namespace)) {
+    if (
+      !indexFound ||
+      !isFoundGetResponse(body) ||
+      !this.rawDocExistsInNamespace(body, namespace)
+    ) {
       throw SavedObjectsErrorHelpers.createGenericNotFoundError(type, id);
     }
-    return body as SavedObjectsRawDoc;
+    return body;
   }
 }
 
@@ -1742,6 +1739,44 @@ function getSavedObjectNamespaces(
 }
 
 /**
+ * Gets a saved object from a raw OpenSearch document.
+ *
+ * @param registry Registry which holds the registered saved object types information.
+ * @param type The type of the saved object.
+ * @param id The ID of the saved object.
+ * @param doc Doc contains _source and optional _seq_no and _primary_term.
+ *
+ * @internal
+ */
+function getSavedObjectFromSource<T>(
+  registry: ISavedObjectTypeRegistry,
+  type: string,
+  id: string,
+  doc: { _seq_no?: number; _primary_term?: number; _source: SavedObjectsRawDocSource }
+): SavedObject<T> {
+  const { originId, updated_at: updatedAt } = doc._source;
+
+  let namespaces: string[] = [];
+  if (!registry.isNamespaceAgnostic(type)) {
+    namespaces = doc._source.namespaces ?? [
+      SavedObjectsUtils.namespaceIdToString(doc._source.namespace),
+    ];
+  }
+
+  return {
+    id,
+    type,
+    namespaces,
+    ...(originId && { originId }),
+    ...(updatedAt && { updated_at: updatedAt }),
+    version: encodeHitVersion(doc),
+    attributes: doc._source[type],
+    references: doc._source.references || [],
+    migrationVersion: doc._source.migrationVersion,
+  };
+}
+
+/**
  * Ensure that a namespace is always in its namespace ID representation.
  * This allows `'default'` to be used interchangeably with `undefined`.
  */
@@ -1761,3 +1796,18 @@ const normalizeNamespace = (namespace?: string) => {
 const errorContent = (error: DecoratedError) => error.output.payload;
 
 const unique = (array: string[]) => [...new Set(array)];
+
+/**
+ * Type and type guard function for converting a possibly not existant doc to an existant doc.
+ */
+type GetResponseFound<TDocument = unknown> = opensearchtypes.GetResponse<TDocument> &
+  Required<
+    Pick<
+      opensearchtypes.GetResponse<TDocument>,
+      '_primary_term' | '_seq_no' | '_version' | '_source'
+    >
+  >;
+
+const isFoundGetResponse = <TDocument = unknown>(
+  doc: opensearchtypes.GetResponse<TDocument>
+): doc is GetResponseFound<TDocument> => doc.found;

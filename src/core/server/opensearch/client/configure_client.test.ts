@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,15 +28,11 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
 import { Buffer } from 'buffer';
 import { Readable } from 'stream';
 
-import { RequestEvent, errors } from '@elastic/elasticsearch';
-import { TransportRequestParams, RequestBody } from '@elastic/elasticsearch/lib/Transport';
+import { RequestEvent, errors } from '@opensearch-project/opensearch';
+import { TransportRequestParams, RequestBody } from '@opensearch-project/opensearch/lib/Transport';
 
 import { parseClientOptionsMock, ClientMock } from './configure_client.test.mocks';
 import { loggingSystemMock } from '../../logging/logging_system.mock';
@@ -131,7 +130,7 @@ describe('configureClient', () => {
   });
 
   describe('Client logging', () => {
-    it('logs error when the client emits an @elastic/elasticsearch error', () => {
+    it('logs error when the client emits an @opensearch-project/opensearch error', () => {
       const client = configureClient(config, { logger, scoped: false });
 
       const response = createApiResponse({ body: {} });

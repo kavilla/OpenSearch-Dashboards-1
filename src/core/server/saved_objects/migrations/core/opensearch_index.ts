@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -31,11 +34,12 @@
  */
 
 import _ from 'lodash';
+import { opensearchtypes } from '@opensearch-project/opensearch';
 import { MigrationOpenSearchClient } from './migration_opensearch_client';
-import { CountResponse, SearchResponse } from '../../../opensearch';
+import { CountResponse } from '../../../opensearch';
 import { IndexMapping } from '../../mappings';
 import { SavedObjectsMigrationVersion } from '../../types';
-import { AliasAction, RawDoc, ShardsInfo } from './call_cluster';
+import { AliasAction, RawDoc } from './call_cluster';
 import { SavedObjectsRawDocSource } from '../../serialization';
 
 const settings = { number_of_shards: 1, auto_expand_replicas: '0-1' };
@@ -68,6 +72,7 @@ export async function fetchInfo(
 
   const [indexName, indexInfo] = Object.entries(body)[0];
 
+  // @ts-expect-error @opensearch-project/opensearch IndexState.alias and IndexState.mappings should be required
   return assertIsSupportedIndex({ ...indexInfo, exists: true, indexName });
 }
 
@@ -91,11 +96,11 @@ export function reader(
 
   const nextBatch = () =>
     scrollId !== undefined
-      ? client.scroll<SearchResponse<SavedObjectsRawDocSource>>({
+      ? client.scroll<SavedObjectsRawDocSource>({
           scroll,
           scroll_id: scrollId,
         })
-      : client.search<SearchResponse<SavedObjectsRawDocSource>>({
+      : client.search<SavedObjectsRawDocSource>({
           body: { size: batchSize },
           index,
           scroll,
@@ -147,7 +152,7 @@ export async function write(client: MigrationOpenSearchClient, index: string, do
     return;
   }
 
-  const exception: any = new Error(err.index.error!.reason);
+  const exception: any = new Error(err.index!.error!.reason);
   exception.detail = err;
   throw exception;
 }
@@ -319,7 +324,7 @@ function assertIsSupportedIndex(indexInfo: FullIndexInfo) {
  * Object indices should only ever have a single shard. This is more to handle
  * instances where customers manually expand the shards of an index.
  */
-function assertResponseIncludeAllShards({ _shards }: { _shards: ShardsInfo }) {
+function assertResponseIncludeAllShards({ _shards }: { _shards: opensearchtypes.ShardStatistics }) {
   if (!_.has(_shards, 'total') || !_.has(_shards, 'successful')) {
     return;
   }
@@ -372,7 +377,7 @@ async function reindex(
     await new Promise((r) => setTimeout(r, pollInterval));
 
     const { body } = await client.tasks.get({
-      task_id: task,
+      task_id: String(task),
     });
 
     if (body.error) {

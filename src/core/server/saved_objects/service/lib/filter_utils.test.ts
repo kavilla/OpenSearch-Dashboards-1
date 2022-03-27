@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,10 +28,6 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
 // @ts-expect-error no ts
 import { opensearchKuery } from '../../opensearch_query';
 
@@ -48,7 +47,7 @@ const mockMappings = {
           type: 'text',
         },
         bytes: {
-          type: 'number',
+          type: 'integer',
         },
       },
     },
@@ -92,7 +91,7 @@ const mockMappings = {
       },
     },
   },
-};
+} as const;
 
 describe('Filter Utils', () => {
   describe('#validateConvertFilterToKueryNode', () => {

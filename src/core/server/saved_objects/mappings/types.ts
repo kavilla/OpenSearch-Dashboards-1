@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,10 +28,7 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
+import type { opensearchtypes } from '@opensearch-project/opensearch';
 
 /**
  * Describe a saved object type mapping.
@@ -117,13 +117,21 @@ export interface SavedObjectsMappingProperties {
  *
  * @public
  */
-export type SavedObjectsFieldMapping =
-  | SavedObjectsCoreFieldMapping
-  | SavedObjectsComplexFieldMapping;
+export type SavedObjectsFieldMapping = opensearchtypes.MappingProperty & {
+  /**
+   * The dynamic property of the mapping, either `false` or `'strict'`. If
+   * unspecified `dynamic: 'strict'` will be inherited from the top-level
+   * index mappings.
+   *
+   * Note: To limit the number of mapping fields Saved Object types should
+   * *never* use `dynamic: true`.
+   */
+  dynamic?: false | 'strict';
+};
 
 /** @internal */
 export interface IndexMapping {
-  dynamic?: string;
+  dynamic?: boolean | 'strict';
   properties: SavedObjectsMappingProperties;
   _meta?: IndexMappingMeta;
 }
@@ -134,43 +142,4 @@ export interface IndexMappingMeta {
   // with each key being a root-level mapping property, and each value being
   // the md5 hash of that mapping's value when the index was created.
   migrationMappingPropertyHashes?: { [k: string]: string };
-}
-
-/**
- * See {@link SavedObjectsFieldMapping} for documentation.
- *
- * @public
- */
-export interface SavedObjectsCoreFieldMapping {
-  type: string;
-  null_value?: number | boolean | string;
-  index?: boolean;
-  doc_values?: boolean;
-  fields?: {
-    [subfield: string]: {
-      type: string;
-      ignore_above?: number;
-    };
-  };
-}
-
-/**
- * See {@link SavedObjectsFieldMapping} for documentation.
- *
- * @public
- */
-export interface SavedObjectsComplexFieldMapping {
-  /**
-   * The dynamic property of the mapping, either `false` or `'strict'`. If
-   * unspecified `dynamic: 'strict'` will be inherited from the top-level
-   * index mappings.
-   *
-   * Note: To limit the number of mapping fields Saved Object types should
-   * *never* use `dynamic: true`.
-   */
-  dynamic?: false | 'strict';
-  enabled?: boolean;
-  doc_values?: boolean;
-  type?: string;
-  properties: SavedObjectsMappingProperties;
 }

@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -23,11 +26,6 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- */
-
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
  */
 
 import { createAbsolutePathSerializer } from '@osd/dev-utils';
@@ -77,6 +75,14 @@ describe('parse function', function () {
   });
 
   it('produces expected defaults', function () {
+    Object.defineProperties(process, {
+      platform: {
+        value: 'linux',
+      },
+      arch: {
+        value: 'x64',
+      },
+    });
     expect(parse(command, { ...defaultOptions }, osdPackage)).toMatchInlineSnapshot(`
       Object {
         "config": "",
@@ -97,6 +103,14 @@ describe('parse function', function () {
   });
 
   it('consumes overrides', function () {
+    Object.defineProperties(process, {
+      platform: {
+        value: 'linux',
+      },
+      arch: {
+        value: 'x64',
+      },
+    });
     const options = {
       quiet: true,
       silent: true,
@@ -129,7 +143,7 @@ describe('parse function', function () {
         value: 'win32',
       },
       arch: {
-        value: ORIGINAL_ARCHITECTURE,
+        value: 'x64',
       },
     });
     expect(() => parse(command, { ...defaultOptions }, osdPackage)).toThrow(
@@ -140,7 +154,7 @@ describe('parse function', function () {
   it('should not throw when on a non-x64 arch', function () {
     Object.defineProperties(process, {
       platform: {
-        value: ORIGINAL_PLATFORM,
+        value: 'linux',
       },
       arch: {
         value: 'arm64',

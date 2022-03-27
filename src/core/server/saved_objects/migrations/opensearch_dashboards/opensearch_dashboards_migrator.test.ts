@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -81,7 +84,8 @@ describe('OpenSearchDashboardsMigrator', () => {
 
       options.client.cat.templates.mockReturnValue(
         opensearchClientMock.createSuccessTransportRequestPromise(
-          { templates: [] },
+          // @ts-expect-error assign the type to CatTemplatesResponse for test purpose
+          { templates: [] } as CatTemplatesResponse,
           { statusCode: 404 }
         )
       );
@@ -105,7 +109,8 @@ describe('OpenSearchDashboardsMigrator', () => {
 
       options.client.cat.templates.mockReturnValue(
         opensearchClientMock.createSuccessTransportRequestPromise(
-          { templates: [] },
+          // @ts-expect-error assign the type to CatTemplatesResponse for test purpose
+          { templates: [] } as CatTemplatesResponse,
           { statusCode: 404 }
         )
       );

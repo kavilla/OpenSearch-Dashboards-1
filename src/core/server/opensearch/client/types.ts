@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,18 +28,13 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
-
-import type { KibanaClient } from '@elastic/elasticsearch/api/kibana';
+import type { OpenSearchDashboardsClient } from '@opensearch-project/opensearch/api/opensearch_dashboards';
 import type {
   ApiResponse,
   TransportRequestOptions,
   TransportRequestParams,
   TransportRequestPromise,
-} from '@elastic/elasticsearch/lib/Transport';
+} from '@opensearch-project/opensearch/lib/Transport';
 
 /**
  * Client used to query the opensearch cluster.
@@ -44,7 +42,7 @@ import type {
  * @public
  */
 export type OpenSearchClient = Omit<
-  KibanaClient,
+  OpenSearchDashboardsClient,
   'connectionPool' | 'transport' | 'serializer' | 'extend' | 'child' | 'close'
 > & {
   transport: {

@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -23,11 +26,6 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- */
-
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
  */
 
 import { deepFreeze } from '@osd/std';
@@ -56,7 +54,7 @@ export class SavedObjectTypeRegistry {
     if (this.types.has(type.name)) {
       throw new Error(`Type '${type.name}' is already registered`);
     }
-    this.types.set(type.name, deepFreeze(type));
+    this.types.set(type.name, deepFreeze(type) as SavedObjectsType);
   }
 
   /**

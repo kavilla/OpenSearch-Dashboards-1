@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -29,6 +32,10 @@ import os from 'os';
 import execa from 'execa';
 
 export async function getBuildNumber() {
+  if ('BUILD_NUMBER' in process.env) {
+    return parseFloat(process.env.BUILD_NUMBER as string);
+  }
+
   if (/^win/.test(os.platform())) {
     // Windows does not have the wc process and `find /C /V ""` does not consistently work
     const log = await execa('git', ['log', '--format="%h"']);

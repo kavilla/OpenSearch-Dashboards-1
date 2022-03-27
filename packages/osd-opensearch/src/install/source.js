@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,17 +28,12 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
-
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const chalk = require('chalk');
 const crypto = require('crypto');
-const simpleGit = require('simple-git/promise');
+const simpleGit = require('simple-git');
 const { installArchive } = require('./archive');
 const { log: defaultLog, cache, buildSnapshot, archiveForPlatform } = require('../utils');
 const { BASE_PATH } = require('../paths');

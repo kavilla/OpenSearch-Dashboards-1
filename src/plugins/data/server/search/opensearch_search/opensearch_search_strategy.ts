@@ -4,6 +4,9 @@
  * The OpenSearch Contributors require contributions made to
  * this file be licensed under the Apache-2.0 license or a
  * compatible open source license.
+ *
+ * Any modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
  */
 
 /*
@@ -25,15 +28,11 @@
  * under the License.
  */
 
-/*
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
 import { first } from 'rxjs/operators';
 import { SharedGlobalConfig, Logger } from 'opensearch-dashboards/server';
 import { SearchResponse } from 'elasticsearch';
 import { Observable } from 'rxjs';
-import { ApiResponse } from '@elastic/elasticsearch';
+import { ApiResponse } from '@opensearch-project/opensearch';
 import { SearchUsage } from '../collectors/usage';
 import { toSnakeCase } from './to_snake_case';
 import {

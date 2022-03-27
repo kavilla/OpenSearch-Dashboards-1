@@ -45,7 +45,9 @@ export async function runFpm(
   const linux = config.getPlatform('linux', arch);
   const version = config.getBuildVersion();
   const fileName = config.resolveFromTarget(
-    arch === 'arm64' ? `NAME-${version}-arm64.${type}` : `NAME-${version}-ARCH.TYPE`
+    arch === 'arm64'
+      ? `NAME-${version}-${linux.getName()}-arm64.${type}`
+      : `NAME-${version}-${linux.getName()}-ARCH.TYPE`
   );
 
   const resolveWithTrailingSlash = (...paths: string[]) => `${resolve(...paths)}/`;

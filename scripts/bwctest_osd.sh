@@ -108,6 +108,7 @@ PARENT_PID_LIST=()
 CWD=$(pwd)
 DIR="$CWD/bwc_tmp"
 TEST_DIR="$DIR/test"
+LOGS_DIR="$TEST_DIR/cypress/results/local-cluster-logs"
 OPENSEARCH_DIR="$DIR/opensearch"
 DASHBOARDS_DIR="$DIR/opensearch-dashboards"
 [ ! -d "$DIR" ] && mkdir "$DIR"
@@ -179,7 +180,7 @@ function clean {
   for pid_kill in "${PARENT_PID_LIST[@]}"
   do
     echo "Closing PID $pid_kill"
-    kill $pid_kill
+    kill $pid_kill || true
   done
   PARENT_PID_LIST=()
 }
@@ -218,9 +219,10 @@ function check_status {
 # and copies the backwards compatibility tests into the folder
 function setup_cypress {
   echo "[ Setup the cypress test environment ]"
-  git clone https://github.com/opensearch-project/opensearch-dashboards-functional-test "$TEST_DIR"
+  git clone --depth=1 https://github.com/opensearch-project/opensearch-dashboards-functional-test "$TEST_DIR"
   rm -rf "$TEST_DIR/cypress/integration"
   cp -r "$CWD/cypress/integration" "$TEST_DIR/cypress"
+  [ ! -d "$LOGS_DIR" ] && mkdir -p "$LOGS_DIR"
   cd "$TEST_DIR"
   npm install
   echo "Cypress is ready!"
@@ -228,13 +230,20 @@ function setup_cypress {
 
 function run_cypress {
     [ $1 == "core" ] && is_core=true || is_core=false
+    TEST_ARRAY=("$@")
+    SPEC_FILES=""
+    for test in "${TEST_ARRAY[@]}"
+    do
+      SPEC_FILES+="$TEST_DIR/cypress/integration/$dashboards_type/*$test.js,"
+    done
     [ ! $is_core ] && echo "Running tests from plugins"
-    [ $is_core ] && spec="$TEST_DIR/cypress/integration/$dashboards_type/$test.js" || "$TEST_DIR/cypress/integration/$dashboards_type/plugins/*.js"
+    [ $is_core ] && spec="$SPEC_FILES" || "$TEST_DIR/cypress/integration/$dashboards_type/plugins/*.js"
     [ $is_core ] && success_msg="BWC tests for core passed ($spec)" || success_msg="BWC tests for plugin passed ($spec)"
     [ $is_core ] && error_msg="BWC tests for core failed ($spec)" || error_msg="BWC tests for plugin failed ($spec)"
-    env NO_COLOR=1 npx cypress run --headless --spec $spec
-    test_failures=$?
-    [ $test_failures == 0 ] && echo $success_msg || echo $error_msg
+    [[ ! -z $CI ]] && cypress_args="--browser chromium --config numTestsKeptInMemory=0" || cypress_args=""
+    env NO_COLOR=1 npx cypress run $cypress_args --headless --spec $spec || test_failures=$?
+    [ -z $test_failures ] && test_failures=0
+    [ $test_failures == 0 ] && echo $success_msg || echo "$error_msg::TEST_FAILURES: $test_failures"
     TOTAL_TEST_FAILURES=$(( $TOTAL_TEST_FAILURES + $test_failures ))
 }
 
@@ -258,29 +267,33 @@ function setup_opensearch {
   # Required for SQL
   [ -d "plugins/opensearch-sql" ] && echo "script.context.field.max_compilations_rate: 1000/1m" >> config/opensearch.yml
   # Required for PA
-  [ -d "plugins/opensearch-performance-analyzer" ] && echo "webservice-bind-host = 0.0.0.0" >> plugins/opensearch-performance-analyzer/pa_config/performance-analyzer.properties  
-  [ $SECURITY_ENABLED == "false" ] && echo "plugins.security.disabled: true" >> config/opensearch.yml
+  [ -d "plugins/opensearch-performance-analyzer" ] && echo "webservice-bind-host = 0.0.0.0" >> plugins/opensearch-performance-analyzer/pa_config/performance-analyzer.properties
+  echo "network.host: 0.0.0.0" >> config/opensearch.yml
+  echo "discovery.type: single-node" >> config/opensearch.yml
+  [ $SECURITY_ENABLED == "false" ] && [ -d "plugins/opensearch-security" ] && echo "plugins.security.disabled: true" >> config/opensearch.yml
 }
 
 # Starts OpenSearch, if verifying a distribution it will install the certs then start.
 function run_opensearch {
   echo "[ Attempting to start OpenSearch... ]"
   cd "$OPENSEARCH_DIR"
-  spawn_process_and_save_PID "./opensearch-tar-install.sh > ./bin/opensearch.log 2>&1 &"
+  spawn_process_and_save_PID "./opensearch-tar-install.sh > ${LOGS_DIR}/opensearch.log 2>&1 &"
 }
 
 function setup_dashboards {
   cd "$DASHBOARDS_DIR"
-  [ $SECURITY_ENABLED == "false" ] && ./bin/opensearch-dashboards-plugin remove securityDashboards
+  [ $SECURITY_ENABLED == "false" ] && [ -d "plugins/securityDashboards" ] && ./bin/opensearch-dashboards-plugin remove securityDashboards
   [ $SECURITY_ENABLED == "false" ] && rm config/opensearch_dashboards.yml && touch config/opensearch_dashboards.yml
   [ $SECURITY_ENABLED == "false" ] && echo "server.host: 0.0.0.0" >> config/opensearch_dashboards.yml
+  echo "csp.warnLegacyBrowsers: false" >> config/opensearch_dashboards.yml
+  echo "--max-old-space-size=5120" >> config/node.options
 }
 
 # Starts OpenSearch Dashboards
 function run_dashboards {
   echo "[ Attempting to start OpenSearch Dashboards... ]"
   cd "$DASHBOARDS_DIR"
-  spawn_process_and_save_PID "./bin/opensearch-dashboards > ./bin/opensearch-dashboards.log 2>&1 &"
+  spawn_process_and_save_PID "./bin/opensearch-dashboards > ${LOGS_DIR}/opensearch_dashboards.log 2>&1 &"
 }
 
 # Checks the running status of OpenSearch
@@ -309,10 +322,7 @@ function run_bwc {
   cd "$TEST_DIR"
   [ -z "${TEST_SUITES[$1]}" ] && test_suite=$TEST_GROUP_DEFAULT || test_suite="${TEST_SUITES[$1]}"
   IFS=',' read -r -a tests <<<"$test_suite"
-  for test in "${tests[@]}"
-  do
-    run_cypress "core"
-  done
+  run_cypress "core" "${tests[@]}"
   # Check if $dashboards_type/plugins has tests in them to execute
   if [ "$(ls -A $TEST_DIR/cypress/integration/$dashboards_type/plugins | wc -l)" -gt 1 ]; then
     run_cypress "plugins"
@@ -372,7 +382,6 @@ function execute_mismatch_tests {
 [ ! -d "$TEST_DIR/cypress" ] && setup_cypress
 execute_tests
 (( ${#releases_array[@]} )) && execute_mismatch_tests
-
 echo "Completed BWC tests for $test_array [$dashboards_type]"
 echo "Total test failures: $TOTAL_TEST_FAILURES"
 exit $TOTAL_TEST_FAILURES

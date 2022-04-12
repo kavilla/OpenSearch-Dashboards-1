@@ -28,36 +28,20 @@
  * under the License.
  */
 
-import React from 'react';
-import { i18n } from '@osd/i18n';
-import { EuiNavDrawerGroup } from '@elastic/eui';
-import { RecentNavLink } from './nav_link';
+import { resolve } from 'path';
+import { buildCLI } from 'stylelint/lib/cli';
 
-interface Props {
-  recentNavLinks: RecentNavLink[];
-}
+const options = buildCLI(process.argv.slice(2));
 
-export function RecentLinks({ recentNavLinks }: Props) {
-  return (
-    <EuiNavDrawerGroup
-      listItems={[
-        {
-          label: i18n.translate('core.ui.chrome.sideGlobalNav.viewRecentItemsLabel', {
-            defaultMessage: 'Recently viewed',
-          }),
-          iconType: 'recentlyViewedApp',
-          isDisabled: recentNavLinks.length === 0,
-          flyoutMenu: {
-            title: i18n.translate('core.ui.chrome.sideGlobalNav.viewRecentItemsFlyoutTitle', {
-              defaultMessage: 'Recent items',
-            }),
-            listItems: recentNavLinks,
-          },
-        },
-      ]}
-      aria-label={i18n.translate('core.ui.recentLinks.screenReaderLabel', {
-        defaultMessage: 'Recently viewed links, navigation',
-      })}
-    />
-  );
+const stylelintConfigPath = resolve(__dirname, '..', '..', '.stylelintrc.yml');
+const stylelintIgnorePath = resolve(__dirname, '..', '..', '.stylelintignore');
+
+if (!options.input.length) {
+  process.argv.push('**/*.s+(a|c)ss');
 }
+process.argv.push('--max-warnings', '0'); // return nonzero exit code on any warnings
+process.argv.push('--config', stylelintConfigPath); // configuration file
+process.argv.push('--ignore-path', stylelintIgnorePath); // ignore file
+
+// common-js is required so that logic before this executes before loading stylelint
+require('stylelint/bin/stylelint');

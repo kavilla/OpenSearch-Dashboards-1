@@ -101,7 +101,7 @@ done
 [ -z "$BIND_PORT" ] && BIND_PORT="5601"
 [ -z "$VERSIONS" ] && test_array=("${DEFAULT_VERSIONS[@]}") || IFS=',' read -r -a test_array <<<"$VERSIONS"
 [ -z "$SECURITY_ENABLED" ] && SECURITY_ENABLED="false"
-[ $SECURITY_ENABLED == "false" ] && dashboards_type="without-security" || dashboards_type="with-security"
+[ $SECURITY_ENABLED == "false" ] && DASHBOARDS_TYPE="without-security" || DASHBOARDS_TYPE="with-security"
 [ $SECURITY_ENABLED == "false" ] && releases_array=() || IFS=',' read -r -a releases_array <<<"$RELEASES"
 [ -z "$CREDENTIAL" ] && CREDENTIAL="admin:admin"
 
@@ -180,17 +180,17 @@ function setup_cypress() {
 }
 
 function run_cypress() {
-    [ $1 == "core" ] && is_core=true || is_core=false
+    [ $1 == "core" ] && IS_CORE=true || IS_CORE=false
     TEST_ARRAY=("$@")
     SPEC_FILES=""
     for test in "${TEST_ARRAY[@]}"
     do
-      SPEC_FILES+="$TEST_DIR/cypress/integration/$dashboards_type/*$test.js,"
+      SPEC_FILES+="$TEST_DIR/cypress/integration/$DASHBOARDS_TYPE/*$test.js,"
     done
-    [ ! $is_core ] && echo "Running tests from plugins"
-    [ $is_core ] && spec="$SPEC_FILES" || "$TEST_DIR/cypress/integration/$dashboards_type/plugins/*.js"
-    [ $is_core ] && success_msg="BWC tests for core passed ($spec)" || success_msg="BWC tests for plugin passed ($spec)"
-    [ $is_core ] && error_msg="BWC tests for core failed ($spec)" || error_msg="BWC tests for plugin failed ($spec)"
+    [ ! $IS_CORE ] && echo "Running tests from plugins"
+    [ $IS_CORE ] && spec="$SPEC_FILES" || "$TEST_DIR/cypress/integration/$DASHBOARDS_TYPE/plugins/*.js"
+    [ $IS_CORE ] && success_msg="BWC tests for core passed ($spec)" || success_msg="BWC tests for plugin passed ($spec)"
+    [ $IS_CORE ] && error_msg="BWC tests for core failed ($spec)" || error_msg="BWC tests for plugin failed ($spec)"
     [[ ! -z $CI ]] && cypress_args="--browser chromium" || cypress_args=""
     env NO_COLOR=1 npx cypress run $cypress_args --headless --spec $spec || test_failures=$?
     [ -z $test_failures ] && test_failures=0
@@ -204,10 +204,12 @@ function run_bwc() {
   cd "$TEST_DIR"
   [ -z "${TEST_SUITES[$1]}" ] && test_suite=$TEST_GROUP_DEFAULT || test_suite="${TEST_SUITES[$1]}"
   IFS=',' read -r -a tests <<<"$test_suite"
-  run_cypress "core" "${tests[@]}"
-  # Check if $dashboards_type/plugins has tests in them to execute
-  if [ "$(ls -A $TEST_DIR/cypress/integration/$dashboards_type/plugins | wc -l)" -gt 1 ]; then
+
+  # Check if $DASHBOARDS_TYPE/plugins has tests in them to execute
+  if [ "$(ls -A $TEST_DIR/cypress/integration/$DASHBOARDS_TYPE/plugins | wc -l)" -gt 1 ]; then
     run_cypress "plugins"
+  else 
+    run_cypress "core" "${tests[@]}"
   fi
 }
 
@@ -264,6 +266,6 @@ function execute_mismatch_tests() {
 [ ! -d "$TEST_DIR/cypress" ] && setup_cypress
 execute_tests
 (( ${#releases_array[@]} )) && execute_mismatch_tests
-echo "Completed BWC tests for $test_array [$dashboards_type]"
+echo "Completed BWC tests for $test_array [$DASHBOARDS_TYPE]"
 echo "Total test failures: $TOTAL_TEST_FAILURES"
 exit $TOTAL_TEST_FAILURES

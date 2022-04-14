@@ -87,7 +87,7 @@
 
 # List of OpenSearch Dashboards client-side headers to send to OpenSearch. To send *no* client-side
 # headers, set this value to [] (an empty list).
-#opensearch.requestHeadersWhitelist: [ authorization ]
+opensearch.requestHeadersAllowlist: [ authorization ]
 
 # Header names and values that are sent to OpenSearch. Any custom headers cannot be overwritten
 # by client-side headers, regardless of the opensearch.requestHeadersWhitelist configuration.

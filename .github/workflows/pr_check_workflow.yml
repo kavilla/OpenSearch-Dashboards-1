@@ -21,43 +21,43 @@ env:
   OSD_SNAPSHOT_SKIP_VERIFY_CHECKSUM: true
 
 jobs:
-  build-lint-test:
-    runs-on: ubuntu-latest
-    name: Build and Verify
-    steps:
+  # build-lint-test:
+  #   runs-on: ubuntu-latest
+  #   name: Build and Verify
+  #   steps:
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version-file: ".nvmrc"
-          registry-url: 'https://registry.npmjs.org'
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version-file: ".nvmrc"
+  #         registry-url: 'https://registry.npmjs.org'
 
-      - name: Setup Yarn
-        run: |
-          npm uninstall -g yarn
-          npm i -g yarn@1.22.10
+  #     - name: Setup Yarn
+  #       run: |
+  #         npm uninstall -g yarn
+  #         npm i -g yarn@1.22.10
 
-      - name: Run bootstrap
-        run: yarn osd bootstrap
+  #     - name: Run bootstrap
+  #       run: yarn osd bootstrap
 
-      - name: Run linter
-        id: linter
-        run: yarn lint
+  #     - name: Run linter
+  #       id: linter
+  #       run: yarn lint
 
-      - name: Run unit tests
-        id: unit-tests
-        run: yarn test:jest:ci
+  #     - name: Run unit tests
+  #       id: unit-tests
+  #       run: yarn test:jest:ci
 
-      - name: Run mocha tests
-        id: mocha-tests
-        run: yarn test:mocha
+  #     - name: Run mocha tests
+  #       id: mocha-tests
+  #       run: yarn test:mocha
 
-      - name: Run integration tests
-        id: integration-tests
-        run: yarn test:jest_integration:ci
+  #     - name: Run integration tests
+  #       id: integration-tests
+  #       run: yarn test:jest_integration:ci
 
  build-artifacts-tests:
     runs-on: ubuntu-latest
@@ -86,44 +86,44 @@ jobs:
       - name: Run CI test group ${{ matrix.group }}
         run: yarn build-platform --${{ matrix.group }} --skip-os-packages --release
 
-  functional-tests:
-    runs-on: ubuntu-latest
-    name: Run functional tests
-    strategy: 
-      matrix:
-        group: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
-    steps:
-      - run: echo Running functional tests for ciGroup${{ matrix.group }}
+  # functional-tests:
+  #   runs-on: ubuntu-latest
+  #   name: Run functional tests
+  #   strategy: 
+  #     matrix:
+  #       group: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
+  #   steps:
+  #     - run: echo Running functional tests for ciGroup${{ matrix.group }}
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version-file: ".nvmrc"
-          registry-url: 'https://registry.npmjs.org'
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version-file: ".nvmrc"
+  #         registry-url: 'https://registry.npmjs.org'
 
-      - name: Setup Yarn
-        run: |
-          npm uninstall -g yarn
-          npm i -g yarn@1.22.10
+  #     - name: Setup Yarn
+  #       run: |
+  #         npm uninstall -g yarn
+  #         npm i -g yarn@1.22.10
 
-      # github virtual env is the latest chrome
-      - name: Setup chromedriver
-        run: yarn add --dev chromedriver@100.0.0
+  #     # github virtual env is the latest chrome
+  #     - name: Setup chromedriver
+  #       run: yarn add --dev chromedriver@100.0.0
 
-      - name: Run bootstrap
-        run: yarn osd bootstrap
+  #     - name: Run bootstrap
+  #       run: yarn osd bootstrap
 
-      - name: Build plugins
-        run: node scripts/build_opensearch_dashboards_platform_plugins --no-examples --workers 10
+  #     - name: Build plugins
+  #       run: node scripts/build_opensearch_dashboards_platform_plugins --no-examples --workers 10
 
-      - name: Run CI test group ${{ matrix.group }}
-        id: ftr-tests
-        run: node scripts/functional_tests.js --config test/functional/config.js --include ciGroup${{ matrix.group }}
-        env:
-          CI_GROUP: ciGroup${{ matrix.group }}
-          CI_PARALLEL_PROCESS_NUMBER: ciGroup${{ matrix.group }}
-          JOB: ci${{ matrix.group }}
-          CACHE_DIR: ciGroup${{ matrix.group }}
+  #     - name: Run CI test group ${{ matrix.group }}
+  #       id: ftr-tests
+  #       run: node scripts/functional_tests.js --config test/functional/config.js --include ciGroup${{ matrix.group }}
+  #       env:
+  #         CI_GROUP: ciGroup${{ matrix.group }}
+  #         CI_PARALLEL_PROCESS_NUMBER: ciGroup${{ matrix.group }}
+  #         JOB: ci${{ matrix.group }}
+  #         CACHE_DIR: ciGroup${{ matrix.group }}

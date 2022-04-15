@@ -19,54 +19,97 @@ env:
   TEST_OPENSEARCH_TRANSPORT_PORT: 9403
   TEST_OPENSEARCH_PORT: 9400
   OSD_SNAPSHOT_SKIP_VERIFY_CHECKSUM: true
+  CHROMEDRIVER_VERSION: '100.0'
 
 jobs:
-  build-lint-test:
+  # build-lint-test:
+  #   runs-on: ubuntu-latest
+  #   name: Build and Verify
+  #   steps:
+
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version-file: ".nvmrc"
+  #         registry-url: 'https://registry.npmjs.org'
+
+  #     - name: Setup Yarn
+  #       run: |
+  #         npm uninstall -g yarn
+  #         npm i -g yarn@1.22.10
+
+  #     - name: Run bootstrap
+  #       run: yarn osd bootstrap
+
+  #     - name: Run linter
+  #       id: linter
+  #       run: yarn lint
+
+  #     - name: Run unit tests
+  #       id: unit-tests
+  #       run: yarn test:jest:ci
+
+  #     - name: Run mocha tests
+  #       id: mocha-tests
+  #       run: yarn test:mocha
+
+  #     - name: Run integration tests
+  #       id: integration-tests
+  #       run: yarn test:jest_integration:ci
+
+  # functional-tests:
+  #   runs-on: ubuntu-latest
+  #   name: Run functional tests
+  #   strategy: 
+  #     matrix:
+  #       group: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
+  #   steps:
+  #     - run: echo Running functional tests for ciGroup${{ matrix.group }}
+
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version-file: ".nvmrc"
+  #         registry-url: 'https://registry.npmjs.org'
+
+  #     - name: Setup Yarn
+  #       run: |
+  #         npm uninstall -g yarn
+  #         npm i -g yarn@1.22.10
+
+  #     # github virtual env is the latest chrome
+  #     - name: Setup chromedriver
+  #       run: yarn add --dev chromedriver@${{ env.CHROMEDRIVER_VERSION }}
+
+  #     - name: Run bootstrap
+  #       run: yarn osd bootstrap
+
+  #     - name: Build plugins
+  #       run: node scripts/build_opensearch_dashboards_platform_plugins --no-examples --workers 10
+
+  #     - name: Run CI test group ${{ matrix.group }}
+  #       id: ftr-tests
+  #       run: node scripts/functional_tests.js --config test/functional/config.js --include ciGroup${{ matrix.group }}
+  #       env:
+  #         CI_GROUP: ciGroup${{ matrix.group }}
+  #         CI_PARALLEL_PROCESS_NUMBER: ciGroup${{ matrix.group }}
+  #         JOB: ci${{ matrix.group }}
+  #         CACHE_DIR: ciGroup${{ matrix.group }}
+  
+  build-artifact-tests:
     runs-on: ubuntu-latest
-    name: Build and Verify
-    steps:
-
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version-file: ".nvmrc"
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Setup Yarn
-        run: |
-          npm uninstall -g yarn
-          npm i -g yarn@1.22.10
-
-      - name: Run bootstrap
-        run: yarn osd bootstrap
-
-      - name: Run linter
-        id: linter
-        run: yarn lint
-
-      - name: Run unit tests
-        id: unit-tests
-        run: yarn test:jest:ci
-
-      - name: Run mocha tests
-        id: mocha-tests
-        run: yarn test:mocha
-
-      - name: Run integration tests
-        id: integration-tests
-        run: yarn test:jest_integration:ci
-
-  functional-tests:
-    runs-on: ubuntu-latest
-    name: Run functional tests
+    name: Build min artifacts
     strategy: 
       matrix:
-        group: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
+        group: [ 'linux', 'linux-arm' ]
     steps:
-      - run: echo Running functional tests for ciGroup${{ matrix.group }}
+      - run: echo Build min artifact for {{ matrix.group }}
 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -84,19 +127,52 @@ jobs:
 
       # github virtual env is the latest chrome
       - name: Setup chromedriver
-        run: yarn add --dev chromedriver@100.0.0
+        run: yarn add --dev chromedriver@${{ env.CHROMEDRIVER_VERSION }}
 
       - name: Run bootstrap
         run: yarn osd bootstrap
 
       - name: Build plugins
-        run: node scripts/build_opensearch_dashboards_platform_plugins --no-examples --workers 10
+        run: yarn build-platform --${{ matrix.group }} --skip-os-packages --release
 
-      - name: Run CI test group ${{ matrix.group }}
-        id: ftr-tests
-        run: node scripts/functional_tests.js --config test/functional/config.js --include ciGroup${{ matrix.group }}
-        env:
-          CI_GROUP: ciGroup${{ matrix.group }}
-          CI_PARALLEL_PROCESS_NUMBER: ciGroup${{ matrix.group }}
-          JOB: ci${{ matrix.group }}
-          CACHE_DIR: ciGroup${{ matrix.group }}
+  # bwc-tests:
+  #   runs-on: ubuntu-latest
+  #   name: Run functional tests
+  #   strategy: 
+  #     matrix:
+  #       group: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
+  #   steps:
+  #     - run: echo Running functional tests for ciGroup${{ matrix.group }}
+
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version-file: ".nvmrc"
+  #         registry-url: 'https://registry.npmjs.org'
+
+  #     - name: Setup Yarn
+  #       run: |
+  #         npm uninstall -g yarn
+  #         npm i -g yarn@1.22.10
+
+  #     # github virtual env is the latest chrome
+  #     - name: Setup chromedriver
+  #       run: yarn add --dev chromedriver@${{ env.CHROMEDRIVER_VERSION }}
+
+  #     - name: Run bootstrap
+  #       run: yarn osd bootstrap
+
+  #     - name: Build plugins
+  #       run: node scripts/build_opensearch_dashboards_platform_plugins --no-examples --workers 10
+
+  #     - name: Run CI test group ${{ matrix.group }}
+  #       id: ftr-tests
+  #       run: node scripts/functional_tests.js --config test/functional/config.js --include ciGroup${{ matrix.group }}
+  #       env:
+  #         CI_GROUP: ciGroup${{ matrix.group }}
+  #         CI_PARALLEL_PROCESS_NUMBER: ciGroup${{ matrix.group }}
+  #         JOB: ci${{ matrix.group }}
+  #         CACHE_DIR: ciGroup${{ matrix.group }}

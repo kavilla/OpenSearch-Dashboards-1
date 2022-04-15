@@ -59,32 +59,39 @@ jobs:
   #       id: integration-tests
   #       run: yarn test:jest_integration:ci
 
-#  build-artifacts-tests:
-#     runs-on: ubuntu-latest
-#     name: Build min artifacts
-#     strategy: 
-#       matrix:
-#         group: [ 'linux', 'linux-arm' ]
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v2
+ build-artifacts-tests:
+    runs-on: ubuntu-latest
+    name: Build min artifacts
+    strategy: 
+      matrix:
+        group: [ 'linux', 'linux-arm' ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-#       - name: Setup Node
-#         uses: actions/setup-node@v2
-#         with:
-#           node-version-file: ".nvmrc"
-#           registry-url: 'https://registry.npmjs.org'
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version-file: ".nvmrc"
+          registry-url: 'https://registry.npmjs.org'
 
-#       - name: Setup Yarn
-#         run: |
-#           npm uninstall -g yarn
-#           npm i -g yarn@1.22.10
+      - name: Setup Yarn
+        run: |
+          npm uninstall -g yarn
+          npm i -g yarn@1.22.10
 
-#       - name: Run bootstrap
-#         run: yarn osd bootstrap
+      - name: Run bootstrap
+        run: yarn osd bootstrap
 
-#       - name: Build artifact for ${{ matrix.group }}
-#         run: yarn build-platform --${{ matrix.group }} --skip-os-packages --release
+      - name: Build artifact for ${{ matrix.group }}
+        run: yarn build-platform --${{ matrix.group }} --skip-os-packages --release
+      
+      - uses: actions/upload-artifact@v1
+        if: success()
+        with:
+          name: opensearch-dashboards-2.0.0-${{ github.run_id }}-${{ github.job }}-${{ github.sha }}-linux-x64.tar.gz
+          path: OpenSearch-Dashboards-1/target/opensearch-dashboards-2.0.0-linux-x64.tar.gz
+          retention-days: 1
 
   # functional-tests:
   #   runs-on: ubuntu-latest
@@ -157,4 +164,4 @@ jobs:
 
       - name: Run CI test group ${{ matrix.group }}
         run: |
-          yarn test:bwc -v ${{ matrix.group }} -o https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.0.0-alpha1/latest/linux/x64/dist/opensearch/opensearch-2.0.0-alpha1-linux-x64.tar.gz -d target/opensearch-dashboards-2.0.0-linux-x64.tar.gz
+          yarn test:bwc -v ${{ matrix.group }} -o https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.0.0-alpha1/latest/linux/x64/dist/opensearch/opensearch-2.0.0-alpha1-linux-x64.tar.gz -d OpenSearch-Dashboards-1/target/opensearch-dashboards-2.0.0-linux-x64.tar.gz

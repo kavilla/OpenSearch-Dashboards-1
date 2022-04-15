@@ -19,7 +19,7 @@ env:
   TEST_OPENSEARCH_TRANSPORT_PORT: 9403
   TEST_OPENSEARCH_PORT: 9400
   OSD_SNAPSHOT_SKIP_VERIFY_CHECKSUM: true
-  CHROMEDRIVER_VERSION: 100.0.0
+  CHROMEDRIVER_VERSION: '100.0.0'
 
 jobs:
   # build-lint-test:
@@ -107,7 +107,7 @@ jobs:
     name: Build min artifacts
     strategy: 
       matrix:
-        group: [ linux, linux-arm ]
+        group: [ 'linux', 'linux-arm' ]
     steps:
       - run: echo Build min artifact for {{ matrix.group }}
 

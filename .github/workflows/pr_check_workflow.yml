@@ -103,7 +103,8 @@ jobs:
   #         CACHE_DIR: ciGroup${{ matrix.group }}
   
   build-artifact-tests:
-    container: opensearchstaging/ci-runner:ci-runner-centos7-opensearch-dashboards-build-v1
+    container: 
+      runs-on: opensearchstaging/ci-runner:ci-runner-centos7-opensearch-dashboards-build-v1
     name: Build min artifacts
     strategy: 
       matrix:

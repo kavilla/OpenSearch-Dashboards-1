@@ -59,7 +59,7 @@ jobs:
   #       id: integration-tests
   #       run: yarn test:jest_integration:ci
 
- build-artifacts-tests:
+  build-artifacts-tests:
     runs-on: ubuntu-latest
     name: Build min artifacts
     strategy: 

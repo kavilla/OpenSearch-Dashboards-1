@@ -19,6 +19,7 @@ env:
   TEST_OPENSEARCH_TRANSPORT_PORT: 9403
   TEST_OPENSEARCH_PORT: 9400
   OSD_SNAPSHOT_SKIP_VERIFY_CHECKSUM: true
+  CHROMEDRIVER_VERSION: 100.0.0
 
 jobs:
   build-lint-test:
@@ -84,7 +85,73 @@ jobs:
 
       # github virtual env is the latest chrome
       - name: Setup chromedriver
-        run: yarn add --dev chromedriver@100.0.0
+        run: yarn add --dev chromedriver@${{ env.CHROMEDRIVER_VERSION }}
+
+      - name: Run bootstrap
+        run: yarn osd bootstrap
+
+      - name: Build plugins
+        run: node scripts/build_opensearch_dashboards_platform_plugins --no-examples --workers 10
+
+      - name: Run CI test group ${{ matrix.group }}
+        id: ftr-tests
+        run: node scripts/functional_tests.js --config test/functional/config.js --include ciGroup${{ matrix.group }}
+        env:
+          CI_GROUP: ciGroup${{ matrix.group }}
+          CI_PARALLEL_PROCESS_NUMBER: ciGroup${{ matrix.group }}
+          JOB: ci${{ matrix.group }}
+          CACHE_DIR: ciGroup${{ matrix.group }}
+  
+  build-artifact-tests:
+    container: opensearchstaging/ci-runner:ci-runner-centos7-opensearch-dashboards-build-v1
+    name: Build min artifacts
+    strategy: 
+      matrix:
+        group: [ linux, linux-arm ]
+    steps:
+      - run: echo Build min artifact for {{ matrix.group }}
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version-file: ".nvmrc"
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Run bootstrap
+        run: yarn osd bootstrap
+
+      - name: Build plugins
+        run: yarn build-platform --${{ matrix.group }} --skip-os-packages --release
+
+  bwc-tests:
+    runs-on: ubuntu-latest
+    name: Run functional tests
+    strategy: 
+      matrix:
+        group: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
+    steps:
+      - run: echo Running functional tests for ciGroup${{ matrix.group }}
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version-file: ".nvmrc"
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup Yarn
+        run: |
+          npm uninstall -g yarn
+          npm i -g yarn@1.22.10
+
+      # github virtual env is the latest chrome
+      - name: Setup chromedriver
+        run: yarn add --dev chromedriver@${{ env.CHROMEDRIVER_VERSION }}
 
       - name: Run bootstrap
         run: yarn osd bootstrap

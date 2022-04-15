@@ -156,6 +156,5 @@ jobs:
         run: yarn build-platform --${{ matrix.group }} --skip-os-packages --release
 
       - name: Run CI test group ${{ matrix.group }}
-        id: 
         run: |
           yarn test:bwc -v ${{ matrix.group }} -o https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.0.0-alpha1/latest/linux/x64/dist/opensearch/opensearch-2.0.0-alpha1-linux-x64.tar.gz -d target/opensearch-dashboards-2.0.0-linux-x64.tar.gz

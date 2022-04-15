@@ -59,6 +59,33 @@ jobs:
         id: integration-tests
         run: yarn test:jest_integration:ci
 
+ build-artifacts-tests:
+    runs-on: ubuntu-latest
+    name: Build min artifacts
+    strategy: 
+      matrix:
+        group: [ 'linux', 'linux-arm' ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version-file: ".nvmrc"
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup Yarn
+        run: |
+          npm uninstall -g yarn
+          npm i -g yarn@1.22.10
+
+      - name: Run bootstrap
+        run: yarn osd bootstrap
+
+      - name: Run CI test group ${{ matrix.group }}
+        run: yarn build-platform --${{ matrix.group }} --skip-os-packages --release
+
   functional-tests:
     runs-on: ubuntu-latest
     name: Run functional tests

@@ -1,4 +1,4 @@
-# The overall template of the release notes
+# The overall template of the release notes.
 template: |
   $CHANGES
 

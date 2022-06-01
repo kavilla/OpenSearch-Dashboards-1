@@ -129,19 +129,20 @@ export const configSchema = schema.object({
   ),
   apiVersion: schema.string({ defaultValue: DEFAULT_API_VERSION }),
   healthCheck: schema.object({ delay: schema.duration({ defaultValue: 2500 }) }),
-  ignoreVersionMismatch: schema.conditional(
-    schema.contextRef('dev'),
-    false,
-    schema.boolean({
-      validate: (rawValue) => {
-        if (rawValue === true) {
-          return '"ignoreVersionMismatch" can only be set to true in development mode';
-        }
-      },
-      defaultValue: false,
-    }),
-    schema.boolean({ defaultValue: false })
-  ),
+  // ignoreVersionMismatch: schema.conditional(
+  //   schema.contextRef('dev'),
+  //   false,
+  //   schema.boolean({
+  //     validate: (rawValue) => {
+  //       if (rawValue === true) {
+  //         return '"ignoreVersionMismatch" can only be set to true in development mode';
+  //       }
+  //     },
+  //     defaultValue: false,
+  //   }),
+  //   schema.boolean({ defaultValue: false })
+  // ),
+  ignoreVersionMismatch: schema.boolean({ defaultValue: false }),
 });
 
 const deprecations: ConfigDeprecationProvider = ({ renameFromRoot, renameFromRootWithoutMap }) => [

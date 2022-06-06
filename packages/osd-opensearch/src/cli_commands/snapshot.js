@@ -40,15 +40,18 @@ exports.help = (defaults = {}) => {
   return dedent`
     Options:
 
-      --license         Run with a 'oss', 'basic', or 'trial' license [default: ${license}]
-      --version         Version of OpenSearch to download [default: ${defaults.version}]
-      --base-path       Path containing cache/installations [default: ${basePath}]
-      --install-path    Installation path, defaults to 'source' within base-path
-      --data-archive    Path to zip or tarball containing an OpenSearch data directory to seed the cluster with.
-      --password        Sets password for opensearch user [default: ${password}]
-      -E                Additional key=value settings to pass to OpenSearch
-      --download-only   Download the snapshot but don't actually start it
-      --ssl             Sets up SSL on OpenSearch
+      --license               Run with a 'oss', 'basic', or 'trial' license [default: ${license}]
+      --version               Version of OpenSearch to download [default: ${defaults.version}]
+      --base-path             Path containing cache/installations [default: ${basePath}]
+      --install-path          Installation path, defaults to 'source' within base-path
+      --data-archive          Path to zip or tarball containing an OpenSearch data directory to seed the cluster with.
+      --password              Sets password for opensearch user [default: ${password}]
+      -E                      Additional key=value settings to pass to OpenSearch
+      --download-only         Download the snapshot but don't actually start it
+      --ssl                   Sets up SSL on OpenSearch
+      --plugin                Additional plugin to install on OpenSearch
+      --plugin-script         Plugin script to run prior to starting OpenSearch
+      --plugin-scripts-args   Arguments to pass to plugin script
 
     Example:
 
@@ -64,6 +67,9 @@ exports.run = async (defaults = {}) => {
       installPath: 'install-path',
       dataArchive: 'data-archive',
       opensearchArgs: 'E',
+      plugin: 'plugin',
+      pluginScript: 'plugin-script',
+      pluginScriptArgs: 'plugin-script-args',
     },
 
     string: ['version'],

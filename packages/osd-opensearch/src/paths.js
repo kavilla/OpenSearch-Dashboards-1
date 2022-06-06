@@ -41,6 +41,7 @@ exports.BASE_PATH = path.resolve(tempDir, 'osd-opensearch');
 
 exports.GRADLE_BIN = maybeUseBat('./gradlew');
 exports.OPENSEARCH_BIN = maybeUseBat('bin/opensearch');
+exports.OPENSEARCH_PLUGIN_BIN = maybeUseBat('bin/opensearch-plugin');
 exports.OPENSEARCH_CONFIG = 'config/opensearch.yml';
 
 exports.OPENSEARCH_KEYSTORE_BIN = maybeUseBat('./bin/opensearch-keystore');

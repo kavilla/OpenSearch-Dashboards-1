@@ -28,13 +28,14 @@
  * under the License.
  */
 
+// yarn opensearch snapshot --plugin https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.0.0/latest/linux/x64/tar/builds/opensearch/plugins/opensearch-security-2.0.0.0.zip --plugin-script plugins/opensearch-security/tools/install_demo_configuration.sh --plugin-script-args "y" --plugin-script-args "i" --plugin-script-args "s" -E plugins.security.unsupported.restapi.allow_securityconfig_modification=true
 const fs = require('fs');
 const util = require('util');
 const execa = require('execa');
 const chalk = require('chalk');
 const path = require('path');
 const { downloadSnapshot, installSnapshot, installSource, installArchive } = require('./install');
-const { OPENSEARCH_BIN } = require('./paths');
+const { OPENSEARCH_BIN, OPENSEARCH_PLUGIN_BIN } = require('./paths');
 const { log: defaultLog, parseOpenSearchLog, extractConfigFiles, decompress } = require('./utils');
 const { createCliError } = require('./errors');
 const { promisify } = require('util');
@@ -42,6 +43,7 @@ const treeKillAsync = promisify(require('tree-kill'));
 const { parseSettings, SettingsFilter } = require('./settings');
 const { CA_CERT_PATH, OPENSEARCH_P12_PATH, OPENSEARCH_P12_PASSWORD } = require('@osd/dev-utils');
 const readFile = util.promisify(fs.readFile);
+const chmod = util.promisify(fs.chmod);
 
 // listen to data on stream until map returns anything but undefined
 const first = (stream, map) =>
@@ -171,6 +173,49 @@ exports.Cluster = class Cluster {
   }
 
   /**
+   * Installs plugin to OpenSearch
+   *
+   * @param {String} installPath
+   * @param {Object} options
+   * @property {String} options.plugin
+   * @returns {Promise<undefined>}
+   */
+  async installPlugin(installPath, options = {}) {
+    await execa(OPENSEARCH_PLUGIN_BIN, ['install', '--batch', options.plugin], {
+      cwd: installPath,
+      env: {
+        ...process.env,
+        ...(options.bundledJDK ? { JAVA_HOME: '' } : {}),
+        ...(options.opensearchEnvVars || {}),
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  }
+
+  /**
+   * Runs plugin script with arguments
+   *
+   * @param {String} installPath
+   * @param {Object} options
+   * @property {Array} options.pluginScript
+   * @property {Array} options.pluginScriptArgs
+   * @returns {Promise<undefined>}
+   */
+  async runPluginScript(installPath, options = {}) {
+    await chmod(`${installPath}/${options.pluginScript}`, '0755');
+    const pluginScriptArgs = [].concat(options.pluginScriptArgs || []).map((arg) => `-${arg}`);
+    await execa(options.pluginScript, pluginScriptArgs, {
+      cwd: installPath,
+      env: {
+        ...process.env,
+        ...(options.bundledJDK ? { JAVA_HOME: '' } : {}),
+        ...(options.opensearchEnvVars || {}),
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  }
+
+  /**
    * Starts OpenSearch and returns resolved promise once started
    *
    * @param {String} installPath
@@ -180,6 +225,14 @@ exports.Cluster = class Cluster {
    * @returns {Promise}
    */
   async start(installPath, options = {}) {
+    if (options.plugin) {
+      await this.installPlugin(installPath, options);
+
+      if (options.pluginScript) {
+        await this.runPluginScript(installPath, options);
+      }
+    }
+
     this._exec(installPath, options);
 
     await Promise.race([
@@ -208,6 +261,14 @@ exports.Cluster = class Cluster {
    * @returns {Promise<undefined>}
    */
   async run(installPath, options = {}) {
+    if (options.plugin) {
+      await this.installPlugin(installPath, options);
+
+      if (options.pluginScript) {
+        await this.runPluginScript(installPath, options);
+      }
+    }
+
     this._exec(installPath, options);
 
     // await the final outcome of the process

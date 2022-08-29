@@ -57,25 +57,54 @@ import type { OpenSearchClient } from '../client';
  */
 export const getNodeId = async (
   internalClient: OpenSearchClient,
-  healthcheckAttributeName: string
+  healthcheckAttributeName: string,
+  filtersMap?: Map<string, string>
 ): Promise<string | null> => {
   try {
+    let path = `nodes.*.attributes.${healthcheckAttributeName}`;
+    if (filtersMap) {
+      Object.keys(filtersMap).forEach((key) => {
+        path += `,${key}`;
+      });
+    }
+
     const state = (await internalClient.cluster.state({
       metric: 'nodes',
-      filter_path: [`nodes.*.attributes.${healthcheckAttributeName}`],
+      filter_path: [path],
     })) as ApiResponse;
+
     /* Aggregate different cluster_ids from the OpenSearch nodes
      * if all the nodes have the same cluster_id, retrieve nodes.info from _local node only
      * Using _cluster/state/nodes to retrieve the cluster_id of each node from cluster manager node which is considered to be a lightweight operation
      * else if the nodes have different cluster_ids then fan out the request to all nodes
      * else there are no nodes in the cluster
      */
-    const sharedClusterId =
-      state.body.nodes.length > 0
-        ? get(state.body.nodes[0], `attributes.${healthcheckAttributeName}`, null)
-        : null;
+    const nodes = state.body.nodes;
+    let nodeIds = Object.keys(nodes);
+    if (nodeIds.length === 0) {
+      return null;
+    }
+
+    if (filtersMap) {
+      nodeIds.forEach((id) => {
+        filtersMap.forEach((value, key) => {
+          const attributeValue = get(nodes[id], `attributes.${key}`, null);
+          if (attributeValue === value) {
+            delete nodes[id];
+          }
+        });
+      });
+
+      nodeIds = Object.keys(nodes);
+      if (nodeIds.length === 0) {
+        return null;
+      }
+    }
+
+    const sharedClusterId = get(nodes[nodeIds[0]], `attributes.${healthcheckAttributeName}`, null);
+
     return sharedClusterId === null ||
-      state.body.nodes.find(
+      nodes.find(
         (node: any) => sharedClusterId !== get(node, `attributes.${healthcheckAttributeName}`, null)
       )
       ? null

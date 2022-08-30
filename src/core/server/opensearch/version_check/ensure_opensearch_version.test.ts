@@ -179,7 +179,7 @@ describe('pollOpenSearchNodesVersion', () => {
 
     pollOpenSearchNodesVersion({
       internalClient,
-      optimizedHealthcheckId: 'cluster_id',
+      optimizedHealthcheck: { id: 'cluster_id' },
       opensearchVersionCheckInterval: 1,
       ignoreVersionMismatch: false,
       opensearchDashboardsVersion: OPENSEARCH_DASHBOARDS_VERSION,
@@ -203,7 +203,7 @@ describe('pollOpenSearchNodesVersion', () => {
 
     pollOpenSearchNodesVersion({
       internalClient,
-      optimizedHealthcheckId: 'cluster_id',
+      optimizedHealthcheck: { id: 'cluster_id' },
       opensearchVersionCheckInterval: 1,
       ignoreVersionMismatch: false,
       opensearchDashboardsVersion: OPENSEARCH_DASHBOARDS_VERSION,
@@ -232,7 +232,7 @@ describe('pollOpenSearchNodesVersion', () => {
 
     pollOpenSearchNodesVersion({
       internalClient,
-      optimizedHealthcheckId: 'cluster_id',
+      optimizedHealthcheck: { id: 'cluster_id' },
       opensearchVersionCheckInterval: 1,
       ignoreVersionMismatch: false,
       opensearchDashboardsVersion: OPENSEARCH_DASHBOARDS_VERSION,
@@ -268,7 +268,7 @@ describe('pollOpenSearchNodesVersion', () => {
 
       const opensearchNodesCompatibility$ = pollOpenSearchNodesVersion({
         internalClient,
-        optimizedHealthcheckId: 'cluster_id',
+        optimizedHealthcheck: { id: 'cluster_id' },
         opensearchVersionCheckInterval: 100,
         ignoreVersionMismatch: false,
         opensearchDashboardsVersion: OPENSEARCH_DASHBOARDS_VERSION,
@@ -308,7 +308,7 @@ describe('pollOpenSearchNodesVersion', () => {
 
       const opensearchNodesCompatibility$ = pollOpenSearchNodesVersion({
         internalClient,
-        optimizedHealthcheckId: 'cluster_id',
+        optimizedHealthcheck: { id: 'cluster_id' },
         opensearchVersionCheckInterval: 10,
         ignoreVersionMismatch: false,
         opensearchDashboardsVersion: OPENSEARCH_DASHBOARDS_VERSION,

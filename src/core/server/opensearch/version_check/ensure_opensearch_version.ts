@@ -38,6 +38,7 @@
 import { timer, of, from, Observable } from 'rxjs';
 import { map, distinctUntilChanged, catchError, exhaustMap, mergeMap } from 'rxjs/operators';
 import { get } from 'lodash';
+import { ApiResponse } from '@elastic/elasticsearch';
 import {
   opensearchVersionCompatibleWithOpenSearchDashboards,
   opensearchVersionEqualsOpenSearchDashboards,

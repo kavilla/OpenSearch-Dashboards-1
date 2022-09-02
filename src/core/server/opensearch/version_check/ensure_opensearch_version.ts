@@ -59,8 +59,9 @@ import type { OpenSearchClient } from '../client';
  */
 export const getNodeId = async (
   internalClient: OpenSearchClient,
-  healthcheck: OptimizedHealthcheck
-): Promise<string | null> => {
+  healthcheck: OptimizedHealthcheck,
+  log: Logger
+): Promise<string | string[] | null> => {
   try {
     let path = `nodes.*.attributes.${healthcheck.id}`;
     const filters = healthcheck.filters;
@@ -69,6 +70,7 @@ export const getNodeId = async (
         path += `,nodes.*.attributes.${key}`;
       });
     }
+    logHelper(log, 'PATH', path);
 
     const state = (await internalClient.cluster.state({
       metric: 'nodes',
@@ -81,6 +83,7 @@ export const getNodeId = async (
      * else there are no nodes in the cluster
      */
     const nodes = state.body.nodes;
+    logHelper(log, 'UNFILTERED NODES', JSON.stringify(nodes, null, 2));
     let nodeIds = Object.keys(nodes);
     if (nodeIds.length === 0) {
       return null;
@@ -100,6 +103,7 @@ export const getNodeId = async (
         });
       });
 
+      logHelper(log, 'FILTERED NODES', JSON.stringify(nodes, null, 2));
       nodeIds = Object.keys(nodes);
       if (nodeIds.length === 0) {
         return null;
@@ -108,10 +112,24 @@ export const getNodeId = async (
 
     const sharedClusterId = get(nodes[nodeIds[0]], `attributes.${healthcheck.id}`, null);
 
-    return sharedClusterId === null ||
+    // if cluster id is not set then fan out
+    if (sharedClusterId === null) {
+      logHelper(log, 'RETURN-NULL', 'Fanning out info call');
+      return null;
+    }
+
+    // if cluster id is not null and a node returns with a different cluster id, return node ids
+    if (
+      sharedClusterId !== null &&
       nodes.find((node: any) => sharedClusterId !== get(node, `attributes.${healthcheck.id}`, null))
-      ? null
-      : '_local';
+    ) {
+      logHelper(log, 'RETURN-NODE-ID', JSON.stringify(nodeIds, null, 2));
+      return nodeIds;
+    }
+
+    // if cluster id is not null and all nodes share the same cluster id, return local
+    logHelper(log, 'RETURN-LOCAL', 'Access local node');
+    return '_local';
   } catch (e) {
     return null;
   }
@@ -159,6 +177,10 @@ export interface OptimizedHealthcheck {
 function getHumanizedNodeName(node: NodeInfo) {
   const publishAddress = node?.http?.publish_address + ' ' || '';
   return 'v' + node.version + ' @ ' + publishAddress + '(' + node.ip + ')';
+}
+
+function logHelper(log: Logger, key: string, message: string) {
+  log.debug(`[${key}]: ${message}`);
 }
 
 export function mapNodesVersionCompatibility(
@@ -255,7 +277,7 @@ export const pollOpenSearchNodesVersion = ({
        * Using _cluster/state/nodes to retrieve the cluster_id of each node from the cluster manager node
        */
       if (optimizedHealthcheck) {
-        return from(getNodeId(internalClient, optimizedHealthcheck)).pipe(
+        return from(getNodeId(internalClient, optimizedHealthcheck, log)).pipe(
           mergeMap((nodeId: any) =>
             from(
               internalClient.nodes.info<NodesInfo>({

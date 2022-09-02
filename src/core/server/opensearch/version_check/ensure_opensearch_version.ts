@@ -121,7 +121,10 @@ export const getNodeId = async (
     // if cluster id is not null and a node returns with a different cluster id, return node ids
     if (
       sharedClusterId !== null &&
-      nodes.find((node: any) => sharedClusterId !== get(node, `attributes.${healthcheck.id}`, null))
+      nodeIds.find(
+        (nodeId: any) =>
+          sharedClusterId !== get(nodes[nodeId], `attributes.${healthcheck.id}`, null)
+      )
     ) {
       logHelper(log, 'RETURN-NODE-ID', JSON.stringify(nodeIds, null, 2));
       return nodeIds;

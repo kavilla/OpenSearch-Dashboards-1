@@ -37,7 +37,6 @@
 
 import { timer, of, from, Observable } from 'rxjs';
 import { map, distinctUntilChanged, catchError, exhaustMap, mergeMap } from 'rxjs/operators';
-import { get } from 'lodash';
 import { ApiResponse } from '@elastic/elasticsearch';
 import {
   opensearchVersionCompatibleWithOpenSearchDashboards,
@@ -63,19 +62,22 @@ export const getNodeId = async (
   log: Logger
 ): Promise<string | string[] | null> => {
   try {
+    // If missing an id, we have nothing to check
+    if (!healthcheck.id) return null;
+
     let path = `nodes.*.attributes.${healthcheck.id}`;
     const filters = healthcheck.filters;
-    if (filters) {
-      Object.keys(filters).forEach((key) => {
-        path += `,nodes.*.attributes.${key}`;
-      });
+    const filterKeys = filters ? Object.keys(filters) : [];
+
+    for (const key of filterKeys) {
+      path += `,nodes.*.attributes.${key}`;
     }
-    logHelper(log, 'PATH', path);
 
     const state = (await internalClient.cluster.state({
       metric: 'nodes',
       filter_path: [path],
     })) as ApiResponse;
+
     /* Aggregate different cluster_ids from the OpenSearch nodes
      * if all the nodes have the same cluster_id, retrieve nodes.info from _local node only
      * Using _cluster/state/nodes to retrieve the cluster_id of each node from master node which is considered to be a lightweight operation
@@ -83,51 +85,35 @@ export const getNodeId = async (
      * else there are no nodes in the cluster
      */
     const nodes = state.body.nodes;
-    logHelper(log, 'UNFILTERED NODES', JSON.stringify(nodes, null, 2));
-    let nodeIds = Object.keys(nodes);
-    if (nodeIds.length === 0) {
-      return null;
-    }
+    const nodeIds = new Set(Object.keys(nodes));
 
     /*
      * If filters are set look for the key and value and filter out any node that matches
      * the value for that attribute.
      */
-    if (filters) {
-      nodeIds.forEach((id) => {
-        Object.keys(filters).forEach((key) => {
-          const attributeValue = get(nodes[id], `attributes.${key}`, null);
-          if (attributeValue === filters[key]) {
-            delete nodes[id];
-          }
-        });
-      });
+    for (const id of nodeIds) {
+      for (const key of filterKeys) {
+        const attributeValue = nodes[id].attributes?.[key] ?? null;
 
-      logHelper(log, 'FILTERED NODES', JSON.stringify(nodes, null, 2));
-      nodeIds = Object.keys(nodes);
-      if (nodeIds.length === 0) {
-        return null;
+        if (attributeValue === filters![key]) nodeIds.delete(id);
       }
     }
 
-    const sharedClusterId = get(nodes[nodeIds[0]], `attributes.${healthcheck.id}`, null);
+    if (nodeIds.size === 0) return null;
 
-    // if cluster id is not set then fan out
-    if (sharedClusterId === null) {
-      logHelper(log, 'RETURN-NULL', 'Fanning out info call');
-      return null;
+
+    const [firstNodeId] = nodeIds;
+    const sharedClusterId = nodes[firstNodeId].attributes?.[healthcheck.id] ?? null;
+
+    // If cluster_id is not set then fan out
+    if (sharedClusterId === null) return null;
+
+    // If a node is found to have a different cluster_id, return node ids
+    for (const id of nodeIds) {
+      if (nodes[id].attributes?.[healthcheck.id] !== sharedClusterId) return Array.from(nodeIds);
     }
 
-    // if cluster id is not null and a node returns with a different cluster id, return node ids
-    if (
-      nodeIds.some((id) => sharedClusterId !== get(nodes[id], `attributes.${healthcheck.id}`, null))
-    ) {
-      logHelper(log, 'RETURN-NODE-ID', JSON.stringify(nodeIds, null, 2));
-      return nodeIds;
-    }
-
-    // if cluster id is not null and all nodes share the same cluster id, return local
-    logHelper(log, 'RETURN-LOCAL', 'Access local node');
+    // WHen all nodes share the same cluster_id, return _local
     return '_local';
   } catch (e) {
     return null;

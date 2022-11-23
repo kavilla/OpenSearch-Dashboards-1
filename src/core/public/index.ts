@@ -69,6 +69,12 @@ import {
   ChromeRecentlyAccessedHistoryItem,
   NavType,
 } from './chrome';
+import {
+  Extension,
+  ExtensionInitializer,
+  ExtensionInitializerContext,
+  ExtensionOpaqueId,
+} from './extensions';
 import { FatalErrorsSetup, FatalErrorsStart, FatalErrorInfo } from './fatal_errors';
 import { HttpSetup, HttpStart } from './http';
 import { I18nStart } from './i18n';
@@ -339,6 +345,10 @@ export {
   UiSettingsState,
   NavType,
   Branding,
+  Extension,
+  ExtensionInitializer,
+  ExtensionInitializerContext,
+  ExtensionOpaqueId,
 };
 
 export { __osdBootstrap__ } from './osd_bootstrap';

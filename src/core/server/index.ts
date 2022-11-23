@@ -61,6 +61,7 @@ import {
 import { HttpServiceSetup, HttpServiceStart } from './http';
 import { HttpResources } from './http_resources';
 
+import { ExtensionsServiceSetup, ExtensionsServiceStart, ExtensionOpaqueId } from './extensions';
 import { PluginsServiceSetup, PluginsServiceStart, PluginOpaqueId } from './plugins';
 import { ContextSetup } from './context';
 import { IUiSettingsClient, UiSettingsServiceSetup, UiSettingsServiceStart } from './ui_settings';
@@ -239,6 +240,17 @@ export {
   LoggerConfigType,
   AppenderConfigType,
 } from './logging';
+
+export {
+  DiscoveredExtension,
+  Extension,
+  ExtensionConfigDescriptor,
+  ExtensionConfigSchema,
+  ExtensionInitializer,
+  ExtensionInitializerContext,
+  ExtensionManifest,
+  ExtensionName,
+} from './extensions';
 
 export {
   DiscoveredPlugin,
@@ -493,6 +505,9 @@ export {
   PluginsServiceStart,
   PluginOpaqueId,
   AuditTrailStart,
+  ExtensionsServiceSetup,
+  ExtensionsServiceStart,
+  ExtensionOpaqueId,
 };
 
 /**

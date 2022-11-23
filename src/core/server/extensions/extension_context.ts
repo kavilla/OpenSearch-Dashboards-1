@@ -191,9 +191,9 @@ export function createExtensionSetupContext<TExtension, TExtensionDependencies>(
     status: {
       core$: deps.status.core$,
       overall$: deps.status.overall$,
-      set: deps.status.extensions.set.bind(null, extension.name),
-      dependencies$: deps.status.extensions.getDependenciesStatus$(extension.name),
-      derivedStatus$: deps.status.extensions.getDerivedStatus$(extension.name),
+      set: deps.status.extensions!.set.bind(null, extension.name),
+      dependencies$: deps.status.extensions!.getDependenciesStatus$(extension.name),
+      derivedStatus$: deps.status.extensions!.getDerivedStatus$(extension.name),
       isStatusPageAnonymous: deps.status.isStatusPageAnonymous,
     },
     uiSettings: {

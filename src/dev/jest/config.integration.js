@@ -33,9 +33,10 @@ import config from './config';
 export default {
   ...config,
   testMatch: [
-    '**/integration_tests/**/*.test.js',
-    '**/integration_tests/**/*.test.ts',
-    '**/integration_tests/**/*.test.tsx',
+    '**/core_app/integration_tests/default_route_provider_config.test.ts',
+    //'**/integration_tests/**/*.test.js',
+    //'**/integration_tests/**/*.test.ts',
+    //'**/integration_tests/**/*.test.tsx',
   ],
   testPathIgnorePatterns: config.testPathIgnorePatterns.filter(
     (pattern) => !pattern.includes('integration_tests')

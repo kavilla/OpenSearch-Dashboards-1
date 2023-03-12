@@ -262,7 +262,7 @@ export function createTestServers({
 
   return {
     startOpenSearch: async () => {
-      await opensearch.start(get(settings, 'opensearch.opensearchArgs', []));
+      await opensearch.start();
 
       if (['gold', 'trial'].includes(license)) {
         // Override provided configs

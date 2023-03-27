@@ -44,7 +44,7 @@ export default function ({ getService, getPageObjects }) {
       await opensearchDashboardsServer.uiSettings.replace({
         defaultIndex: '0bf35f60-3dc9-11e8-8660-4d65aa086b3c',
       });
-      await PageObjects.common.navigateToApp('dashboard');
+      await PageObjects.common.navigateToApp('dashboard', { insertTimestamp: false });
       await PageObjects.dashboard.preserveCrossAppState();
       await PageObjects.dashboard.loadSavedDashboard('few panels');
       await PageObjects.dashboard.switchToEditMode();
@@ -101,7 +101,7 @@ export default function ({ getService, getPageObjects }) {
         redirectToOrigin: false,
       });
       await PageObjects.visualize.notLinkedToOriginatingApp();
-      await PageObjects.common.navigateToApp('dashboard');
+      await PageObjects.common.navigateToApp('dashboard', { insertTimestamp: false });
     });
 
     it('loses originatingApp connection after first save when redirectToOrigin is false', async () => {

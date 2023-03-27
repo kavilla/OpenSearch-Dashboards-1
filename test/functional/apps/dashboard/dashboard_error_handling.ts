@@ -42,7 +42,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
   describe('dashboard error handling', () => {
     before(async () => {
       await opensearchArchiver.loadIfNeeded('dashboard/current/opensearch_dashboards');
-      await PageObjects.common.navigateToApp('dashboard');
+      await PageObjects.common.navigateToApp('dashboard', { insertTimestamp: false });
     });
 
     // wrapping into own describe to make sure new tab is cleaned up even if test failed

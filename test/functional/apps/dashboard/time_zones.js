@@ -57,7 +57,7 @@ export default function ({ getService, getPageObjects }) {
         path.join(__dirname, 'exports', 'timezonetest_6_2_4.json')
       );
       await PageObjects.savedObjects.checkImportSucceeded();
-      await PageObjects.common.navigateToApp('dashboard');
+      await PageObjects.common.navigateToApp('dashboard', { insertTimestamp: false });
       await PageObjects.dashboard.preserveCrossAppState();
       await PageObjects.dashboard.loadSavedDashboard('time zone test');
     });
@@ -77,7 +77,7 @@ export default function ({ getService, getPageObjects }) {
       await PageObjects.settings.navigateTo();
       await PageObjects.settings.clickOpenSearchDashboardsSettings();
       await PageObjects.settings.setAdvancedSettingsSelect('dateFormat:tz', 'Etc/GMT+5');
-      await PageObjects.common.navigateToApp('dashboard');
+      await PageObjects.common.navigateToApp('dashboard', { insertTimestamp: false });
       await PageObjects.dashboard.loadSavedDashboard('time zone test');
       const time = await PageObjects.timePicker.getTimeConfigAsAbsoluteTimes();
       expect(time.start).to.be('Apr 9, 2018 @ 22:00:00.000');

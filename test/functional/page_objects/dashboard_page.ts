@@ -59,11 +59,12 @@ export function DashboardPageProvider({ getService, getPageObjects }: FtrProvide
     async initTests({
       opensearchDashboardsIndex = 'dashboard/legacy',
       defaultIndex = 'logstash-*',
+      insertTimestamp = true,
     } = {}) {
       log.debug('load opensearch-dashboards index with visualizations and log data');
       await opensearchArchiver.load(opensearchDashboardsIndex);
       await opensearchDashboardsServer.uiSettings.replace({ defaultIndex });
-      await PageObjects.common.navigateToApp('dashboard');
+      await PageObjects.common.navigateToApp('dashboard', { insertTimestamp });
     }
 
     public async preserveCrossAppState() {

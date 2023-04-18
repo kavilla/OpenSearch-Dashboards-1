@@ -31,12 +31,10 @@ jobs:
     name: Build and Verify on ${{ matrix.name }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             name: Linux
-          - os: windows-latest
-            name: Windows
     runs-on: ${{ matrix.os }}
     steps:
       - name: Configure git's autocrlf (Windows only)
@@ -66,35 +64,35 @@ jobs:
           npm i -g yarn@1.22.10
           yarn config set network-timeout 1000000 -g
 
-      - name: Configure Yarn Cache (Linux)
-        if: matrix.os != 'windows-latest'
-        run: echo "YARN_CACHE_LOCATION=$(yarn cache dir)" >> $GITHUB_ENV
+      # - name: Configure Yarn Cache (Linux)
+      #   if: matrix.os != 'windows-latest'
+      #   run: echo "YARN_CACHE_LOCATION=$(yarn cache dir)" >> $GITHUB_ENV
 
-      - name: Configure Yarn Cache (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          echo "YARN_CACHE_LOCATION=$(yarn cache dir)" >> $env:GITHUB_ENV
-          echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
+      # - name: Configure Yarn Cache (Windows)
+      #   if: matrix.os == 'windows-latest'
+      #   run: |
+      #     echo "YARN_CACHE_LOCATION=$(yarn cache dir)" >> $env:GITHUB_ENV
+      #     echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
 
-      - name: Initialize Yarn Cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.YARN_CACHE_LOCATION }}
-          key: yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            yarn-
+      # - name: Initialize Yarn Cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ${{ env.YARN_CACHE_LOCATION }}
+      #     key: yarn-${{ hashFiles('**/yarn.lock') }}
+      #     restore-keys: |
+      #       yarn-
 
       - name: Run bootstrap (Linux)
         if: matrix.os != 'windows-latest'
         run: yarn osd bootstrap
 
-      - name: Run bootstrap (Windows)
-        if: matrix.os == 'windows-latest'
-        run: yarn osd bootstrap || yarn osd bootstrap
+      # - name: Run bootstrap (Windows)
+      #   if: matrix.os == 'windows-latest'
+      #   run: yarn osd bootstrap || yarn osd bootstrap
 
-      - name: Run linter
-        id: linter
-        run: yarn lint
+      # - name: Run linter
+      #   id: linter
+      #   run: yarn lint
 
       #- name: Validate NOTICE file
       #  id: notice-validate

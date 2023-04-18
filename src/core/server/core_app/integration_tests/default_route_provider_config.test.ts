@@ -32,7 +32,7 @@ import {
   createTestServers,
   TestOpenSearchUtils,
   createRootWithCorePlugins,
-  request,
+  request as osdServerRequest,
 } from '../../../test_helpers/osd_server';
 import { Root } from '../../root';
 
@@ -54,10 +54,10 @@ describe('default route provider', () => {
 
     await root.setup();
     await root.start();
-  }, 60000);
+  });
 
   afterAll(async () => {
-    await request
+    await osdServerRequest
       .post(root, '/api/opensearch-dashboards/settings/defaultRoute')
       .send({ value: '/app/home' });
     await opensearchServer.stop();
@@ -67,14 +67,14 @@ describe('default route provider', () => {
   // TODO: [RENAMEME] Temporary code for backwards compatibility.
   // https://github.com/opensearch-project/OpenSearch-Dashboards/issues/334
   beforeEach(async () => {
-    await request
+    await osdServerRequest
       .post(root, '/api/opensearch-dashboards/settings/defaultRoute')
       .send({ value: '/app/home' })
       .expect(200);
   });
 
   it('redirects to the configured default route respecting basePath', async function () {
-    const { status, header } = await request.get(root, '/');
+    const { status, header } = await osdServerRequest.get(root, '/');
 
     expect(status).toEqual(302);
     expect(header).toMatchObject({
@@ -91,13 +91,13 @@ describe('default route provider', () => {
     ];
 
     for (const url of invalidRoutes) {
-      await request
+      await osdServerRequest
         .post(root, '/api/opensearch-dashboards/settings/defaultRoute')
         .send({ value: url })
         .expect(400);
     }
 
-    const { status, header } = await request.get(root, '/');
+    const { status, header } = await osdServerRequest.get(root, '/');
     expect(status).toEqual(302);
     expect(header).toMatchObject({
       location: '/hello/app/home',
@@ -105,12 +105,12 @@ describe('default route provider', () => {
   });
 
   it('consumes valid values', async function () {
-    await request
+    await osdServerRequest
       .post(root, '/api/opensearch-dashboards/settings/defaultRoute')
       .send({ value: '/valid' })
       .expect(200);
 
-    const { status, header } = await request.get(root, '/');
+    const { status, header } = await osdServerRequest.get(root, '/');
     expect(status).toEqual(302);
     expect(header).toMatchObject({
       location: '/hello/valid',
@@ -120,12 +120,12 @@ describe('default route provider', () => {
   // TODO: [RENAMEME] Temporary code for backwards compatibility.
   // https://github.com/opensearch-project/OpenSearch-Dashboards/issues/334
   it('replaces kibana_overview', async function () {
-    await request
+    await osdServerRequest
       .post(root, '/api/opensearch-dashboards/settings/defaultRoute')
       .send({ value: '/kibana_overview' })
       .expect(200);
 
-    const { status, header } = await request.get(root, '/');
+    const { status, header } = await osdServerRequest.get(root, '/');
     expect(status).toEqual(302);
     expect(header).toMatchObject({
       location: '/hello/opensearch_dashboards_overview',
@@ -133,12 +133,12 @@ describe('default route provider', () => {
   });
 
   it('replaces kibana_overview#', async function () {
-    await request
+    await osdServerRequest
       .post(root, '/api/opensearch-dashboards/settings/defaultRoute')
       .send({ value: '/kibana_overview#' })
       .expect(200);
 
-    const { status, header } = await request.get(root, '/');
+    const { status, header } = await osdServerRequest.get(root, '/');
     expect(status).toEqual(302);
     expect(header).toMatchObject({
       location: '/hello/opensearch_dashboards_overview#',
@@ -146,12 +146,12 @@ describe('default route provider', () => {
   });
 
   it('does not replace kibana', async function () {
-    await request
+    await osdServerRequest
       .post(root, '/api/opensearch-dashboards/settings/defaultRoute')
       .send({ value: '/kibana' })
       .expect(200);
 
-    const { status, header } = await request.get(root, '/');
+    const { status, header } = await osdServerRequest.get(root, '/');
     expect(status).toEqual(302);
     expect(header).toMatchObject({
       location: '/hello/kibana',

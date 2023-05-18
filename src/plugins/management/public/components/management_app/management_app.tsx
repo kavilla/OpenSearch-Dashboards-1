@@ -29,7 +29,8 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { AppMountParameters, ChromeBreadcrumb, ScopedHistory } from 'opensearch-dashboards/public';
+import { AppMountParameters, ScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
+import { ChromeBreadcrumb } from 'opensearch-dashboards/public';
 import { I18nProvider } from '@osd/i18n/react';
 import { EuiPage } from '@elastic/eui';
 import { ManagementSection, MANAGEMENT_BREADCRUMB } from '../../utils';

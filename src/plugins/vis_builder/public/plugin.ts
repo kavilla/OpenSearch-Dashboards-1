@@ -6,15 +6,14 @@
 import { i18n } from '@osd/i18n';
 import { BehaviorSubject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
+import { AppMountParameters, ScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
 import {
-  AppMountParameters,
   AppNavLinkStatus,
   AppUpdater,
   CoreSetup,
   CoreStart,
   Plugin,
   PluginInitializerContext,
-  ScopedHistory,
 } from '../../../core/public';
 import {
   VisBuilderPluginSetupDependencies,

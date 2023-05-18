@@ -42,7 +42,7 @@ import {
   EuiToolTip,
   EuiBadge,
 } from '@elastic/eui';
-import { AppMountParameters } from 'opensearch-dashboards/public';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 import { FormattedMessage } from '@osd/i18n/react';
 import { ManagementApp, ManagementSection } from '../../utils';
 

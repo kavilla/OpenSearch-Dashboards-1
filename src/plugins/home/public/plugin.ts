@@ -28,8 +28,8 @@
  * under the License.
  */
 
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 import {
-  AppMountParameters,
   CoreSetup,
   CoreStart,
   Plugin,

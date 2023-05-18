@@ -36,7 +36,7 @@ import { mountWithIntl } from 'test_utils/enzyme_helpers';
 import { AppContainer } from './app_container';
 import { Mounter, AppMountParameters, AppStatus } from '../types';
 import { createMemoryHistory } from 'history';
-import { ScopedHistory } from '../scoped_history';
+import { ApplicationScopedHistory } from '../scoped_history';
 
 describe('AppContainer', () => {
   const appId = 'someApp';
@@ -92,7 +92,7 @@ describe('AppContainer', () => {
         setIsMounting={setIsMounting}
         createScopedHistory={(appPath: string) =>
           // Create a history using the appPath as the current location
-          new ScopedHistory(createMemoryHistory({ initialEntries: [appPath] }), appPath)
+          new ApplicationScopedHistory(createMemoryHistory({ initialEntries: [appPath] }), appPath)
         }
       />
     );
@@ -133,7 +133,7 @@ describe('AppContainer', () => {
         setIsMounting={setIsMounting}
         createScopedHistory={(appPath: string) =>
           // Create a history using the appPath as the current location
-          new ScopedHistory(createMemoryHistory({ initialEntries: [appPath] }), appPath)
+          new ApplicationScopedHistory(createMemoryHistory({ initialEntries: [appPath] }), appPath)
         }
       />
     );
@@ -175,7 +175,7 @@ describe('AppContainer', () => {
         setIsMounting={setIsMounting}
         createScopedHistory={(appPath: string) =>
           // Create a history using the appPath as the current location
-          new ScopedHistory(createMemoryHistory({ initialEntries: [appPath] }), appPath)
+          new ApplicationScopedHistory(createMemoryHistory({ initialEntries: [appPath] }), appPath)
         }
       />
     );

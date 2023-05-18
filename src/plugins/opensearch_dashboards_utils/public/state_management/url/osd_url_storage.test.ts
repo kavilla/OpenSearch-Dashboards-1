@@ -43,7 +43,7 @@ import {
   setStateToOsdUrl,
   getStateFromOsdUrl,
 } from './osd_url_storage';
-import { ScopedHistory } from '../../../../../core/public';
+import { ApplicationScopedHistory } from '../../../../../core/public';
 
 describe('osd_url_storage', () => {
   describe('getStateFromUrl & setStateToUrl', () => {
@@ -302,7 +302,7 @@ describe('osd_url_storage', () => {
     beforeEach(() => {
       const parentHistory = createBrowserHistory();
       parentHistory.replace('/app/opensearch-dashboards/');
-      history = new ScopedHistory(parentHistory, '/app/opensearch-dashboards/');
+      history = new ApplicationScopedHistory(parentHistory, '/app/opensearch-dashboards/');
       urlControls = createOsdUrlControls(history);
     });
 
@@ -393,7 +393,7 @@ describe('osd_url_storage', () => {
     beforeEach(() => {
       const parentHistory = createBrowserHistory();
       parentHistory.replace('/app/kibana/');
-      history = new ScopedHistory(parentHistory, '/app/kibana/');
+      history = new ApplicationScopedHistory(parentHistory, '/app/kibana/');
       urlControls = createOsdUrlControls(history);
     });
 

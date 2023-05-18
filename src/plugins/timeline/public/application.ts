@@ -38,11 +38,12 @@ import 'angular-sanitize';
 import 'angular-route';
 import 'angular-sortable-view';
 import { i18nDirective, i18nFilter, I18nProvider } from '@osd/i18n/angular';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
+
 import {
   IUiSettingsClient,
   CoreStart,
   PluginInitializerContext,
-  AppMountParameters,
 } from 'opensearch-dashboards/public';
 import { getTimeChart } from './panels/timechart/timechart';
 import { Panel } from './panels/panel';

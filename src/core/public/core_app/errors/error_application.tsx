@@ -35,9 +35,9 @@ import { i18n } from '@osd/i18n';
 import { I18nProvider } from '@osd/i18n/react';
 
 import { EuiEmptyPrompt, EuiPage, EuiPageBody, EuiPageContent } from '@elastic/eui';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 import { UrlOverflowUi } from './url_overflow_ui';
 import { IBasePath } from '../../http';
-import { AppMountParameters } from '../../application';
 
 interface Props {
   title?: string;

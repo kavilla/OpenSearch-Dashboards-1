@@ -39,6 +39,7 @@ import {
   Href,
   Action,
 } from 'history';
+import { ScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
 
 /**
  * A wrapper around a `History` instance that is scoped to a particular base path of the history stack. Behaves
@@ -48,13 +49,13 @@ import {
  * This wrapper also allows Core and Plugins to share a single underlying global `History` instance without exposing
  * the history of other applications.
  *
- * The {@link ScopedHistory.createSubHistory | createSubHistory} method is particularly useful for applications that
+ * The {@link ApplicationScopedHistory.createSubHistory | createSubHistory} method is particularly useful for applications that
  * contain any number of "sub-apps" which should not have access to the main application's history or basePath.
  *
  * @public
  */
-export class ScopedHistory<HistoryLocationState = unknown>
-  implements History<HistoryLocationState> {
+export class ApplicationScopedHistory<HistoryLocationState = unknown>
+  implements ScopedHistory<HistoryLocationState> {
   /**
    * Tracks whether or not the user has left this history's scope. All methods throw errors if called after scope has
    * been left.
@@ -94,8 +95,8 @@ export class ScopedHistory<HistoryLocationState = unknown>
    */
   public createSubHistory = <SubHistoryLocationState = unknown>(
     basePath: string
-  ): ScopedHistory<SubHistoryLocationState> => {
-    return new ScopedHistory<SubHistoryLocationState>(this, basePath);
+  ): ApplicationScopedHistory<SubHistoryLocationState> => {
+    return new ApplicationScopedHistory<SubHistoryLocationState>(this, basePath);
   };
 
   /**

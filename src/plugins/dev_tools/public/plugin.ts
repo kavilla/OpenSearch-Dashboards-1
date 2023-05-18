@@ -29,7 +29,8 @@
  */
 
 import { BehaviorSubject } from 'rxjs';
-import { Plugin, CoreSetup, AppMountParameters } from 'src/core/public';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
+import { Plugin, CoreSetup } from 'src/core/public';
 import { AppUpdater } from 'opensearch-dashboards/public';
 import { i18n } from '@osd/i18n';
 import { sortBy } from 'lodash';

@@ -32,14 +32,14 @@ import { BehaviorSubject } from 'rxjs';
 import { i18n } from '@osd/i18n';
 import { filter, map } from 'rxjs/operators';
 import { createHashHistory } from 'history';
+import { AppMountParameters, ScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
+
 import {
-  AppMountParameters,
   AppUpdater,
   CoreSetup,
   CoreStart,
   Plugin,
   PluginInitializerContext,
-  ScopedHistory,
 } from 'opensearch-dashboards/public';
 
 import {

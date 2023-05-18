@@ -38,13 +38,13 @@ import {
   VisualizeEmbeddableContract,
   VisSavedObject,
 } from 'src/plugins/visualizations/public';
+import { AppMountParameters, ScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
+
 import {
   CoreStart,
   PluginInitializerContext,
   ChromeStart,
   ToastsStart,
-  ScopedHistory,
-  AppMountParameters,
 } from 'opensearch-dashboards/public';
 import { NavigationPublicPluginStart as NavigationStart } from 'src/plugins/navigation/public';
 import {

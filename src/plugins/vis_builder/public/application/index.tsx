@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom';
 import { Router, Route, Switch } from 'react-router-dom';
 import { Provider as ReduxProvider } from 'react-redux';
 import { Store } from 'redux';
-import { AppMountParameters } from '../../../../core/public';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 import { VisBuilderServices } from '../types';
 import { VisBuilderApp } from './app';
 import { OpenSearchDashboardsContextProvider } from '../../../opensearch_dashboards_react/public';

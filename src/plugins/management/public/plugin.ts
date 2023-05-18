@@ -30,15 +30,16 @@
 
 import { i18n } from '@osd/i18n';
 import { BehaviorSubject } from 'rxjs';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 import { ManagementSetup, ManagementStart } from './types';
 import { FeatureCatalogueCategory, HomePublicPluginSetup } from '../../home/public';
+
 import {
   CoreSetup,
   CoreStart,
   Plugin,
   DEFAULT_APP_CATEGORIES,
   PluginInitializerContext,
-  AppMountParameters,
   AppUpdater,
   AppStatus,
   AppNavLinkStatus,

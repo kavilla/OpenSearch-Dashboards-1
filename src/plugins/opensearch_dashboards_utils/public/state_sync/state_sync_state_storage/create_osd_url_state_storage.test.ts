@@ -33,7 +33,7 @@ import { createOsdUrlStateStorage, IOsdUrlStateStorage } from './create_osd_url_
 import { History, createBrowserHistory } from 'history';
 import { takeUntil, toArray } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { ScopedHistory } from '../../../../../core/public';
+import { ApplicationScopedHistory } from '../../../../../core/public';
 import { withNotifyOnErrors } from '../../state_management/url';
 import { coreMock } from '../../../../../core/public/mocks';
 
@@ -215,12 +215,12 @@ describe('OsdUrlStateStorage', () => {
 
   describe('ScopedHistory integration', () => {
     let urlStateStorage: IOsdUrlStateStorage;
-    let history: ScopedHistory;
+    let history: ApplicationScopedHistory;
     const getCurrentUrl = () => history.createHref(history.location);
     beforeEach(() => {
       const parentHistory = createBrowserHistory();
       parentHistory.push('/opensearch-dashboards/app/');
-      history = new ScopedHistory(parentHistory, '/opensearch-dashboards/app/');
+      history = new ApplicationScopedHistory(parentHistory, '/opensearch-dashboards/app/');
       urlStateStorage = createOsdUrlStateStorage({ useHash: false, history });
     });
 

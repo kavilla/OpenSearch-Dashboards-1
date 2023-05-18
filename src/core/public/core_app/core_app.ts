@@ -29,11 +29,11 @@
  */
 
 import { UnregisterCallback } from 'history';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 import {
   InternalApplicationSetup,
   InternalApplicationStart,
   AppNavLinkStatus,
-  AppMountParameters,
 } from '../application';
 import type { HttpSetup, HttpStart } from '../http';
 import type { CoreContext } from '../core_system';

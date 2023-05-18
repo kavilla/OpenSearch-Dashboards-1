@@ -31,8 +31,8 @@
 import { i18n } from '@osd/i18n';
 import { from } from 'rxjs';
 import { distinct, map, switchMap } from 'rxjs/operators';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 import {
-  AppMountParameters,
   CoreSetup,
   CoreStart,
   Plugin,

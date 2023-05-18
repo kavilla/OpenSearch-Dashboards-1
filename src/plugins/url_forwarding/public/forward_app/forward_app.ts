@@ -28,7 +28,8 @@
  * under the License.
  */
 
-import { App, AppMountParameters, CoreSetup } from 'opensearch-dashboards/public';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
+import { App, CoreSetup } from 'opensearch-dashboards/public';
 import { AppNavLinkStatus } from '../../../../core/public';
 import { navigateToLegacyOpenSearchDashboardsUrl } from './navigate_to_legacy_opensearch_dashboards_url';
 import { ForwardDefinition, UrlForwardingStart } from '../plugin';

@@ -33,7 +33,7 @@ import { createMemoryHistory } from 'history';
 // Only import types from '.' to avoid triggering default Jest mocks.
 import { CoreContext, PluginInitializerContext, AppMountParameters } from '.';
 // Import values from their individual modules instead.
-import { ScopedHistory } from './application';
+import { ApplicationScopedHistory } from './application';
 
 import { applicationServiceMock } from './application/application_service.mock';
 import { chromeServiceMock } from './chrome/chrome_service.mock';
@@ -172,7 +172,7 @@ function createAppMountParametersMock(appBasePath = '') {
   // Assemble an in-memory history mock using the provided basePath
   const rawHistory = createMemoryHistory();
   rawHistory.push(appBasePath);
-  const history = new ScopedHistory(rawHistory, appBasePath);
+  const history = new ApplicationScopedHistory(rawHistory, appBasePath);
 
   const params: jest.Mocked<AppMountParameters> = {
     appBasePath,

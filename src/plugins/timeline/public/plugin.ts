@@ -30,15 +30,15 @@
 
 import { BehaviorSubject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
+import { AppMountParameters, ScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
+
 import {
   CoreSetup,
   CoreStart,
   Plugin,
   PluginInitializerContext,
   DEFAULT_APP_CATEGORIES,
-  AppMountParameters,
   AppUpdater,
-  ScopedHistory,
   AppNavLinkStatus,
 } from '../../../core/public';
 import { Panel } from './panels/panel';

@@ -7,12 +7,12 @@ import React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
 import { CreateButton } from './create_button';
 import { scopedHistoryMock } from '../../../../../core/public/mocks';
-import { ScopedHistory } from 'opensearch-dashboards/public';
+import { ApplicationScopedHistory } from 'opensearch-dashboards/public';
 
 const createButtonIdentifier = `[data-test-subj="createDataSourceButton"]`;
 
 describe('CreateButton', () => {
-  const history = (scopedHistoryMock.create() as unknown) as ScopedHistory;
+  const history = (scopedHistoryMock.create() as unknown) as ApplicationScopedHistory;
   const dataTestSubj = 'createDataSourceButton';
   let component: ShallowWrapper<any, Readonly<{}>, React.Component<{}, {}, any>>;
 

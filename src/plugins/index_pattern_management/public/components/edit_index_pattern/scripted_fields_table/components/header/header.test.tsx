@@ -31,7 +31,7 @@
 import React from 'react';
 import { renderWithIntl } from 'test_utils/enzyme_helpers';
 import { RouteComponentProps } from 'react-router-dom';
-import { ScopedHistory } from 'opensearch-dashboards/public';
+import { ApplicationScopedHistory } from 'opensearch-dashboards/public';
 import { scopedHistoryMock } from '../../../../../../../../core/public/mocks';
 import { Header } from './header';
 
@@ -40,7 +40,7 @@ describe('Header', () => {
     const component = renderWithIntl(
       <Header.WrappedComponent
         indexPatternId="test"
-        history={(scopedHistoryMock.create() as unknown) as ScopedHistory}
+        history={(scopedHistoryMock.create() as unknown) as ApplicationScopedHistory}
         location={({} as unknown) as RouteComponentProps['location']}
         match={({} as unknown) as RouteComponentProps['match']}
       />

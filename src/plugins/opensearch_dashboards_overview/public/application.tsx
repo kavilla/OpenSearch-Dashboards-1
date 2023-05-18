@@ -31,9 +31,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { I18nProvider } from '@osd/i18n/react';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 import { OpenSearchDashboardsContextProvider } from '../../../../src/plugins/opensearch_dashboards_react/public';
 import { NewsfeedApiEndpoint } from '../../../../src/plugins/newsfeed/public';
-import { AppMountParameters, CoreStart } from '../../../../src/core/public';
+import { CoreStart } from '../../../../src/core/public';
 import { AppPluginStartDependencies } from './types';
 import { OpenSearchDashboardsOverviewApp } from './components/app';
 

@@ -14,7 +14,7 @@ import { wrapWithIntl } from 'test_utils/enzyme_helpers';
 import { OpenSearchDashboardsContextProvider } from '../../../../opensearch_dashboards_react/public';
 import { CreateDataSourceWizard } from './create_data_source_wizard';
 import { scopedHistoryMock } from '../../../../../core/public/mocks';
-import { ScopedHistory } from 'opensearch-dashboards/public';
+import { ApplicationScopedHistory } from 'opensearch-dashboards/public';
 import { RouteComponentProps } from 'react-router-dom';
 import { act } from 'react-dom/test-utils';
 import * as utils from '../utils';
@@ -23,7 +23,7 @@ const formIdentifier = 'CreateDataSourceForm';
 describe('Datasource Management: Create Datasource Wizard', () => {
   const mockedContext = mockManagementPlugin.createDataSourceManagementContext();
   let component: ReactWrapper<any, Readonly<{}>, React.Component<{}, {}, any>>;
-  const history = (scopedHistoryMock.create() as unknown) as ScopedHistory;
+  const history = (scopedHistoryMock.create() as unknown) as ApplicationScopedHistory;
   describe('case1: should load resources successfully', () => {
     beforeEach(async () => {
       spyOn(utils, 'getDataSources').and.returnValue(Promise.resolve(getMappedDataSources));

@@ -29,7 +29,8 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { AppMountParameters, ChromeBreadcrumb, ScopedHistory } from 'opensearch-dashboards/public';
+import { AppMountParameters, ApplicationScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
+import { ChromeBreadcrumb } from 'opensearch-dashboards/public';
 import { I18nProvider } from '@osd/i18n/react';
 import { EuiPage } from '@elastic/eui';
 import { ManagementSection, MANAGEMENT_BREADCRUMB } from '../../utils';
@@ -64,8 +65,8 @@ export const ManagementApp = ({ dependencies, history }: ManagementAppProps) => 
   }, []);
 
   const setBreadcrumbsScoped = useCallback(
-    (crumbs: ChromeBreadcrumb[] = [], appHistory?: ScopedHistory) => {
-      const wrapBreadcrumb = (item: ChromeBreadcrumb, scopedHistory: ScopedHistory) => ({
+    (crumbs: ChromeBreadcrumb[] = [], appHistory?: ApplicationScopedHistory) => {
+      const wrapBreadcrumb = (item: ChromeBreadcrumb, scopedHistory: ApplicationScopedHistory) => ({
         ...item,
         ...(item.href ? reactRouterNavigate(scopedHistory, item.href) : {}),
       });

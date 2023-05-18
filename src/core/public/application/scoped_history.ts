@@ -39,6 +39,7 @@ import {
   Href,
   Action,
 } from 'history';
+import { ScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
 
 /**
  * A wrapper around a `History` instance that is scoped to a particular base path of the history stack. Behaves
@@ -48,13 +49,13 @@ import {
  * This wrapper also allows Core and Plugins to share a single underlying global `History` instance without exposing
  * the history of other applications.
  *
- * The {@link ScopedHistory.createSubHistory | createSubHistory} method is particularly useful for applications that
+ * The {@link ApplicationScopedHistory.createSubHistory | createSubHistory} method is particularly useful for applications that
  * contain any number of "sub-apps" which should not have access to the main application's history or basePath.
  *
  * @public
  */
-export class ScopedHistory<HistoryLocationState = unknown>
-  implements History<HistoryLocationState> {
+export class ApplicationScopedHistory<HistoryLocationState = unknown>
+  implements ScopedHistory<HistoryLocationState> {
   /**
    * Tracks whether or not the user has left this history's scope. All methods throw errors if called after scope has
    * been left.
@@ -87,15 +88,15 @@ export class ScopedHistory<HistoryLocationState = unknown>
   }
 
   /**
-   * Creates a `ScopedHistory` for a subpath of this `ScopedHistory`. Useful for applications that may have sub-apps
+   * Creates a `ApplicationScopedHistory` for a subpath of this `ApplicationScopedHistory`. Useful for applications that may have sub-apps
    * that do not need access to the containing application's history.
    *
    * @param basePath the URL path scope for the sub history
    */
   public createSubHistory = <SubHistoryLocationState = unknown>(
     basePath: string
-  ): ScopedHistory<SubHistoryLocationState> => {
-    return new ScopedHistory<SubHistoryLocationState>(this, basePath);
+  ): ApplicationScopedHistory<SubHistoryLocationState> => {
+    return new ApplicationScopedHistory<SubHistoryLocationState>(this, basePath);
   };
 
   /**
@@ -181,7 +182,7 @@ export class ScopedHistory<HistoryLocationState = unknown>
 
   /**
    * Send the user one location back in the history stack. Equivalent to calling
-   * {@link ScopedHistory.go | ScopedHistory.go(-1)}. If no more entries are available backwards, this is a no-op.
+   * {@link ApplicationScopedHistory.go | ApplicationScopedHistory.go(-1)}. If no more entries are available backwards, this is a no-op.
    */
   public goBack = () => {
     this.verifyActive();
@@ -190,7 +191,7 @@ export class ScopedHistory<HistoryLocationState = unknown>
 
   /**
    * Send the user one location forward in the history stack. Equivalent to calling
-   * {@link ScopedHistory.go | ScopedHistory.go(1)}. If no more entries are available forwards, this is a no-op.
+   * {@link ApplicationScopedHistory.go | ApplicationScopedHistory.go(1)}. If no more entries are available forwards, this is a no-op.
    */
   public goForward = () => {
     this.verifyActive();
@@ -297,7 +298,7 @@ export class ScopedHistory<HistoryLocationState = unknown>
   private verifyActive() {
     if (!this.isActive) {
       throw new Error(
-        `ScopedHistory instance has fell out of navigation scope for basePath: ${this.basePath}`
+        `ApplicationScopedHistory instance has fell out of navigation scope for basePath: ${this.basePath}`
       );
     }
   }

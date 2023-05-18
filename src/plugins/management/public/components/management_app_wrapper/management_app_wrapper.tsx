@@ -30,13 +30,14 @@
 
 import React, { createRef, Component } from 'react';
 
-import { ChromeBreadcrumb, AppMountParameters, ScopedHistory } from 'opensearch-dashboards/public';
+import { AppMountParameters, ApplicationScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
+import { ChromeBreadcrumb } from 'opensearch-dashboards/public';
 import { ManagementApp } from '../../utils';
 import { Unmount } from '../../types';
 
 interface ManagementSectionWrapperProps {
   app: ManagementApp;
-  setBreadcrumbs: (crumbs?: ChromeBreadcrumb[], history?: ScopedHistory) => void;
+  setBreadcrumbs: (crumbs?: ChromeBreadcrumb[], history?: ApplicationScopedHistory) => void;
   onAppMounted: (id: string) => void;
   history: AppMountParameters['history'];
 }

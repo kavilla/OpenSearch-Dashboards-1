@@ -34,10 +34,11 @@ import { History } from 'history';
 import { Observable } from 'rxjs';
 import useObservable from 'react-use/lib/useObservable';
 
-import type { MountPoint } from '../../types';
-import { AppLeaveHandler, AppStatus, Mounter } from '../types';
+import { AppLeaveHandler } from '@opensearch-project/opensearch-dashboards-sdk';
+import type { MountPoint } from '@opensearch-project/opensearch-dashboards-sdk';
+import { AppStatus, Mounter } from '../types';
 import { AppContainer } from './app_container';
-import { ScopedHistory } from '../scoped_history';
+import { ApplicationScopedHistory } from '../scoped_history';
 
 interface Props {
   mounters: Map<string, Mounter>;
@@ -62,7 +63,7 @@ export const AppRouter: FunctionComponent<Props> = ({
 }) => {
   const appStatuses = useObservable(appStatuses$, new Map());
   const createScopedHistory = useMemo(
-    () => (appPath: string) => new ScopedHistory(history, appPath),
+    () => (appPath: string) => new ApplicationScopedHistory(history, appPath),
     [history]
   );
 

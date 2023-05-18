@@ -32,9 +32,9 @@ import { i18n } from '@osd/i18n';
 import angular, { auto } from 'angular';
 import { BehaviorSubject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 
 import {
-  AppMountParameters,
   AppUpdater,
   CoreSetup,
   CoreStart,

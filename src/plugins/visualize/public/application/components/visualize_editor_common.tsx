@@ -32,7 +32,7 @@ import './visualize_editor.scss';
 import React, { RefObject } from 'react';
 import { FormattedMessage } from '@osd/i18n/react';
 import { EuiScreenReaderOnly } from '@elastic/eui';
-import { AppMountParameters } from 'opensearch-dashboards/public';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 import { VisualizeTopNav } from './visualize_top_nav';
 import { ExperimentalVisInfo } from './experimental_vis_info';
 import {

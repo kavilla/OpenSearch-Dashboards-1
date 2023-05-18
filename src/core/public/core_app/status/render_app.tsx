@@ -31,7 +31,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { I18nProvider } from '@osd/i18n/react';
-import type { AppMountParameters } from '../../application';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 import type { HttpSetup } from '../../http';
 import type { NotificationsSetup } from '../../notifications';
 import { StatusApp } from './status_app';

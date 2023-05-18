@@ -40,7 +40,7 @@ import {
   CoreSetup,
   CoreStart,
   Plugin,
-  ScopedHistory,
+  ApplicationScopedHistory,
   PublicAppInfo,
   SavedObjectReference,
 } from '../../../core/public';
@@ -104,7 +104,7 @@ export interface EmbeddableStart extends PersistableState<EmbeddableInput> {
   getEmbeddableFactories: () => IterableIterator<EmbeddableFactory>;
   EmbeddablePanel: EmbeddablePanelHOC;
   getEmbeddablePanel: (stateTransfer?: EmbeddableStateTransfer) => EmbeddablePanelHOC;
-  getStateTransfer: (history?: ScopedHistory) => EmbeddableStateTransfer;
+  getStateTransfer: (history?: ApplicationScopedHistory) => EmbeddableStateTransfer;
 }
 
 export type EmbeddablePanelHOC = React.FC<{ embeddable: IEmbeddable; hideHeader?: boolean }>;
@@ -190,7 +190,7 @@ export class EmbeddablePublicPlugin implements Plugin<EmbeddableSetup, Embeddabl
     return {
       getEmbeddableFactory: this.getEmbeddableFactory,
       getEmbeddableFactories: this.getEmbeddableFactories,
-      getStateTransfer: (history?: ScopedHistory) => {
+      getStateTransfer: (history?: ApplicationScopedHistory) => {
         return history
           ? new EmbeddableStateTransfer(core.application.navigateToApp, history, this.appList)
           : this.outgoingOnlyStateTransfer;

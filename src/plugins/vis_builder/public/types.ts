@@ -4,6 +4,7 @@
  */
 
 import { History } from 'history';
+import { AppMountParameters, ApplicationScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
 import { SavedObject, SavedObjectsStart } from '../../saved_objects/public';
 import { EmbeddableSetup, EmbeddableStart } from '../../embeddable/public';
 import { DashboardStart } from '../../dashboard/public';
@@ -13,7 +14,7 @@ import { NavigationPublicPluginStart } from '../../navigation/public';
 import { DataPublicPluginStart } from '../../data/public';
 import { TypeServiceSetup, TypeServiceStart } from './services/type_service';
 import { SavedObjectLoader } from '../../saved_objects/public';
-import { AppMountParameters, CoreStart, ToastsStart, ScopedHistory } from '../../../core/public';
+import { CoreStart, ToastsStart } from '../../../core/public';
 import { IOsdUrlStateStorage } from '../../opensearch_dashboards_utils/public';
 import { DataPublicPluginSetup } from '../../data/public';
 import { UiActionsStart } from '../../ui_actions/public';
@@ -50,7 +51,7 @@ export interface VisBuilderServices extends CoreStart {
   expressions: ExpressionsStart;
   history: History;
   embeddable: EmbeddableStart;
-  scopedHistory: ScopedHistory;
+  scopedHistory: ApplicationScopedHistory;
   osdUrlStateStorage: IOsdUrlStateStorage;
   dashboard: DashboardStart;
   uiActions: UiActionsStart;

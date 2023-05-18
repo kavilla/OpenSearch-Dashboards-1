@@ -29,9 +29,9 @@
  */
 
 import { Location } from 'history';
-import { ScopedHistory } from './scoped_history';
+import { ApplicationScopedHistory } from './scoped_history';
 
-export type ScopedHistoryMock = jest.Mocked<ScopedHistory>;
+export type ScopedHistoryMock = jest.Mocked<ApplicationScopedHistory>;
 
 const createMock = ({
   pathname = '/',
@@ -40,7 +40,7 @@ const createMock = ({
   key,
   state,
 }: Partial<Location> = {}) => {
-  const mock: jest.Mocked<Pick<ScopedHistory, keyof ScopedHistory>> = {
+  const mock: jest.Mocked<Pick<ApplicationScopedHistory, keyof ApplicationScopedHistory>> = {
     block: jest.fn(),
     createHref: jest.fn(),
     createSubHistory: jest.fn(),

@@ -37,7 +37,7 @@ import {
   OverlayStart,
   NotificationsStart,
   SimpleSavedObject,
-  ScopedHistory,
+  ApplicationScopedHistory,
 } from '../../../../../core/public';
 import { ISavedObjectsManagementServiceRegistry } from '../../services';
 import { Header, NotFoundErrors, Intro, Form } from './components';
@@ -53,7 +53,7 @@ interface SavedObjectEditionProps {
   notifications: NotificationsStart;
   notFoundType?: string;
   savedObjectsClient: SavedObjectsClientContract;
-  history: ScopedHistory;
+  history: ApplicationScopedHistory;
 }
 
 interface SavedObjectEditionState {

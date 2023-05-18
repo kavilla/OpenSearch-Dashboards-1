@@ -32,7 +32,7 @@ import './app.scss';
 import React, { useEffect } from 'react';
 import { Route, Switch, useLocation } from 'react-router-dom';
 
-import { AppMountParameters } from 'opensearch-dashboards/public';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 import { syncQueryStateWithUrl } from '../../../data/public';
 import { useOpenSearchDashboards } from '../../../opensearch_dashboards_react/public';
 import { VisualizeServices } from './types';

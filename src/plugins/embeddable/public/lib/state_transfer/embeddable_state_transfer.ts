@@ -29,7 +29,7 @@
  */
 
 import { cloneDeep } from 'lodash';
-import { ScopedHistory, ApplicationStart, PublicAppInfo } from '../../../../../core/public';
+import { ApplicationScopedHistory, ApplicationStart, PublicAppInfo } from '../../../../../core/public';
 import {
   EmbeddableEditorState,
   isEmbeddableEditorState,
@@ -38,7 +38,7 @@ import {
 } from './types';
 
 /**
- * A wrapper around the state object in {@link ScopedHistory | core scoped history} which provides
+ * A wrapper around the state object in {@link ApplicationScopedHistory | core scoped history} which provides
  * strongly typed helper methods for common incoming and outgoing states used by the embeddable infrastructure.
  *
  * @public
@@ -46,7 +46,7 @@ import {
 export class EmbeddableStateTransfer {
   constructor(
     private navigateToApp: ApplicationStart['navigateToApp'],
-    private scopedHistory?: ScopedHistory,
+    private scopedHistory?: ApplicationScopedHistory,
     private appList?: ReadonlyMap<string, PublicAppInfo> | undefined
   ) {}
 
@@ -119,7 +119,7 @@ export class EmbeddableStateTransfer {
     }
   ): IncomingStateType | undefined {
     if (!this.scopedHistory) {
-      throw new TypeError('ScopedHistory is required to fetch incoming state');
+      throw new TypeError('ApplicationScopedHistory is required to fetch incoming state');
     }
     const incomingState = this.scopedHistory.location?.state;
     const castState =

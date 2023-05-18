@@ -42,7 +42,7 @@ import {
   CoreStart,
   SavedObjectsClientContract,
   PluginInitializerContext,
-  ScopedHistory,
+  ApplicationScopedHistory,
   AppMountParameters,
 } from 'opensearch-dashboards/public';
 import { UsageCollectionSetup } from 'src/plugins/usage_collection/public';
@@ -90,7 +90,7 @@ export interface RenderDeps {
   usageCollection?: UsageCollectionSetup;
   navigateToDefaultApp: UrlForwardingStart['navigateToDefaultApp'];
   navigateToLegacyOpenSearchDashboardsUrl: UrlForwardingStart['navigateToLegacyOpenSearchDashboardsUrl'];
-  scopedHistory: () => ScopedHistory;
+  scopedHistory: () => ApplicationScopedHistory;
   setHeaderActionMenu: AppMountParameters['setHeaderActionMenu'];
   savedObjects: SavedObjectsStart;
   restorePreviousUrl: () => void;

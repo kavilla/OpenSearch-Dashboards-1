@@ -38,10 +38,11 @@ import React, {
 } from 'react';
 import { EuiLoadingSpinner } from '@elastic/eui';
 
-import type { MountPoint } from '../../types';
-import { AppLeaveHandler, AppStatus, AppUnmount, Mounter } from '../types';
+import type { MountPoint } from '@opensearch-project/opensearch-dashboards-sdk';
+import { AppLeaveHandler } from '@opensearch-project/opensearch-dashboards-sdk';
+import { AppStatus, AppUnmount, Mounter } from '../types';
 import { AppNotFound } from './app_not_found_screen';
-import { ScopedHistory } from '../scoped_history';
+import { ApplicationScopedHistory } from '../scoped_history';
 import './app_container.scss';
 
 interface Props {
@@ -52,7 +53,7 @@ interface Props {
   appStatus: AppStatus;
   setAppLeaveHandler: (appId: string, handler: AppLeaveHandler) => void;
   setAppActionMenu: (appId: string, mount: MountPoint | undefined) => void;
-  createScopedHistory: (appUrl: string) => ScopedHistory;
+  createScopedHistory: (appUrl: string) => ApplicationScopedHistory;
   setIsMounting: (isMounting: boolean) => void;
 }
 

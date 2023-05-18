@@ -28,7 +28,7 @@
  * under the License.
  */
 
-import { ScopedHistory } from 'opensearch-dashboards/public';
+import { ApplicationScopedHistory } from 'opensearch-dashboards/public';
 import { History } from 'history';
 
 interface LocationObject {
@@ -46,7 +46,7 @@ export const toLocationObject = (to: string | LocationObject) =>
   typeof to === 'string' ? { pathname: to } : to;
 
 export const reactRouterNavigate = (
-  history: ScopedHistory | History,
+  history: ApplicationScopedHistory | History,
   to: string | LocationObject,
   onClickCallback?: Function
 ) => ({
@@ -55,7 +55,7 @@ export const reactRouterNavigate = (
 });
 
 export const reactRouterOnClickHandler = (
-  history: ScopedHistory | History,
+  history: ApplicationScopedHistory | History,
   to: string | LocationObject,
   onClickCallback?: Function
 ) => (event: any) => {

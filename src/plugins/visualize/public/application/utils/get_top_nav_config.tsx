@@ -30,9 +30,9 @@
 
 import React from 'react';
 import { i18n } from '@osd/i18n';
+import { AppMountParameters } from '@opensearch-project/opensearch-dashboards-sdk';
 
 import { TopNavMenuData } from 'src/plugins/navigation/public';
-import { AppMountParameters } from 'opensearch-dashboards/public';
 import { VISUALIZE_EMBEDDABLE_TYPE, VisualizeInput } from '../../../../visualizations/public';
 import {
   showSaveModal,

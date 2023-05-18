@@ -33,17 +33,16 @@ import { BehaviorSubject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { i18n } from '@osd/i18n';
 import { FormattedMessage } from '@osd/i18n/react';
+import { AppMountParameters, ApplicationScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
 
 import {
   App,
-  AppMountParameters,
   AppUpdater,
   CoreSetup,
   CoreStart,
   Plugin,
   PluginInitializerContext,
   SavedObjectsClientContract,
-  ScopedHistory,
 } from 'src/core/public';
 import { UrlForwardingSetup, UrlForwardingStart } from 'src/plugins/url_forwarding/public';
 import { isEmpty } from 'lodash';
@@ -204,7 +203,7 @@ export class DashboardPlugin
   private appStateUpdater = new BehaviorSubject<AppUpdater>(() => ({}));
   private stopUrlTracking: (() => void) | undefined = undefined;
   private getActiveUrl: (() => string) | undefined = undefined;
-  private currentHistory: ScopedHistory | undefined = undefined;
+  private currentHistory: ApplicationScopedHistory | undefined = undefined;
   private dashboardFeatureFlagConfig?: DashboardFeatureFlagConfig;
 
   private dashboardProviders: { [key: string]: DashboardProvider } = {};

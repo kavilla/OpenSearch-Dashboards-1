@@ -123,7 +123,7 @@ export {
   AppNavLinkStatus,
   AppUpdatableFields,
   AppUpdater,
-  ScopedHistory,
+  ApplicationScopedHistory,
   NavigateToAppOptions,
 } from './application';
 

@@ -32,7 +32,7 @@ import React, { ReactElement } from 'react';
 import { EuiHeaderLinks } from '@elastic/eui';
 import classNames from 'classnames';
 
-import { MountPoint } from '../../../../core/public';
+import { MountPoint } from '@opensearch-project/opensearch-dashboards-sdk';
 import { MountPointPortal } from '../../../opensearch_dashboards_react/public';
 import {
   StatefulSearchBarProps,

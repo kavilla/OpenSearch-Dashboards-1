@@ -31,7 +31,8 @@
 import React, { memo } from 'react';
 import { Route, Router, Switch } from 'react-router-dom';
 import { EuiPageBody } from '@elastic/eui';
-import { AppMountParameters, ChromeBreadcrumb, ScopedHistory } from 'opensearch-dashboards/public';
+import { AppMountParameters, ApplicationScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
+import { ChromeBreadcrumb } from 'opensearch-dashboards/public';
 import { ManagementAppWrapper } from '../management_app_wrapper';
 import { ManagementLandingPage } from '../landing';
 import { ManagementAppDependencies } from './management_app';
@@ -40,7 +41,7 @@ import { ManagementSection } from '../../utils';
 interface ManagementRouterProps {
   history: AppMountParameters['history'];
   dependencies: ManagementAppDependencies;
-  setBreadcrumbs: (crumbs?: ChromeBreadcrumb[], appHistory?: ScopedHistory) => void;
+  setBreadcrumbs: (crumbs?: ChromeBreadcrumb[], appHistory?: ApplicationScopedHistory) => void;
   onAppMounted: (id: string) => void;
   sections: ManagementSection[];
 }

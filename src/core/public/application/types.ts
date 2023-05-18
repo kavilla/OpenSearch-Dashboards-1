@@ -46,7 +46,7 @@ import { PluginOpaqueId } from '../plugins';
 import { IUiSettingsClient } from '../ui_settings';
 import { SavedObjectsStart } from '../saved_objects';
 import { AppCategory } from '../../types';
-import { ScopedHistory } from './scoped_history';
+import { ApplicationScopedHistory } from './scoped_history';
 
 /**
  * Accessibility status of an application.
@@ -388,7 +388,7 @@ export interface AppMountParameters<HistoryLocationState = unknown> {
    * }
    * ```
    */
-  history: ScopedHistory<HistoryLocationState>;
+  history: ApplicationScopedHistory<HistoryLocationState>;
 
   /**
    * The route path for configuring navigation to the application.

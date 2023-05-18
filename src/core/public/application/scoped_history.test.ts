@@ -28,25 +28,25 @@
  * under the License.
  */
 
-import { ScopedHistory } from './scoped_history';
+import { ApplicationScopedHistory } from './scoped_history';
 import { createMemoryHistory } from 'history';
 
-describe('ScopedHistory', () => {
+describe('ApplicationScopedHistory', () => {
   describe('construction', () => {
     it('succeeds if current location matches basePath', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
-      expect(() => new ScopedHistory(gh, '/app/wow')).not.toThrow();
+      expect(() => new ApplicationScopedHistory(gh, '/app/wow')).not.toThrow();
       gh.push('/app/wow/');
-      expect(() => new ScopedHistory(gh, '/app/wow')).not.toThrow();
+      expect(() => new ApplicationScopedHistory(gh, '/app/wow')).not.toThrow();
       gh.push('/app/wow/sub-page');
-      expect(() => new ScopedHistory(gh, '/app/wow')).not.toThrow();
+      expect(() => new ApplicationScopedHistory(gh, '/app/wow')).not.toThrow();
     });
 
     it('fails if current location does not match basePath', () => {
       const gh = createMemoryHistory();
       gh.push('/app/other');
-      expect(() => new ScopedHistory(gh, '/app/wow')).toThrowErrorMatchingInlineSnapshot(
+      expect(() => new ApplicationScopedHistory(gh, '/app/wow')).toThrowErrorMatchingInlineSnapshot(
         `"Browser location [/app/other] is not currently in expected basePath [/app/wow]"`
       );
     });
@@ -57,7 +57,7 @@ describe('ScopedHistory', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
       const pushSpy = jest.spyOn(gh, 'push');
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       h.push('/new-page', { some: 'state' });
       expect(pushSpy).toHaveBeenCalledWith('/app/wow/new-page', { some: 'state' });
       expect(gh.length).toBe(3); // ['', '/app/wow', '/app/wow/new-page']
@@ -68,7 +68,7 @@ describe('ScopedHistory', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
       const pushSpy = jest.spyOn(gh, 'push');
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       const { push } = h;
       push('/new-page', { some: 'state' });
       expect(pushSpy).toHaveBeenCalledWith('/app/wow/new-page', { some: 'state' });
@@ -80,7 +80,7 @@ describe('ScopedHistory', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
       const replaceSpy = jest.spyOn(gh, 'replace');
-      const h = new ScopedHistory(gh, '/app/wow'); // ['']
+      const h = new ApplicationScopedHistory(gh, '/app/wow'); // ['']
       h.push('/first-page'); // ['', '/first-page']
       h.push('/second-page'); // ['', '/first-page', '/second-page']
       h.goBack(); // ['', '/first-page', '/second-page']
@@ -95,7 +95,7 @@ describe('ScopedHistory', () => {
       gh.push('/app/alpha');
       gh.push('/app/beta');
       gh.push('/app/wow');
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       expect(h.length).toBe(1);
       expect(h.location.pathname).toEqual('');
     });
@@ -105,7 +105,7 @@ describe('ScopedHistory', () => {
       gh.push('/app/alpha');
       gh.push('/app/beta');
       gh.push('/app/wow');
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       h.push('/new-page');
       expect(h.length).toBe(2);
       expect(h.location.pathname).toEqual('/new-page');
@@ -128,7 +128,7 @@ describe('ScopedHistory', () => {
       gh.push('/app/alpha');
       gh.push('/app/beta');
       gh.push('/app/wow');
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       h.push('/new-page');
       expect(h.length).toBe(2);
 
@@ -154,7 +154,7 @@ describe('ScopedHistory', () => {
     it('reacts to navigations from parent history', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       h.push('/page-1');
       h.push('/page-2');
 
@@ -178,7 +178,7 @@ describe('ScopedHistory', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
       expect(gh.length).toBe(2);
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       expect(h.length).toBe(1);
       h.push('/page1');
       expect(h.length).toBe(2);
@@ -210,10 +210,10 @@ describe('ScopedHistory', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
       expect(gh.length).toBe(2);
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       gh.push('/app/other');
       expect(() => h.location).toThrowErrorMatchingInlineSnapshot(
-        `"ScopedHistory instance has fell out of navigation scope for basePath: /app/wow"`
+        `"ApplicationScopedHistory instance has fell out of navigation scope for basePath: /app/wow"`
       );
       expect(() => h.push('/new-page')).toThrow();
       expect(() => h.replace('/new-page')).toThrow();
@@ -226,7 +226,7 @@ describe('ScopedHistory', () => {
     it('calls callback with scoped location', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       const listenPaths: string[] = [];
       h.listen((l) => listenPaths.push(l.pathname));
       h.push('/first-page');
@@ -246,7 +246,7 @@ describe('ScopedHistory', () => {
     it('stops calling callback after unlisten is called', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       const listenPaths: string[] = [];
       const unlisten = h.listen((l) => listenPaths.push(l.pathname));
       h.push('/first-page');
@@ -261,7 +261,7 @@ describe('ScopedHistory', () => {
     it('stops calling callback after browser leaves scope', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       const listenPaths: string[] = [];
       h.listen((l) => listenPaths.push(l.pathname));
       h.push('/first-page');
@@ -278,7 +278,7 @@ describe('ScopedHistory', () => {
     it('creates scoped hrefs', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       expect(h.createHref({ pathname: '' })).toEqual(`/app/wow`);
       expect(h.createHref({})).toEqual(`/app/wow`);
       expect(h.createHref({ pathname: '/new-page', search: '?alpha=true' })).toEqual(
@@ -289,7 +289,7 @@ describe('ScopedHistory', () => {
     it('behave correctly with slash-ending basePath', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow/');
-      const h = new ScopedHistory(gh, '/app/wow/');
+      const h = new ApplicationScopedHistory(gh, '/app/wow/');
       expect(h.createHref({ pathname: '' })).toEqual(`/app/wow/`);
       expect(h.createHref({ pathname: '/new-page', search: '?alpha=true' })).toEqual(
         `/app/wow/new-page?alpha=true`
@@ -299,7 +299,7 @@ describe('ScopedHistory', () => {
     it('skips the scoped history path when `prependBasePath` is false', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       expect(h.createHref({ pathname: '' }, { prependBasePath: false })).toEqual(`/`);
       expect(
         h.createHref({ pathname: '/new-page', search: '?alpha=true' }, { prependBasePath: false })
@@ -313,7 +313,7 @@ describe('ScopedHistory', () => {
       gh.push('/app/wow');
       gh.push('/alpha');
       gh.goBack();
-      const h = new ScopedHistory(gh, '/app/wow');
+      const h = new ApplicationScopedHistory(gh, '/app/wow');
       expect(h.action).toBe('POP');
       gh.push('/app/wow/page-1');
       expect(h.action).toBe('PUSH');
@@ -327,7 +327,7 @@ describe('ScopedHistory', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
       const ghPushSpy = jest.spyOn(gh, 'push');
-      const h1 = new ScopedHistory(gh, '/app/wow');
+      const h1 = new ApplicationScopedHistory(gh, '/app/wow');
       h1.push('/new-page');
       const h1PushSpy = jest.spyOn(h1, 'push');
       const h2 = h1.createSubHistory('/new-page');
@@ -343,7 +343,7 @@ describe('ScopedHistory', () => {
       const gh = createMemoryHistory();
       gh.push('/app/wow');
       const ghReplaceSpy = jest.spyOn(gh, 'replace');
-      const h1 = new ScopedHistory(gh, '/app/wow');
+      const h1 = new ApplicationScopedHistory(gh, '/app/wow');
       h1.push('/new-page');
       const h1ReplaceSpy = jest.spyOn(h1, 'replace');
       const h2 = h1.createSubHistory('/new-page');

@@ -10,7 +10,7 @@ import { DataSourceTable } from './data_source_table';
 import { mount, ReactWrapper } from 'enzyme';
 import { RouteComponentProps } from 'react-router-dom';
 import { wrapWithIntl } from 'test_utils/enzyme_helpers';
-import { ScopedHistory } from 'opensearch-dashboards/public';
+import { ApplicationScopedHistory } from 'opensearch-dashboards/public';
 import { scopedHistoryMock } from '../../../../../core/public/mocks';
 import { OpenSearchDashboardsContextProvider } from '../../../../opensearch_dashboards_react/public';
 import { getMappedDataSources, mockManagementPlugin } from '../../mocks';
@@ -25,7 +25,7 @@ const emptyStateIdentifier = '[data-test-subj="datasourceTableEmptyState"]';
 describe('DataSourceTable', () => {
   const mockedContext = mockManagementPlugin.createDataSourceManagementContext();
   let component: ReactWrapper<any, Readonly<{}>, React.Component<{}, {}, any>>;
-  const history = (scopedHistoryMock.create() as unknown) as ScopedHistory;
+  const history = (scopedHistoryMock.create() as unknown) as ApplicationScopedHistory;
   describe('should get datasources failed', () => {
     beforeEach(async () => {
       spyOn(utils, 'getDataSources').and.returnValue(Promise.reject());

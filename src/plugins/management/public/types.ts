@@ -28,7 +28,7 @@
  * under the License.
  */
 
-import { ScopedHistory, Capabilities } from 'opensearch-dashboards/public';
+import { ApplicationScopedHistory, Capabilities } from 'opensearch-dashboards/public';
 import { EuiIconType } from '@elastic/eui/src/components/icon/icon';
 import { ManagementSection, RegisterManagementSectionArgs } from './utils';
 import { ChromeBreadcrumb } from '../../../core/public/';
@@ -82,7 +82,7 @@ export interface ManagementAppMountParams {
   basePath: string; // base path for setting up your router
   element: HTMLElement; // element the section should render into
   setBreadcrumbs: (crumbs: ChromeBreadcrumb[]) => void;
-  history: ScopedHistory;
+  history: ApplicationScopedHistory;
 }
 
 export interface CreateManagementItemArgs {

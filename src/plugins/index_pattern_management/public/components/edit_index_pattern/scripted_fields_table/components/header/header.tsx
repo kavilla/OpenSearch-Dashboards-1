@@ -33,13 +33,13 @@ import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { EuiButton, EuiFlexGroup, EuiFlexItem, EuiText, EuiTitle } from '@elastic/eui';
 
 import { FormattedMessage } from '@osd/i18n/react';
-import { ScopedHistory } from 'opensearch-dashboards/public';
+import { ApplicationScopedHistory } from 'opensearch-dashboards/public';
 
 import { reactRouterNavigate } from '../../../../../../../opensearch_dashboards_react/public';
 
 interface HeaderProps extends RouteComponentProps {
   indexPatternId: string;
-  history: ScopedHistory;
+  history: ApplicationScopedHistory;
 }
 
 export const Header = withRouter(({ indexPatternId, history }: HeaderProps) => (

@@ -32,7 +32,7 @@ import React, { useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { parse } from 'query-string';
 import { i18n } from '@osd/i18n';
-import { CoreStart, ChromeBreadcrumb, ScopedHistory } from 'src/core/public';
+import { CoreStart, ChromeBreadcrumb, ApplicationScopedHistory } from 'src/core/public';
 import { ISavedObjectsManagementServiceRegistry } from '../services';
 import { SavedObjectEdition } from './object_view';
 
@@ -45,7 +45,7 @@ const SavedObjectsEditionPage = ({
   coreStart: CoreStart;
   serviceRegistry: ISavedObjectsManagementServiceRegistry;
   setBreadcrumbs: (crumbs: ChromeBreadcrumb[]) => void;
-  history: ScopedHistory;
+  history: ApplicationScopedHistory;
 }) => {
   const { service: serviceName, id } = useParams<{ service: string; id: string }>();
   const capabilities = coreStart.application.capabilities;

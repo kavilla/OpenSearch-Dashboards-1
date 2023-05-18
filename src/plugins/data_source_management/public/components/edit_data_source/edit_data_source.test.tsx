@@ -11,7 +11,7 @@ import {
 import { mount, ReactWrapper } from 'enzyme';
 import React from 'react';
 import { scopedHistoryMock } from '../../../../../core/public/mocks';
-import { ScopedHistory } from 'opensearch-dashboards/public';
+import { ApplicationScopedHistory } from 'opensearch-dashboards/public';
 import * as utils from '../utils';
 import { act } from 'react-dom/test-utils';
 import { wrapWithIntl } from 'test_utils/enzyme_helpers';
@@ -25,7 +25,7 @@ const notFoundIdentifier = '[data-test-subj="dataSourceNotFound"]';
 describe('Datasource Management: Edit Datasource Wizard', () => {
   const mockedContext = mockManagementPlugin.createDataSourceManagementContext();
   let component: ReactWrapper<any, Readonly<{}>, React.Component<{}, {}, any>>;
-  const history = (scopedHistoryMock.create() as unknown) as ScopedHistory;
+  const history = (scopedHistoryMock.create() as unknown) as ApplicationScopedHistory;
 
   describe('should fail to load resources', () => {
     beforeEach(async () => {

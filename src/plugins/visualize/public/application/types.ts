@@ -38,7 +38,7 @@ import {
   VisualizeEmbeddableContract,
   VisSavedObject,
 } from 'src/plugins/visualizations/public';
-import { AppMountParameters, ScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
+import { AppMountParameters, ApplicationScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
 
 import {
   CoreStart,
@@ -122,7 +122,7 @@ export interface VisualizeServices extends CoreStart {
   setActiveUrl: (newUrl: string) => void;
   createVisEmbeddableFromObject: VisualizationsStart['__LEGACY']['createVisEmbeddableFromObject'];
   restorePreviousUrl: () => void;
-  scopedHistory: ScopedHistory;
+  scopedHistory: ApplicationScopedHistory;
   dashboard: DashboardStart;
   setHeaderActionMenu: AppMountParameters['setHeaderActionMenu'];
 }

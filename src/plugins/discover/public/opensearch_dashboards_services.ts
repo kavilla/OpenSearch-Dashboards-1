@@ -30,7 +30,7 @@
 
 import _ from 'lodash';
 import { createHashHistory } from 'history';
-import { ScopedHistory, AppMountParameters } from 'opensearch-dashboards/public';
+import { ApplicationScopedHistory, AppMountParameters } from 'opensearch-dashboards/public';
 import { UiActionsStart } from 'src/plugins/ui_actions/public';
 import { DiscoverServices } from './build_services';
 import { createGetterSetter } from '../../opensearch_dashboards_utils/public';
@@ -104,7 +104,7 @@ export const syncHistoryLocations = () => {
   return h;
 };
 
-export const [getScopedHistory, setScopedHistory] = createGetterSetter<ScopedHistory>(
+export const [getScopedHistory, setScopedHistory] = createGetterSetter<ApplicationScopedHistory>(
   'scopedHistory'
 );
 

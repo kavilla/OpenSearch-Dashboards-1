@@ -30,7 +30,7 @@
 
 import { i18n } from '@osd/i18n';
 import { UiActionsStart } from 'src/plugins/ui_actions/public';
-import { CoreStart, ScopedHistory } from 'src/core/public';
+import { CoreStart, ApplicationScopedHistory } from 'src/core/public';
 import { Start as InspectorStartContract } from 'src/plugins/inspector/public';
 import { EmbeddableFactory, EmbeddableStart } from '../../../../embeddable/public';
 import {
@@ -67,7 +67,7 @@ export class DashboardContainerFactoryDefinition
 
   constructor(
     private readonly getStartServices: () => Promise<StartServices>,
-    private getHistory: () => ScopedHistory
+    private getHistory: () => ApplicationScopedHistory
   ) {}
 
   public isEditable = async () => {

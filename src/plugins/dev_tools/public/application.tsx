@@ -49,7 +49,7 @@ import {
   CoreStart,
   NotificationsStart,
   SavedObjectsStart,
-  ScopedHistory,
+  ApplicationScopedHistory,
 } from 'src/core/public';
 
 import { useEffectOnce } from 'react-use';
@@ -139,7 +139,7 @@ function DevToolsWrapper({
       appBasePath: '',
       onAppLeave: () => undefined,
       setHeaderActionMenu: () => undefined,
-      // TODO: adapt to use Core's ScopedHistory
+      // TODO: adapt to use Core's ApplicationScopedHistory
       history: {} as any,
       dataSourceId,
     };
@@ -256,7 +256,7 @@ function setBreadcrumbs(chrome: ChromeStart) {
 export function renderApp(
   { application, chrome, savedObjects, notifications }: CoreStart,
   element: HTMLElement,
-  history: ScopedHistory,
+  history: ApplicationScopedHistory,
   devTools: readonly DevToolApp[],
   { dataSource }: DevToolsSetupDependencies
 ) {

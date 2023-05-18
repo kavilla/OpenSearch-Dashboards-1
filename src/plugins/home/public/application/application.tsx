@@ -31,7 +31,7 @@
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import { i18n } from '@osd/i18n';
-import { ScopedHistory, CoreStart } from 'opensearch-dashboards/public';
+import { ApplicationScopedHistory, CoreStart } from 'opensearch-dashboards/public';
 import { OpenSearchDashboardsContextProvider } from '../../../opensearch_dashboards_react/public';
 // @ts-ignore
 import { HomeApp } from './components/home_app';
@@ -42,7 +42,7 @@ import './index.scss';
 export const renderApp = async (
   element: HTMLElement,
   coreStart: CoreStart,
-  history: ScopedHistory
+  history: ApplicationScopedHistory
 ) => {
   const homeTitle = i18n.translate('home.breadcrumbs.homeTitle', { defaultMessage: 'Home' });
   const { featureCatalogue, chrome } = getServices();

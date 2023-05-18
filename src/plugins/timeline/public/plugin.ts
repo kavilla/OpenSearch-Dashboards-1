@@ -30,7 +30,7 @@
 
 import { BehaviorSubject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { AppMountParameters, ScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
+import { AppMountParameters, ApplicationScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
 
 import {
   CoreSetup,
@@ -67,7 +67,7 @@ export class TimelinePlugin implements Plugin<void, void> {
   initializerContext: PluginInitializerContext;
   private appStateUpdater = new BehaviorSubject<AppUpdater>(() => ({}));
   private stopUrlTracking: (() => void) | undefined = undefined;
-  private currentHistory: ScopedHistory | undefined = undefined;
+  private currentHistory: ApplicationScopedHistory | undefined = undefined;
 
   constructor(initializerContext: PluginInitializerContext) {
     this.initializerContext = initializerContext;

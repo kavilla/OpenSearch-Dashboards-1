@@ -213,7 +213,7 @@ describe('OsdUrlStateStorage', () => {
     });
   });
 
-  describe('ScopedHistory integration', () => {
+  describe('ApplicationScopedHistory integration', () => {
     let urlStateStorage: IOsdUrlStateStorage;
     let history: ApplicationScopedHistory;
     const getCurrentUrl = () => history.createHref(history.location);

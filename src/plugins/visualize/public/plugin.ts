@@ -32,7 +32,7 @@ import { BehaviorSubject } from 'rxjs';
 import { i18n } from '@osd/i18n';
 import { filter, map } from 'rxjs/operators';
 import { createHashHistory } from 'history';
-import { AppMountParameters, ScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
+import { AppMountParameters, ApplicationScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
 
 import {
   AppUpdater,
@@ -95,7 +95,7 @@ export class VisualizePlugin
     Plugin<void, void, VisualizePluginSetupDependencies, VisualizePluginStartDependencies> {
   private appStateUpdater = new BehaviorSubject<AppUpdater>(() => ({}));
   private stopUrlTracking: (() => void) | undefined = undefined;
-  private currentHistory: ScopedHistory | undefined = undefined;
+  private currentHistory: ApplicationScopedHistory | undefined = undefined;
 
   constructor(private initializerContext: PluginInitializerContext) {}
 

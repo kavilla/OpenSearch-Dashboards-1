@@ -6,7 +6,7 @@
 import { i18n } from '@osd/i18n';
 import { BehaviorSubject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { AppMountParameters, ScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
+import { AppMountParameters, ApplicationScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk';
 import {
   AppNavLinkStatus,
   AppUpdater,
@@ -69,7 +69,7 @@ export class VisBuilderPlugin
   private typeService = new TypeService();
   private appStateUpdater = new BehaviorSubject<AppUpdater>(() => ({}));
   private stopUrlTracking?: () => void;
-  private currentHistory?: ScopedHistory;
+  private currentHistory?: ApplicationScopedHistory;
 
   constructor(public initializerContext: PluginInitializerContext<ConfigSchema>) {}
 

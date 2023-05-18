@@ -88,7 +88,7 @@ export class ApplicationScopedHistory<HistoryLocationState = unknown>
   }
 
   /**
-   * Creates a `ScopedHistory` for a subpath of this `ScopedHistory`. Useful for applications that may have sub-apps
+   * Creates a `ApplicationScopedHistory` for a subpath of this `ApplicationScopedHistory`. Useful for applications that may have sub-apps
    * that do not need access to the containing application's history.
    *
    * @param basePath the URL path scope for the sub history
@@ -182,7 +182,7 @@ export class ApplicationScopedHistory<HistoryLocationState = unknown>
 
   /**
    * Send the user one location back in the history stack. Equivalent to calling
-   * {@link ScopedHistory.go | ScopedHistory.go(-1)}. If no more entries are available backwards, this is a no-op.
+   * {@link ApplicationScopedHistory.go | ApplicationScopedHistory.go(-1)}. If no more entries are available backwards, this is a no-op.
    */
   public goBack = () => {
     this.verifyActive();
@@ -191,7 +191,7 @@ export class ApplicationScopedHistory<HistoryLocationState = unknown>
 
   /**
    * Send the user one location forward in the history stack. Equivalent to calling
-   * {@link ScopedHistory.go | ScopedHistory.go(1)}. If no more entries are available forwards, this is a no-op.
+   * {@link ApplicationScopedHistory.go | ApplicationScopedHistory.go(1)}. If no more entries are available forwards, this is a no-op.
    */
   public goForward = () => {
     this.verifyActive();
@@ -298,7 +298,7 @@ export class ApplicationScopedHistory<HistoryLocationState = unknown>
   private verifyActive() {
     if (!this.isActive) {
       throw new Error(
-        `ScopedHistory instance has fell out of navigation scope for basePath: ${this.basePath}`
+        `ApplicationScopedHistory instance has fell out of navigation scope for basePath: ${this.basePath}`
       );
     }
   }

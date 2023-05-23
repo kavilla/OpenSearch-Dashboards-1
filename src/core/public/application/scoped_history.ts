@@ -39,6 +39,7 @@ import {
   Href,
   Action,
 } from 'history';
+import { ScopedHistory as ApplicationScopedHistory } from '@opensearch-project/opensearch-dashboards-sdk/lib/application';
 
 /**
  * A wrapper around a `History` instance that is scoped to a particular base path of the history stack. Behaves
@@ -54,7 +55,7 @@ import {
  * @public
  */
 export class ScopedHistory<HistoryLocationState = unknown>
-  implements History<HistoryLocationState> {
+  implements ApplicationScopedHistory<HistoryLocationState> {
   /**
    * Tracks whether or not the user has left this history's scope. All methods throw errors if called after scope has
    * been left.

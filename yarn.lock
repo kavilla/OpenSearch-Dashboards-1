@@ -2338,6 +2338,13 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
+"@opensearch-project/opensearch-dashboards-sdk@npm:@avillk/opensearch-dashboards-sdk@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@avillk/opensearch-dashboards-sdk/-/opensearch-dashboards-sdk-0.0.1.tgz#2b0b343f61b30d680109ed41f44def3f316c9536"
+  integrity sha512-ZgTDJxFYHBXbOGOJ0dseZMecwN93n1P/dB6h4kYbIqO/bYgH1UsgR2s233eqrbZG68ooEgpEfxODWPrc6UCPbw==
+  dependencies:
+    "@types/history" "^4.7.3"
+
 "@opensearch-project/opensearch@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@opensearch-project/opensearch/-/opensearch-2.1.0.tgz#d79ab4ae643493512099673e117faffe40b4fe56"

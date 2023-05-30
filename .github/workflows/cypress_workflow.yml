@@ -17,9 +17,6 @@ env:
 jobs:
   cypress-tests:
     runs-on: ubuntu-latest
-    container:
-      image: docker://opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2
-      options: --user 1001
     env:
       # prevents extra Cypress installation progress messages
       CI: 1

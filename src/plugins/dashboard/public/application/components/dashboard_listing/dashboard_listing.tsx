@@ -10,7 +10,7 @@ import {
   useOpenSearchDashboards,
   TableListView,
 } from '../../../../../opensearch_dashboards_react/public';
-import { CreateButton } from '../dashboard_listing/create_button';
+import { CreateButton } from '../dashboard_listing';
 import { DashboardConstants } from '../../../dashboard_constants';
 import { DashboardServices } from '../../../types';
 import { getTableColumns } from '../../utils/get_table_columns';

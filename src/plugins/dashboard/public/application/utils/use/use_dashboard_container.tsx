@@ -39,7 +39,10 @@ import {
   convertPanelStateToSavedDashboardPanel,
   convertSavedDashboardPanelToPanelState,
 } from '../../lib/embeddable_saved_object_converters';
-import { DashboardEmptyScreen, DashboardEmptyScreenProps } from '../../dashboard_empty_screen';
+import {
+  DashboardEmptyScreen,
+  DashboardEmptyScreenProps,
+} from '../../components/dashboard_empty_screen';
 import {
   DashboardAppState,
   DashboardAppStateContainer,

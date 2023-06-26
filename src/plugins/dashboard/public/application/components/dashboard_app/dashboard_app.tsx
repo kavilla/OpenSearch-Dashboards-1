@@ -9,15 +9,15 @@
  * GitHub history for details.
  */
 
-import './app.scss';
+import './dashboard_app.scss';
 import { AppMountParameters } from 'opensearch-dashboards/public';
 import React, { useEffect } from 'react';
 import { Route, Switch, useLocation } from 'react-router-dom';
-import { DashboardConstants, createDashboardEditUrl } from '../dashboard_constants';
-import { DashboardEditor, DashboardListing, DashboardNoMatch } from './components';
-import { useOpenSearchDashboards } from '../../../opensearch_dashboards_react/public';
-import { DashboardServices } from '../types';
-import { syncQueryStateWithUrl } from '../../../data/public';
+import { DashboardConstants, createDashboardEditUrl } from '../../../dashboard_constants';
+import { DashboardEditor, DashboardListing, DashboardNoMatch } from '../../components';
+import { useOpenSearchDashboards } from '../../../../../opensearch_dashboards_react/public';
+import { DashboardServices } from '../../../types';
+import { syncQueryStateWithUrl } from '../../../../../data/public';
 
 export interface DashboardAppProps {
   onAppLeave: AppMountParameters['onAppLeave'];

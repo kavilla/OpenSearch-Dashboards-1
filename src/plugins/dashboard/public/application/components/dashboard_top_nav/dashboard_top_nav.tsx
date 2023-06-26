@@ -7,12 +7,12 @@ import { uniqBy } from 'lodash';
 import React, { memo, useState, useEffect } from 'react';
 import { Filter, IndexPattern } from 'src/plugins/data/public';
 import { useCallback } from 'react';
-import { useOpenSearchDashboards } from '../../../../opensearch_dashboards_react/public';
-import { getTopNavConfig } from '../top_nav/get_top_nav_config';
-import { DashboardAppStateContainer, DashboardAppState, DashboardServices } from '../../types';
-import { getNavActions } from '../utils/get_nav_actions';
-import { DashboardContainer } from '../embeddable';
-import { isErrorEmbeddable } from '../../embeddable_plugin';
+import { useOpenSearchDashboards } from '../../../../../opensearch_dashboards_react/public';
+import { getTopNavConfig } from './get_top_nav_config';
+import { DashboardAppStateContainer, DashboardAppState, DashboardServices } from '../../../types';
+import { getNavActions } from '../../utils/get_nav_actions';
+import { DashboardContainer } from '../../embeddable';
+import { isErrorEmbeddable } from '../../../embeddable_plugin';
 
 interface DashboardTopNavProps {
   isChromeVisible: boolean;

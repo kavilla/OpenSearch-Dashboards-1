@@ -30,9 +30,9 @@
 
 import { i18n } from '@osd/i18n';
 import { AppMountParameters } from 'opensearch-dashboards/public';
-import { ViewMode } from '../../embeddable_plugin';
+import { ViewMode } from '../../../embeddable_plugin';
 import { TopNavIds } from './top_nav_ids';
-import { NavAction } from '../../types';
+import { NavAction } from '../../../types';
 
 /**
  * @param actions - A mapping of TopNavIds to an action function that should run when the

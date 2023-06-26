@@ -14,7 +14,7 @@ import { findTestSubject } from '@elastic/eui/lib/test';
 
 import React from 'react';
 
-import { CreateButton } from './create_button';
+import { CreateButton } from './create_button/create_button';
 import { DashboardProvider } from '../../../types';
 
 const provider = (type?: string, url?: string, text?: string): DashboardProvider => {

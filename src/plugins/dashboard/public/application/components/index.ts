@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export { DashboardListing } from './dashboard_listing';
+export { DashboardListing } from './dashboard_listing/dashboard_listing';
 export { DashboardEditor } from './dashboard_editor';
 export { DashboardNoMatch } from './dashboard_no_match';
 export { DashboardTopNav } from './dashboard_top_nav';

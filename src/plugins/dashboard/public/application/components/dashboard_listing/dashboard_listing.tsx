@@ -9,12 +9,12 @@ import { useMount } from 'react-use';
 import {
   useOpenSearchDashboards,
   TableListView,
-} from '../../../../opensearch_dashboards_react/public';
-import { CreateButton } from '../listing/create_button';
-import { DashboardConstants } from '../../dashboard_constants';
-import { DashboardServices } from '../../types';
-import { getTableColumns } from '../utils/get_table_columns';
-import { getNoItemsMessage } from '../utils/get_no_items_message';
+} from '../../../../../opensearch_dashboards_react/public';
+import { CreateButton } from '../dashboard_listing/create_button';
+import { DashboardConstants } from '../../../dashboard_constants';
+import { DashboardServices } from '../../../types';
+import { getTableColumns } from '../../utils/get_table_columns';
+import { getNoItemsMessage } from '../../utils/get_no_items_message';
 
 export const EMPTY_FILTER = '';
 

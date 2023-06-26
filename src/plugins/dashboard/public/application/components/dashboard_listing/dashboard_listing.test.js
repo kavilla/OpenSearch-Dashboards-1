@@ -49,7 +49,7 @@ jest.mock(
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { DashboardListing } from '../components/dashboard_listing';
+import { DashboardListing } from '..';
 
 const find = (num) => {
   const hits = [];

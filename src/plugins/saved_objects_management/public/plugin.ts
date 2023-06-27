@@ -34,7 +34,7 @@ import { CoreSetup, CoreStart, Plugin } from 'src/core/public';
 import { VisBuilderStart } from '../../vis_builder/public';
 import { ManagementSetup } from '../../management/public';
 import { DataPublicPluginStart } from '../../data/public';
-import { DashboardStart } from '../../dashboard/public';
+import { DashboardStart } from '../../dashboard_new/public';
 import { DiscoverStart } from '../../discover/public';
 import { HomePublicPluginSetup, FeatureCatalogueCategory } from '../../home/public';
 import { VisualizationsStart } from '../../visualizations/public';

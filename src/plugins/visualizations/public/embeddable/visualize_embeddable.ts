@@ -62,7 +62,7 @@ import { VIS_EVENT_TO_TRIGGER } from './events';
 import { VisualizeEmbeddableFactoryDeps } from './visualize_embeddable_factory';
 import { TriggerId } from '../../../ui_actions/public';
 import { SavedObjectAttributes } from '../../../../core/types';
-import { AttributeService } from '../../../dashboard/public';
+import { AttributeService } from '../../../dashboard_new/public';
 import { SavedVisualizationsLoader } from '../saved_visualizations';
 import { VisSavedObject } from '../types';
 

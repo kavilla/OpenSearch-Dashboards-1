@@ -4,7 +4,7 @@
  */
 
 import { coreMock, savedObjectsServiceMock } from '../../../core/public/mocks';
-import { dashboardPluginMock } from '../../dashboard/public/mocks';
+import { dashboardPluginMock } from '../../dashboard_new/public/mocks';
 import { dataPluginMock } from '../../data/public/mocks';
 import { embeddablePluginMock } from '../../embeddable/public/mocks';
 import { navigationPluginMock } from '../../navigation/public/mocks';

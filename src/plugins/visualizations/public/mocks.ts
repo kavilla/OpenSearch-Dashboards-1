@@ -38,7 +38,7 @@ import { dataPluginMock } from '../../data/public/mocks';
 import { usageCollectionPluginMock } from '../../usage_collection/public/mocks';
 import { uiActionsPluginMock } from '../../ui_actions/public/mocks';
 import { inspectorPluginMock } from '../../inspector/public/mocks';
-import { dashboardPluginMock } from '../../dashboard/public/mocks';
+import { dashboardPluginMock } from '../../dashboard_new/public/mocks';
 
 const createSetupContract = (): VisualizationsSetup => ({
   createBaseVisualization: jest.fn(),

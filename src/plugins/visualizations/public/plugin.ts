@@ -91,7 +91,7 @@ import {
   convertToSerializedVis,
 } from './saved_visualizations/_saved_vis';
 import { createSavedSearchesLoader } from '../../discover/public';
-import { DashboardStart } from '../../dashboard/public';
+import { DashboardStart } from '../../dashboard_new/public';
 
 /**
  * Interface for this plugin's returned setup/start contracts.

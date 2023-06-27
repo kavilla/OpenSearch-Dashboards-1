@@ -73,7 +73,7 @@ import {
   ACTION_ADD_BOOK_TO_LIBRARY,
   createAddBookToLibraryAction,
 } from './book/add_book_to_library_action';
-import { DashboardStart } from '../../../src/plugins/dashboard/public';
+import { DashboardStart } from '../../../src/plugins/dashboard_new/public';
 import {
   ACTION_UNLINK_BOOK_FROM_LIBRARY,
   createUnlinkBookFromLibraryAction,

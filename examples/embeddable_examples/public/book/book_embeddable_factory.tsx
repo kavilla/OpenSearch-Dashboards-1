@@ -49,7 +49,7 @@ import {
   SavedObjectsClientContract,
   SimpleSavedObject,
 } from '../../../../src/core/public';
-import { DashboardStart, AttributeService } from '../../../../src/plugins/dashboard/public';
+import { DashboardStart, AttributeService } from '../../../../src/plugins/dashboard_new/public';
 import { checkForDuplicateTitle, OnSaveProps } from '../../../../src/plugins/saved_objects/public';
 
 interface StartServices {

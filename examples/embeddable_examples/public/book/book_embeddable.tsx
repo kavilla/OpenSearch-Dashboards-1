@@ -41,7 +41,7 @@ import {
 } from '../../../../src/plugins/embeddable/public';
 import { BookSavedObjectAttributes } from '../../common';
 import { BookEmbeddableComponent } from './book_component';
-import { AttributeService } from '../../../../src/plugins/dashboard/public';
+import { AttributeService } from '../../../../src/plugins/dashboard_new/public';
 
 export const BOOK_EMBEDDABLE = 'book';
 export type BookEmbeddableInput = BookByValueInput | BookByReferenceInput;

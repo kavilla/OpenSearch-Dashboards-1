@@ -61,7 +61,7 @@ import { createVisEmbeddableFromObject } from './create_vis_embeddable_from_obje
 import { StartServicesGetter } from '../../../opensearch_dashboards_utils/public';
 import { VisualizationsStartDeps } from '../plugin';
 import { VISUALIZE_ENABLE_LABS_SETTING } from '../../common/constants';
-import { AttributeService } from '../../../dashboard/public';
+import { AttributeService } from '../../../dashboard_new/public';
 import { checkForDuplicateTitle } from '../../../saved_objects/public';
 
 interface VisualizationAttributes extends SavedObjectAttributes {

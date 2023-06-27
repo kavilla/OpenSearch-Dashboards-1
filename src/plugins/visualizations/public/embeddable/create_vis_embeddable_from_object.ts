@@ -48,7 +48,7 @@ import {
 import { VisualizeEmbeddableFactoryDeps } from './visualize_embeddable_factory';
 import { VISUALIZE_ENABLE_LABS_SETTING } from '../../common/constants';
 import { SavedVisualizationsLoader } from '../saved_visualizations';
-import { AttributeService } from '../../../dashboard/public';
+import { AttributeService } from '../../../dashboard_new/public';
 import { IndexPattern } from '../../../data/public';
 
 export const createVisEmbeddableFromObject = (deps: VisualizeEmbeddableFactoryDeps) => async (

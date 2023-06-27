@@ -29,7 +29,7 @@
  */
 
 import _ from 'lodash';
-import { Query, RefreshInterval, TimefilterContract } from 'src/plugins/data/public';
+import { RefreshInterval, TimefilterContract } from 'src/plugins/data/public';
 import { FilterUtils } from './filter_utils';
 import { SavedObjectDashboard } from '../../saved_dashboards';
 import { DashboardAppState } from '../../types';
@@ -38,13 +38,14 @@ import { opensearchFilters } from '../../../../data/public';
 export function updateSavedDashboard(
   savedDashboard: SavedObjectDashboard,
   appState: DashboardAppState,
-  timeFilter: TimefilterContract
+  timeFilter: TimefilterContract,
+  toJson: <T>(object: T) => string
 ) {
   savedDashboard.title = appState.title;
   savedDashboard.description = appState.description;
   savedDashboard.timeRestore = appState.timeRestore;
-  savedDashboard.panelsJSON = JSON.stringify(appState.panels);
-  savedDashboard.optionsJSON = JSON.stringify(appState.options);
+  savedDashboard.panelsJSON = toJson(appState.panels);
+  savedDashboard.optionsJSON = toJson(appState.options);
 
   savedDashboard.timeFrom = savedDashboard.timeRestore
     ? FilterUtils.convertTimeToUTCString(timeFilter.getTime().from)
@@ -61,11 +62,8 @@ export function updateSavedDashboard(
   savedDashboard.refreshInterval = savedDashboard.timeRestore ? timeRestoreObj : undefined;
 
   // save only unpinned filters
-  const unpinnedFilters = appState.filters.filter(
-    (filter) => !opensearchFilters.isFilterPinned(filter)
-  );
+  const unpinnedFilters = savedDashboard
+    .getFilters()
+    .filter((filter) => !opensearchFilters.isFilterPinned(filter));
   savedDashboard.searchSource.setField('filter', unpinnedFilters);
-
-  // save the queries
-  savedDashboard.searchSource.setField('query', appState.query as Query);
 }

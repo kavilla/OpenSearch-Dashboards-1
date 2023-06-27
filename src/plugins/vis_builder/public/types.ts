@@ -6,7 +6,7 @@
 import { History } from 'history';
 import { SavedObject, SavedObjectsStart } from '../../saved_objects/public';
 import { EmbeddableSetup, EmbeddableStart } from '../../embeddable/public';
-import { DashboardStart } from '../../dashboard/public';
+import { DashboardStart } from '../../dashboard_new/public';
 import { VisualizationsSetup } from '../../visualizations/public';
 import { ExpressionsStart } from '../../expressions/public';
 import { NavigationPublicPluginStart } from '../../navigation/public';

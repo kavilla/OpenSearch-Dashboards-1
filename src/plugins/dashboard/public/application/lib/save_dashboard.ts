@@ -31,27 +31,35 @@
 import { TimefilterContract } from 'src/plugins/data/public';
 import { SavedObjectSaveOpts } from 'src/plugins/saved_objects/public';
 import { updateSavedDashboard } from './update_saved_dashboard';
-
-import { DashboardAppStateContainer } from '../../types';
+import { DashboardStateManager } from '../dashboard_state_manager';
 
 /**
  * Saves the dashboard.
+ * @param toJson A custom toJson function. Used because the previous code used
+ * the angularized toJson version, and it was unclear whether there was a reason not to use
+ * JSON.stringify
  * @returns A promise that if resolved, will contain the id of the newly saved
  * dashboard.
  */
 export function saveDashboard(
+  toJson: (obj: any) => string,
   timeFilter: TimefilterContract,
-  stateContainer: DashboardAppStateContainer,
-  savedDashboard: any,
+  dashboardStateManager: DashboardStateManager,
   saveOptions: SavedObjectSaveOpts
 ): Promise<string> {
-  const appState = stateContainer.getState();
+  const savedDashboard = dashboardStateManager.savedDashboard;
+  const appState = dashboardStateManager.appState;
 
-  updateSavedDashboard(savedDashboard, appState, timeFilter);
+  updateSavedDashboard(savedDashboard, appState, timeFilter, toJson);
 
   return savedDashboard.save(saveOptions).then((id: string) => {
     if (id) {
-      return id;
+      // reset state only when save() was successful
+      // e.g. save() could be interrupted if title is duplicated and not confirmed
+      dashboardStateManager.lastSavedDashboardFilters = dashboardStateManager.getFilterState();
+      dashboardStateManager.resetState();
     }
+
+    return id;
   });
 }

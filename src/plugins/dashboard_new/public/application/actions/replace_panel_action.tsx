@@ -32,14 +32,14 @@ import { i18n } from '@osd/i18n';
 import { CoreStart } from 'src/core/public';
 import { EuiIconType } from '@elastic/eui/src/components/icon/icon';
 import { IEmbeddable, ViewMode, EmbeddableStart } from '../../embeddable_plugin';
-import { DASHBOARD_CONTAINER_TYPE, DashboardContainer } from '../embeddable';
+import { DASHBOARD_CONTAINER_TYPE, DashboardContainerEmbeddable } from '../embeddable';
 import { ActionByType, IncompatibleActionError } from '../../ui_actions_plugin';
 import { openReplacePanelFlyout } from './open_replace_panel_flyout';
 
 // TODO: dashboardNew
 export const ACTION_REPLACE_PANEL = 'replacePanelNew';
 
-function isDashboard(embeddable: IEmbeddable): embeddable is DashboardContainer {
+function isDashboard(embeddable: IEmbeddable): embeddable is DashboardContainerEmbeddable {
   return embeddable.type === DASHBOARD_CONTAINER_TYPE;
 }
 

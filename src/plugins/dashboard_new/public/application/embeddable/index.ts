@@ -31,8 +31,8 @@
 export {
   DashboardContainerFactoryDefinition,
   DashboardContainerFactory,
-} from './dashboard_container_factory';
-export { DashboardContainer, DashboardContainerInput } from './dashboard_container';
+} from './dashboard_container_embeddable_factory';
+export { DashboardContainerEmbeddable, DashboardContainerEmbeddableInput } from './dashboard_container_embeddable';
 export { createPanelState } from './panel';
 
 export * from './types';

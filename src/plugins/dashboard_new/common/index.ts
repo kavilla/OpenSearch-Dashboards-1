@@ -28,6 +28,7 @@
  * under the License.
  */
 
+export { DashboardCapabilities, DashboardProvider } from './dashboard/types';
 export { GridData } from './embeddable/types';
 export {
   RawSavedDashboardPanel730ToLatest,

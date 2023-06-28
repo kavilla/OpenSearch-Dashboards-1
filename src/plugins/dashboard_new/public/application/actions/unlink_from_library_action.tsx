@@ -40,7 +40,7 @@ import {
   isReferenceOrValueEmbeddable,
   isErrorEmbeddable,
 } from '../../../../embeddable/public';
-import { DashboardPanelState, DASHBOARD_CONTAINER_TYPE, DashboardContainer } from '..';
+import { DashboardPanelState, DASHBOARD_CONTAINER_TYPE, DashboardContainerEmbeddable } from '..';
 
 export const ACTION_UNLINK_FROM_LIBRARY = 'unlinkFromLibrary';
 
@@ -91,7 +91,7 @@ export class UnlinkFromLibraryAction implements ActionByType<typeof ACTION_UNLIN
     const newInput = await embeddable.getInputAsValueType();
     embeddable.updateInput(newInput);
 
-    const dashboard = embeddable.getRoot() as DashboardContainer;
+    const dashboard = embeddable.getRoot() as DashboardContainerEmbeddable;
     const panelToReplace = dashboard.getInput().panels[embeddable.id] as DashboardPanelState;
     if (!panelToReplace) {
       throw new PanelNotFoundError();

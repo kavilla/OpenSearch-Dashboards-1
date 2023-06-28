@@ -29,13 +29,13 @@
  */
 
 import * as React from 'react';
-import { DashboardContainerInput } from './dashboard_container';
-import { DashboardContainerFactory } from './dashboard_container_factory';
+import { DashboardContainerEmbeddableInput } from './dashboard_container_embeddable';
+import { DashboardContainerFactory } from './dashboard_container_embeddable_factory';
 import { EmbeddableRenderer } from '../../../../embeddable/public';
 
 interface Props {
-  input: DashboardContainerInput;
-  onInputUpdated?: (newInput: DashboardContainerInput) => void;
+  input: DashboardContainerEmbeddableInput;
+  onInputUpdated?: (newInput: DashboardContainerEmbeddableInput) => void;
   // TODO: add other props as needed
 }
 

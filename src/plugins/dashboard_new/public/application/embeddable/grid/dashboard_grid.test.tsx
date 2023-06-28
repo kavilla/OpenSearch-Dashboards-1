@@ -35,7 +35,7 @@ import React from 'react';
 import { mountWithIntl } from 'test_utils/enzyme_helpers';
 import { skip } from 'rxjs/operators';
 import { DashboardGrid, DashboardGridProps } from './dashboard_grid';
-import { DashboardContainer, DashboardContainerOptions } from '../dashboard_container';
+import { DashboardContainerEmbeddable, DashboardContainerEmbeddableOptions } from '../dashboard_container_embeddable';
 import { getSampleDashboardInput } from '../../test_helpers';
 import {
   CONTACT_CARD_EMBEDDABLE,
@@ -44,7 +44,7 @@ import {
 import { OpenSearchDashboardsContextProvider } from '../../../../../opensearch_dashboards_react/public';
 import { embeddablePluginMock } from 'src/plugins/embeddable/public/mocks';
 
-let dashboardContainer: DashboardContainer | undefined;
+let dashboardContainer: DashboardContainerEmbeddable | undefined;
 
 function prepare(props?: Partial<DashboardGridProps>) {
   const { setup, doStart } = embeddablePluginMock.createInstance();
@@ -69,7 +69,7 @@ function prepare(props?: Partial<DashboardGridProps>) {
       },
     },
   });
-  const options: DashboardContainerOptions = {
+  const options: DashboardContainerEmbeddableOptions = {
     application: {} as any,
     embeddable: {
       getTriggerCompatibleActions: (() => []) as any,
@@ -88,7 +88,7 @@ function prepare(props?: Partial<DashboardGridProps>) {
       getTriggerCompatibleActions: (() => []) as any,
     } as any,
   };
-  dashboardContainer = new DashboardContainer(initialInput, options);
+  dashboardContainer = new DashboardContainerEmbeddable(initialInput, options);
   const defaultTestProps: DashboardGridProps = {
     container: dashboardContainer,
     PanelComponent: () => <div />,

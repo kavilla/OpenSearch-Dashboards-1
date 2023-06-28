@@ -28,6 +28,6 @@
  * under the License.
  */
 
+export * from './_saved_dashboard';
 export * from './saved_dashboard_references';
-export * from './saved_dashboard';
 export * from './saved_dashboards';

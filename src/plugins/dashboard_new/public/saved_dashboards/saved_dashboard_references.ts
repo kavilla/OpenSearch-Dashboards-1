@@ -29,7 +29,7 @@
  */
 
 import { SavedObjectAttributes, SavedObjectReference } from 'opensearch-dashboards/public';
-import { SavedObjectDashboard } from './saved_dashboard';
+import { SavedObjectDashboard } from './_saved_dashboard';
 
 export function extractReferences({
   attributes,

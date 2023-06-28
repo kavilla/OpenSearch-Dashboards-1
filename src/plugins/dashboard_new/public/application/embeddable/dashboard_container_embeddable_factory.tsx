@@ -39,7 +39,7 @@ import {
   ErrorEmbeddable,
   Container,
 } from '../../embeddable_plugin';
-import { DashboardContainer, DashboardContainerInput } from './dashboard_container';
+import { DashboardContainerEmbeddable, DashboardContainerEmbeddableInput } from './dashboard_container_embeddable';
 import { DASHBOARD_CONTAINER_TYPE } from './dashboard_constants';
 
 interface StartServices {
@@ -55,13 +55,13 @@ interface StartServices {
 }
 
 export type DashboardContainerFactory = EmbeddableFactory<
-  DashboardContainerInput,
+  DashboardContainerEmbeddableInput,
   ContainerOutput,
-  DashboardContainer
+  DashboardContainerEmbeddable
 >;
 export class DashboardContainerFactoryDefinition
   implements
-    EmbeddableFactoryDefinition<DashboardContainerInput, ContainerOutput, DashboardContainer> {
+    EmbeddableFactoryDefinition<DashboardContainerEmbeddableInput, ContainerOutput, DashboardContainerEmbeddable> {
   public readonly isContainerType = true;
   public readonly type = DASHBOARD_CONTAINER_TYPE;
 
@@ -81,7 +81,7 @@ export class DashboardContainerFactoryDefinition
     });
   };
 
-  public getDefaultInput(): Partial<DashboardContainerInput> {
+  public getDefaultInput(): Partial<DashboardContainerEmbeddableInput> {
     return {
       panels: {},
       isEmbeddedExternally: false,
@@ -91,11 +91,11 @@ export class DashboardContainerFactoryDefinition
   }
 
   public create = async (
-    initialInput: DashboardContainerInput,
+    initialInput: DashboardContainerEmbeddableInput,
     parent?: Container
-  ): Promise<DashboardContainer | ErrorEmbeddable> => {
+  ): Promise<DashboardContainerEmbeddable | ErrorEmbeddable> => {
     const services = await this.getStartServices();
     const stateTransfer = services.embeddable.getStateTransfer(this.getHistory());
-    return new DashboardContainer(initialInput, services, stateTransfer, parent);
+    return new DashboardContainerEmbeddable(initialInput, services, stateTransfer, parent);
   };
 }

@@ -19,6 +19,7 @@ import { DashboardApp } from './app';
 import { DashboardServices } from '../types';
 export * from './embeddable';
 export * from './actions';
+export * from './types';
 
 export const renderApp = (
   { element, appBasePath, onAppLeave }: AppMountParameters,

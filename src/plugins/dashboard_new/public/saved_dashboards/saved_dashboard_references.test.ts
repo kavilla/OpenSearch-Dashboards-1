@@ -29,7 +29,7 @@
  */
 
 import { extractReferences, injectReferences } from './saved_dashboard_references';
-import { SavedObjectDashboard } from './saved_dashboard';
+import { SavedObjectDashboard } from './_saved_dashboard';
 
 describe('extractReferences', () => {
   test('extracts references from panelsJSON', () => {

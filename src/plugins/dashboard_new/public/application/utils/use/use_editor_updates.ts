@@ -7,13 +7,13 @@ import EventEmitter from 'events';
 import { useEffect, useState } from 'react';
 import { merge } from 'rxjs';
 import { DashboardAppState, DashboardAppStateContainer, DashboardServices } from '../../../types';
-import { DashboardContainer } from '../../embeddable';
+import { DashboardContainerEmbeddable } from '../../embeddable';
 
 export const useEditorUpdates = (
   services: DashboardServices,
   eventEmitter: EventEmitter,
   dashboardInstance?: any,
-  dashboardContainer?: DashboardContainer,
+  dashboardContainer?: DashboardContainerEmbeddable,
   appState?: DashboardAppStateContainer
 ) => {
   const [isEmbeddableRendered, setIsEmbeddableRendered] = useState(false);

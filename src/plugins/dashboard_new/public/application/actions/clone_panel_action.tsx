@@ -46,7 +46,7 @@ import {
   placePanelBeside,
   IPanelPlacementBesideArgs,
 } from '../embeddable/panel/dashboard_panel_placement';
-import { DashboardPanelState, DASHBOARD_CONTAINER_TYPE, DashboardContainer } from '..';
+import { DashboardPanelState, DASHBOARD_CONTAINER_TYPE, DashboardContainerEmbeddable } from '..';
 
 // TODO: dashboardNew
 export const ACTION_CLONE_PANEL = 'clonePanelNew';
@@ -93,7 +93,7 @@ export class ClonePanelAction implements ActionByType<typeof ACTION_CLONE_PANEL>
       throw new IncompatibleActionError();
     }
 
-    const dashboard = embeddable.getRoot() as DashboardContainer;
+    const dashboard = embeddable.getRoot() as DashboardContainerEmbeddable;
     const panelToClone = dashboard.getInput().panels[embeddable.id] as DashboardPanelState;
     if (!panelToClone) {
       throw new PanelNotFoundError();

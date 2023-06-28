@@ -11,7 +11,7 @@ import {
   SavedObjectNotFound,
 } from '../../../../../opensearch_dashboards_utils/public';
 import { DashboardConstants } from '../../../dashboard_constants';
-import { DashboardServices } from '../../../types';
+import { DashboardServices, IEditorController, SavedDashboardInstance } from '../../types';
 
 /**
  * This effect is responsible for instantiating a saved dashboard or creating a new one
@@ -23,7 +23,12 @@ export const useSavedDashboardInstance = (
   isChromeVisible: boolean | undefined,
   dashboardIdFromUrl: string | undefined
 ) => {
-  const [savedDashboardInstance, setSavedDashboardInstance] = useState<any>();
+  //const [savedDashboardInstance, setSavedDashboardInstance] = useState<any>();
+  const [state, setState] = useState<{
+    savedDashboardInstance?: SavedDashboardInstance;
+    dashboardEditorController?: IEditorController;
+  }>
+  const dashboardEditorRef = useRef<HTMLDivElement>(null)
   const dashboardId = useRef('');
 
   useEffect(() => {
@@ -39,10 +44,11 @@ export const useSavedDashboardInstance = (
 
     const getSavedDashboardInstance = async () => {
       try {
-        let savedDashboard: any;
+        let savedDashboardInstance: SavedDashboardInstance;
         if (history.location.pathname === '/create') {
           try {
-            savedDashboard = await savedDashboards.get();
+            //savedDashboardInstance = await savedDashboards.get();
+            savedDashboardInstance = await getDashboardInstance()
           } catch {
             redirectWhenMissing({
               history,
@@ -56,27 +62,28 @@ export const useSavedDashboardInstance = (
           }
         } else if (dashboardIdFromUrl) {
           try {
-            savedDashboard = await savedDashboards.get(dashboardIdFromUrl);
+            //savedDashboardInstance = await savedDashboards.get(dashboardIdFromUrl);
+            savedDashboardInstance = await getDashboardInstance(dashboardIdFromUr)
 
             // Update time filter to match the saved dashboard if time restore has been set to true when saving the dashboard
             // We should only set the time filter according to time restore once when we are loading the dashboard
-            if (savedDashboard.timeRestore) {
-              if (savedDashboard.timeFrom && savedDashboard.timeTo) {
+            if (savedDashboardInstance.timeRestore) {
+              if (savedDashboardInstance.timeFrom && savedDashboardInstance.timeTo) {
                 services.data.query.timefilter.timefilter.setTime({
-                  from: savedDashboard.timeFrom,
-                  to: savedDashboard.timeTo,
+                  from: savedDashboardInstance.timeFrom,
+                  to: savedDashboardInstance.timeTo,
                 });
               }
-              if (savedDashboard.refreshInterval) {
+              if (savedDashboardInstance.refreshInterval) {
                 services.data.query.timefilter.timefilter.setRefreshInterval(
-                  savedDashboard.refreshInterval
+                  savedDashboardInstance.refreshInterval
                 );
               }
             }
 
             chrome.recentlyAccessed.add(
-              savedDashboard.getFullPath(),
-              savedDashboard.title,
+              savedDashboardInstance.getFullPath(),
+              savedDashboardInstance.title,
               dashboardIdFromUrl
             );
           } catch (error) {
@@ -104,6 +111,8 @@ export const useSavedDashboardInstance = (
             }
           }
         }
+
+        const { embeddableHandler, savedDashboard, dashboard} = savedDashboardInstance;
 
         setSavedDashboardInstance(savedDashboard);
       } catch (error) {

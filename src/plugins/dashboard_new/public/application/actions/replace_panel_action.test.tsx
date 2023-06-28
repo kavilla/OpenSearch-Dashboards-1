@@ -30,7 +30,7 @@
 
 import { isErrorEmbeddable } from '../../embeddable_plugin';
 import { ReplacePanelAction } from './replace_panel_action';
-import { DashboardContainer } from '../embeddable';
+import { DashboardContainerEmbeddable } from '../embeddable';
 import { getSampleDashboardInput, getSampleDashboardPanel } from '../test_helpers';
 import {
   CONTACT_CARD_EMBEDDABLE,
@@ -50,7 +50,7 @@ setup.registerEmbeddableFactory(
 );
 const start = doStart();
 
-let container: DashboardContainer;
+let container: DashboardContainerEmbeddable;
 let embeddable: ContactCardEmbeddable;
 let coreStart: CoreStart;
 beforeEach(async () => {
@@ -74,7 +74,7 @@ beforeEach(async () => {
       }),
     },
   });
-  container = new DashboardContainer(input, options);
+  container = new DashboardContainerEmbeddable(input, options);
 
   const contactCardEmbeddable = await container.addNewEmbeddable<
     ContactCardEmbeddableInput,

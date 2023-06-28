@@ -32,12 +32,12 @@ import { EuiIconType } from '@elastic/eui/src/components/icon/icon';
 import { i18n } from '@osd/i18n';
 import { IEmbeddable } from '../../embeddable_plugin';
 import { ActionByType, IncompatibleActionError } from '../../ui_actions_plugin';
-import { DASHBOARD_CONTAINER_TYPE, DashboardContainer } from '../embeddable';
+import { DASHBOARD_CONTAINER_TYPE, DashboardContainerEmbeddable } from '../embeddable';
 
 // TODO: dashboardNew
 export const ACTION_EXPAND_PANEL = 'togglePanelNew';
 
-function isDashboard(embeddable: IEmbeddable): embeddable is DashboardContainer {
+function isDashboard(embeddable: IEmbeddable): embeddable is DashboardContainerEmbeddable {
   return embeddable.type === DASHBOARD_CONTAINER_TYPE;
 }
 

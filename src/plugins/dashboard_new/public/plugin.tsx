@@ -522,7 +522,7 @@ export class DashboardPlugin
       embeddableId,
       embeddableType
     );
-    core.application.navigateToApp('dashboards', { path: dashboardUrl });
+    core.application.navigateToApp('dashboardsNew', { path: dashboardUrl });
   }
 
   public start(core: CoreStart, plugins: StartDependencies): DashboardStart {

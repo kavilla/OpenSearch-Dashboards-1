@@ -55,7 +55,6 @@ export interface SavedObjectDashboard extends SavedObject {
   getFilters(): Filter[];
 }
 
-// Used only by the savedDashboards service, usually no reason to change this
 export function createSavedDashboardClass(
   services: SavedObjectOpenSearchDashboardsServices
 ): new (id: string) => SavedObjectDashboard {
@@ -65,7 +64,7 @@ export function createSavedDashboardClass(
     public static type = 'dashboard';
 
     // if type:dashboard has no mapping, we push this mapping into OpenSearch
-    public static mapping = {
+    public static mapping: Record<string, any> = {
       title: 'text',
       hits: 'integer',
       description: 'text',
@@ -118,7 +117,7 @@ export function createSavedDashboardClass(
           refreshInterval: undefined,
         },
       });
-      this.getFullPath = () => `/app/dashboards#${createDashboardEditUrl(String(this.id))}`;
+      this.getFullPath = () => `/app/dashboardsNew#${createDashboardEditUrl(String(this.id))}`;
     }
 
     getQuery() {
@@ -130,7 +129,5 @@ export function createSavedDashboardClass(
     }
   }
 
-  // Unfortunately this throws a typescript error without the casting.  I think it's due to the
-  // convoluted way SavedObjects are created.
   return (SavedDashboard as unknown) as new (id: string) => SavedObjectDashboard;
 }

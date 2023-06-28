@@ -36,7 +36,7 @@ import { I18nProvider } from '@osd/i18n/react';
 import sizeMe from 'react-sizeme';
 import { nextTick } from 'test_utils/enzyme_helpers';
 import { DashboardViewport, DashboardViewportProps } from './dashboard_viewport';
-import { DashboardContainer, DashboardContainerOptions } from '../dashboard_container';
+import { DashboardContainerEmbeddable, DashboardContainerEmbeddableOptions } from '../dashboard_container_embeddable';
 import { getSampleDashboardInput } from '../../test_helpers';
 import {
   CONTACT_CARD_EMBEDDABLE,
@@ -48,7 +48,7 @@ import { applicationServiceMock } from '../../../../../../core/public/mocks';
 
 sizeMe.noPlaceholders = true;
 
-let dashboardContainer: DashboardContainer | undefined;
+let dashboardContainer: DashboardContainerEmbeddable | undefined;
 
 const ExitFullScreenButton = () => <div data-test-subj="exitFullScreenModeText">EXIT</div>;
 
@@ -56,7 +56,7 @@ function getProps(
   props?: Partial<DashboardViewportProps>
 ): {
   props: DashboardViewportProps;
-  options: DashboardContainerOptions;
+  options: DashboardContainerEmbeddableOptions;
 } {
   const { setup, doStart } = embeddablePluginMock.createInstance();
   setup.registerEmbeddableFactory(
@@ -65,7 +65,7 @@ function getProps(
   );
 
   const start = doStart();
-  const options: DashboardContainerOptions = {
+  const options: DashboardContainerEmbeddableOptions = {
     application: applicationServiceMock.createStartContract(),
     embeddable: {
       getTriggerCompatibleActions: (() => []) as any,
@@ -100,7 +100,7 @@ function getProps(
     },
   });
 
-  dashboardContainer = new DashboardContainer(input, options);
+  dashboardContainer = new DashboardContainerEmbeddable(input, options);
   const defaultTestProps: DashboardViewportProps = {
     container: dashboardContainer,
     PanelComponent: () => <div />,

@@ -45,8 +45,8 @@ import { ViewMode, EmbeddableChildPanel, EmbeddableStart } from '../../../embedd
 import { DASHBOARD_GRID_COLUMN_COUNT, DASHBOARD_GRID_HEIGHT } from '../dashboard_constants';
 import { DashboardPanelState } from '../types';
 import { withOpenSearchDashboards } from '../../../../../opensearch_dashboards_react/public';
-import { DashboardContainerInput } from '../dashboard_container';
-import { DashboardContainer, DashboardReactContextValue } from '../dashboard_container';
+import { DashboardContainerEmbeddableInput } from '../dashboard_container_embeddable';
+import { DashboardContainerEmbeddable, DashboardReactContextValue } from '../dashboard_container_embeddable';
 
 let lastValidGridSize = 0;
 
@@ -127,7 +127,7 @@ const ResponsiveSizedGrid = sizeMe(config)(ResponsiveGrid);
 export interface DashboardGridProps extends ReactIntl.InjectedIntlProps {
   opensearchDashboards: DashboardReactContextValue;
   PanelComponent: EmbeddableStart['EmbeddablePanel'];
-  container: DashboardContainer;
+  container: DashboardContainerEmbeddable;
 }
 
 interface State {
@@ -191,7 +191,7 @@ class DashboardGridUi extends React.Component<DashboardGridProps, State> {
 
     this.subscription = this.props.container
       .getInput$()
-      .subscribe((input: DashboardContainerInput) => {
+      .subscribe((input: DashboardContainerEmbeddableInput) => {
         if (this.mounted) {
           this.setState({
             panels: input.panels,

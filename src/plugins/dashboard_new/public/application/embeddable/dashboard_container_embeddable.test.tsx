@@ -30,7 +30,7 @@
 
 import { nextTick } from 'test_utils/enzyme_helpers';
 import { isErrorEmbeddable, ViewMode } from '../../embeddable_plugin';
-import { DashboardContainer, DashboardContainerOptions } from './dashboard_container';
+import { DashboardContainerEmbeddable, DashboardContainerEmbeddableOptions } from './dashboard_container_embeddable';
 import { getSampleDashboardInput, getSampleDashboardPanel } from '../test_helpers';
 import {
   CONTACT_CARD_EMBEDDABLE,
@@ -41,7 +41,7 @@ import {
 } from '../../embeddable_plugin_test_samples';
 import { embeddablePluginMock } from 'src/plugins/embeddable/public/mocks';
 
-const options: DashboardContainerOptions = {
+const options: DashboardContainerEmbeddableOptions = {
   application: {} as any,
   embeddable: {} as any,
   notifications: {} as any,
@@ -61,7 +61,7 @@ beforeEach(() => {
   options.embeddable = doStart();
 });
 
-test('DashboardContainer initializes embeddables', (done) => {
+test('DashboardContainerEmbeddable initializes embeddables', (done) => {
   const initialInput = getSampleDashboardInput({
     panels: {
       '123': getSampleDashboardPanel<ContactCardEmbeddableInput>({
@@ -70,7 +70,7 @@ test('DashboardContainer initializes embeddables', (done) => {
       }),
     },
   });
-  const container = new DashboardContainer(initialInput, options);
+  const container = new DashboardContainerEmbeddable(initialInput, options);
 
   const subscription = container.getOutput$().subscribe((output) => {
     if (container.getOutput().embeddableLoaded['123']) {
@@ -90,8 +90,8 @@ test('DashboardContainer initializes embeddables', (done) => {
   }
 });
 
-test('DashboardContainer.addNewEmbeddable', async () => {
-  const container = new DashboardContainer(getSampleDashboardInput(), options);
+test('DashboardContainerEmbeddable.addNewEmbeddable', async () => {
+  const container = new DashboardContainerEmbeddable(getSampleDashboardInput(), options);
   const embeddable = await container.addNewEmbeddable<ContactCardEmbeddableInput>(
     CONTACT_CARD_EMBEDDABLE,
     {
@@ -120,7 +120,7 @@ test('Container view mode change propagates to existing children', async () => {
       }),
     },
   });
-  const container = new DashboardContainer(initialInput, options);
+  const container = new DashboardContainerEmbeddable(initialInput, options);
   await nextTick();
 
   const embeddable = await container.getChild('123');
@@ -130,7 +130,7 @@ test('Container view mode change propagates to existing children', async () => {
 });
 
 test('Container view mode change propagates to new children', async () => {
-  const container = new DashboardContainer(getSampleDashboardInput(), options);
+  const container = new DashboardContainerEmbeddable(getSampleDashboardInput(), options);
   const embeddable = await container.addNewEmbeddable<
     ContactCardEmbeddableInput,
     ContactCardEmbeddableOutput,

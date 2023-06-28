@@ -9,18 +9,24 @@ import { Filter, IndexPattern } from 'src/plugins/data/public';
 import { useCallback } from 'react';
 import { useOpenSearchDashboards } from '../../../../opensearch_dashboards_react/public';
 import { getTopNavConfig } from '../top_nav/get_top_nav_config';
-import { DashboardAppStateContainer, DashboardAppState, DashboardServices } from '../../types';
+import { DashboardAppStateContainer, DashboardAppState, DashboardServices } from '../types';
 import { getNavActions } from '../utils/get_nav_actions';
-import { DashboardContainer } from '../embeddable';
+import { DashboardContainerEmbeddable } from '../embeddable';
 import { isErrorEmbeddable } from '../../embeddable_plugin';
+import { DashboardEditorDashboardInstance } from '../types';
+import { AppMountParameters } from 'opensearch-dashboards/public';
 
 interface DashboardTopNavProps {
-  isChromeVisible: boolean;
-  savedDashboardInstance: any;
+  isChromeVisible?: boolean;
+  dashboardInstance: DashboardEditorDashboardInstance;
   stateContainer: DashboardAppStateContainer;
   currentAppState: DashboardAppState;
   isEmbeddableRendered: boolean;
-  dashboardContainer?: DashboardContainer;
+  dashboardContainer?: DashboardContainerEmbeddable;
+  hasUnsavedChanges: boolean;
+  setHasUnsavedChanges: (value: boolean) => void;
+  dashboardIdFromUrl?: string;
+  onAppLeave: AppMountParameters['onAppLeave'];
 }
 
 enum UrlParams {
@@ -32,12 +38,16 @@ enum UrlParams {
 }
 
 const TopNav = ({
-  isChromeVisible,
-  savedDashboardInstance,
-  stateContainer,
   currentAppState,
+  isChromeVisible,
   isEmbeddableRendered,
+  hasUnsavedChanges,
+  setHasUnsavedChanges,
+  dashboardInstance,
+  stateContainer,
   dashboardContainer,
+  dashboardIdFromUrl,
+  onAppLeave
 }: DashboardTopNavProps) => {
   const [filters, setFilters] = useState<Filter[]>([]);
   const [topNavMenu, setTopNavMenu] = useState<any>();
@@ -68,7 +78,7 @@ const TopNav = ({
   };
 
   const shouldShowNavBarComponent = (forceShow: boolean): boolean =>
-    (forceShow || isChromeVisible) && !currentAppState?.fullScreenMode;
+    (forceShow || isChromeVisible) && !currentAppState.dashboard.fullScreenMode;
 
   useEffect(() => {
     setFilters(queryService.filterManager.getFilters());
@@ -78,13 +88,13 @@ const TopNav = ({
     if (isEmbeddableRendered) {
       const navActions = getNavActions(
         stateContainer,
-        savedDashboardInstance,
+        dashboardInstance,
         services,
         dashboardContainer
       );
       setTopNavMenu(
         getTopNavConfig(
-          currentAppState?.viewMode,
+          currentAppState.dashboard.viewMode,
           navActions,
           dashboardConfig.getHideWriteControls()
         )
@@ -95,13 +105,13 @@ const TopNav = ({
     services,
     dashboardConfig,
     dashboardContainer,
-    savedDashboardInstance,
+    dashboardInstance,
     stateContainer,
     isEmbeddableRendered,
   ]);
 
   useEffect(() => {
-    setIsFullScreenMode(currentAppState?.fullScreenMode);
+    setIsFullScreenMode(currentAppState.dashboard.fullScreenMode);
   }, [currentAppState, services]);
 
   useEffect(() => {
@@ -132,7 +142,7 @@ const TopNav = ({
   }, [dashboardContainer, stateContainer, currentAppState, services.data.indexPatterns]);
 
   const shouldShowFilterBar = (forceHide: boolean): boolean =>
-    !forceHide && (filters!.length > 0 || !currentAppState?.fullScreenMode);
+    !forceHide && (filters!.length > 0 || !currentAppState.dashboard.fullScreenMode);
 
   const forceShowTopNavMenu = shouldForceDisplay(UrlParams.SHOW_TOP_MENU);
   const forceShowQueryInput = shouldForceDisplay(UrlParams.SHOW_QUERY_INPUT);
@@ -151,7 +161,7 @@ const TopNav = ({
       savedQueryId={currentAppState?.savedQuery}
       config={showTopNavMenu ? topNavMenu : undefined}
       className={isFullScreenMode ? 'osdTopNavMenu-isFullScreen' : undefined}
-      screenTitle={currentAppState.title}
+      screenTitle={currentAppState.dashboard.title}
       // showTopNavMenu={showTopNavMenu}
       showSearchBar={showSearchBar}
       showQueryBar={showQueryBar}

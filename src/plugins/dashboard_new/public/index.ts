@@ -32,8 +32,8 @@ import { PluginInitializerContext } from '../../../core/public';
 import { DashboardPlugin } from './plugin';
 
 export {
-  DashboardContainer,
-  DashboardContainerInput,
+  DashboardContainerEmbeddable,
+  DashboardContainerEmbeddableInput,
   DashboardContainerFactoryDefinition,
   DASHBOARD_CONTAINER_TYPE,
   // Types below here can likely be made private when dashboard app moved into this NP plugin.
@@ -55,7 +55,7 @@ export {
 } from './url_generator';
 export { addEmbeddableToDashboardUrl } from './url_utils/url_helper';
 export { SavedObjectDashboard } from './saved_dashboards';
-export { SavedDashboardPanel } from './types';
+export { SavedDashboardPanel } from './application/types';
 export { AttributeService, ATTRIBUTE_SERVICE_KEY } from './attribute_service';
 
 export function plugin(initializerContext: PluginInitializerContext) {

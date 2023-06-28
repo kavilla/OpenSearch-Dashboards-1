@@ -29,11 +29,11 @@
  */
 
 import { ViewMode, EmbeddableInput } from '../../embeddable_plugin';
-import { DashboardContainerInput, DashboardPanelState } from '../embeddable';
+import { DashboardContainerEmbeddableInput, DashboardPanelState } from '../embeddable';
 
 export function getSampleDashboardInput(
-  overrides?: Partial<DashboardContainerInput>
-): DashboardContainerInput {
+  overrides?: Partial<DashboardContainerEmbeddableInput>
+): DashboardContainerEmbeddableInput {
   return {
     id: '123',
     filters: [],

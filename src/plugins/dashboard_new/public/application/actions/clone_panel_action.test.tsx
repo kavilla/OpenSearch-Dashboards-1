@@ -29,7 +29,7 @@
  */
 
 import { isErrorEmbeddable, IContainer, ErrorEmbeddable } from '../../embeddable_plugin';
-import { DashboardContainer, DashboardPanelState } from '../embeddable';
+import { DashboardContainerEmbeddable, DashboardPanelState } from '../embeddable';
 import { getSampleDashboardInput, getSampleDashboardPanel } from '../test_helpers';
 import {
   CONTACT_CARD_EMBEDDABLE,
@@ -50,7 +50,7 @@ setup.registerEmbeddableFactory(
 );
 const start = doStart();
 
-let container: DashboardContainer;
+let container: DashboardContainerEmbeddable;
 let embeddable: ContactCardEmbeddable;
 let coreStart: CoreStart;
 beforeEach(async () => {
@@ -81,7 +81,7 @@ beforeEach(async () => {
       }),
     },
   });
-  container = new DashboardContainer(input, options);
+  container = new DashboardContainerEmbeddable(input, options);
 
   const contactCardEmbeddable = await container.addNewEmbeddable<
     ContactCardEmbeddableInput,

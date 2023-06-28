@@ -22,8 +22,8 @@ import { i18n } from '@osd/i18n';
 import { IndexPattern, opensearchFilters } from '../../../../../data/public';
 import {
   DASHBOARD_CONTAINER_TYPE,
-  DashboardContainer,
-  DashboardContainerInput,
+  DashboardContainerEmbeddable,
+  DashboardContainerEmbeddableInput,
   DashboardPanelState,
 } from '../../embeddable';
 import {
@@ -57,7 +57,7 @@ export const useDashboardContainer = (
   savedDashboardInstance?: any,
   appState?: DashboardAppStateContainer
 ) => {
-  const [dashboardContainer, setDashboardContainer] = useState<DashboardContainer>();
+  const [dashboardContainer, setDashboardContainer] = useState<DashboardContainerEmbeddable>();
 
   useEffect(() => {
     const getDashboardContainer = async () => {
@@ -108,7 +108,7 @@ const createDashboardEmbeddable = (
   dashboardServices: DashboardServices,
   appState: DashboardAppStateContainer
 ) => {
-  let dashboardContainer: DashboardContainer;
+  let dashboardContainer: DashboardContainerEmbeddable;
   let inputSubscription: Subscription | undefined;
   let outputSubscription: Subscription | undefined;
 
@@ -129,9 +129,9 @@ const createDashboardEmbeddable = (
   const queryStringManager = queryService.queryString;
   const { visualizeCapabilities, mapsCapabilities } = embeddableCapabilities;
   const dashboardFactory = embeddable.getEmbeddableFactory<
-    DashboardContainerInput,
+    DashboardContainerEmbeddableInput,
     ContainerOutput,
-    DashboardContainer
+    DashboardContainerEmbeddable
   >(DASHBOARD_CONTAINER_TYPE);
 
   const getShouldShowEditHelp = (appStateData: DashboardAppState) => {
@@ -239,7 +239,7 @@ const createDashboardEmbeddable = (
   if (dashboardFactory) {
     return dashboardFactory
       .create(getDashboardInput())
-      .then((container: DashboardContainer | ErrorEmbeddable | undefined) => {
+      .then((container: DashboardContainerEmbeddable | ErrorEmbeddable | undefined) => {
         if (container && !isErrorEmbeddable(container)) {
           dashboardContainer = container;
 
@@ -263,7 +263,7 @@ const createDashboardEmbeddable = (
             }
 
             const containerInput = currentContainer.getInput();
-            const differences: Partial<DashboardContainerInput> = {};
+            const differences: Partial<DashboardContainerEmbeddableInput> = {};
 
             // Filters shouldn't  be compared using regular isEqual
             if (
@@ -353,7 +353,7 @@ const createDashboardEmbeddable = (
 };
 
 const handleDashboardContainerChanges = (
-  dashboardContainer: DashboardContainer,
+  dashboardContainer: DashboardContainerEmbeddable,
   appState: DashboardAppStateContainer,
   dashboardServices: DashboardServices
 ) => {

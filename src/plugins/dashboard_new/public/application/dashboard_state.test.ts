@@ -34,8 +34,8 @@ import { getSavedDashboardMock } from './test_helpers';
 import { InputTimeRange, TimefilterContract, TimeRange } from 'src/plugins/data/public';
 import { ViewMode } from 'src/plugins/embeddable/public';
 import { createOsdUrlStateStorage } from 'src/plugins/opensearch_dashboards_utils/public';
-import { DashboardContainer, DashboardContainerInput } from '.';
-import { DashboardContainerOptions } from './embeddable/dashboard_container';
+import { DashboardContainerEmbeddable, DashboardContainerEmbeddableInput } from '.';
+import { DashboardContainerEmbeddableOptions } from './embeddable/dashboard_container_embeddable';
 import { embeddablePluginMock } from '../../../embeddable/public/mocks';
 
 // TODO:
@@ -65,21 +65,21 @@ describe.skip('DashboardState', function () {
     });
   }
 
-  function initDashboardContainer(initialInput?: Partial<DashboardContainerInput>) {
+  function initDashboardContainer(initialInput?: Partial<DashboardContainerEmbeddableInput>) {
     const { doStart } = embeddablePluginMock.createInstance();
-    const defaultInput: DashboardContainerInput = {
+    const defaultInput: DashboardContainerEmbeddableInput = {
       id: '123',
       viewMode: ViewMode.EDIT,
-      filters: [] as DashboardContainerInput['filters'],
-      query: {} as DashboardContainerInput['query'],
-      timeRange: {} as DashboardContainerInput['timeRange'],
+      filters: [] as DashboardContainerEmbeddableInput['filters'],
+      query: {} as DashboardContainerEmbeddableInput['query'],
+      timeRange: {} as DashboardContainerEmbeddableInput['timeRange'],
       useMargins: true,
       title: 'ultra awesome test dashboard',
       isFullScreenMode: false,
-      panels: {} as DashboardContainerInput['panels'],
+      panels: {} as DashboardContainerEmbeddableInput['panels'],
     };
     const input = { ...defaultInput, ...(initialInput ?? {}) };
-    return new DashboardContainer(input, { embeddable: doStart() } as DashboardContainerOptions);
+    return new DashboardContainerEmbeddable(input, { embeddable: doStart() } as DashboardContainerEmbeddableOptions);
   }
 
   describe('syncTimefilterWithDashboard', function () {

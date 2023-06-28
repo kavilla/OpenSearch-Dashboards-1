@@ -58,8 +58,9 @@ import {
 import { PLACEHOLDER_EMBEDDABLE } from './placeholder';
 import { PanelPlacementMethod, IPanelPlacementArgs } from './panel/dashboard_panel_placement';
 import { EmbeddableStateTransfer, EmbeddableOutput } from '../../../../embeddable/public';
+import { SavedObjectDashboard } from '../..';
 
-export interface DashboardContainerInput extends ContainerInput {
+export interface DashboardContainerEmbeddableInput extends ContainerInput {
   viewMode: ViewMode;
   filters: Filter[];
   query: Query;
@@ -75,13 +76,14 @@ export interface DashboardContainerInput extends ContainerInput {
     [panelId: string]: DashboardPanelState<EmbeddableInput & { [k: string]: unknown }>;
   };
   isEmptyState?: boolean;
+  savedDashboard?: SavedObjectDashboard;
 }
 
 interface IndexSignature {
   [key: string]: unknown;
 }
 
-export interface InheritedChildInput extends IndexSignature {
+export interface InheritedChildEmbeddableInput extends IndexSignature {
   filters: Filter[];
   query: Query;
   timeRange: TimeRange;
@@ -91,7 +93,7 @@ export interface InheritedChildInput extends IndexSignature {
   id: string;
 }
 
-export interface DashboardContainerOptions {
+export interface DashboardContainerEmbeddableOptions {
   application: CoreStart['application'];
   overlays: CoreStart['overlays'];
   notifications: CoreStart['notifications'];
@@ -103,11 +105,11 @@ export interface DashboardContainerOptions {
 }
 
 export type DashboardReactContextValue = OpenSearchDashboardsReactContextValue<
-  DashboardContainerOptions
+DashboardContainerEmbeddableOptions
 >;
-export type DashboardReactContext = OpenSearchDashboardsReactContext<DashboardContainerOptions>;
+export type DashboardReactContext = OpenSearchDashboardsReactContext<DashboardContainerEmbeddableOptions>;
 
-export class DashboardContainer extends Container<InheritedChildInput, DashboardContainerInput> {
+export class DashboardContainerEmbeddable extends Container<InheritedChildEmbeddableInput, DashboardContainerEmbeddableInput> {
   public readonly type = DASHBOARD_CONTAINER_TYPE;
 
   public renderEmpty?: undefined | (() => React.ReactNode);
@@ -116,8 +118,8 @@ export class DashboardContainer extends Container<InheritedChildInput, Dashboard
   private embeddablePanel: EmbeddableStart['EmbeddablePanel'];
 
   constructor(
-    initialInput: DashboardContainerInput,
-    private readonly options: DashboardContainerOptions,
+    initialInput: DashboardContainerEmbeddableInput,
+    private readonly options: DashboardContainerEmbeddableOptions,
     stateTransfer?: EmbeddableStateTransfer,
     parent?: Container
   ) {
@@ -241,7 +243,7 @@ export class DashboardContainer extends Container<InheritedChildInput, Dashboard
     );
   }
 
-  protected getInheritedInput(id: string): InheritedChildInput {
+  protected getInheritedInput(id: string): InheritedChildEmbeddableInput {
     const { viewMode, refreshConfig, timeRange, query, hidePanelTitles, filters } = this.input;
     return {
       filters,

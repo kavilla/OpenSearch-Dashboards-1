@@ -34,7 +34,7 @@ import { mount } from 'enzyme';
 import { nextTick } from 'test_utils/enzyme_helpers';
 import { I18nProvider } from '@osd/i18n/react';
 import { ViewMode, CONTEXT_MENU_TRIGGER, EmbeddablePanel } from '../../embeddable_plugin';
-import { DashboardContainer, DashboardContainerOptions } from '../embeddable/dashboard_container';
+import { DashboardContainerEmbeddable, DashboardContainerEmbeddableOptions } from '../embeddable/dashboard_container_embeddable';
 import { getSampleDashboardInput } from '../test_helpers';
 import {
   CONTACT_CARD_EMBEDDABLE,
@@ -50,7 +50,7 @@ import { OpenSearchDashboardsContextProvider } from '../../../../opensearch_dash
 import { uiActionsPluginMock } from '../../../../ui_actions/public/mocks';
 import { applicationServiceMock } from '../../../../../core/public/mocks';
 
-test('DashboardContainer in edit mode shows edit mode actions', async () => {
+test('DashboardContainerEmbeddable in edit mode shows edit mode actions', async () => {
   const inspector = inspectorPluginMock.createStartContract();
   const { setup, doStart } = embeddablePluginMock.createInstance();
   const uiActionsSetup = uiActionsPluginMock.createSetupContract();
@@ -66,7 +66,7 @@ test('DashboardContainer in edit mode shows edit mode actions', async () => {
   const start = doStart();
 
   const initialInput = getSampleDashboardInput({ viewMode: ViewMode.VIEW });
-  const options: DashboardContainerOptions = {
+  const options: DashboardContainerEmbeddableOptions = {
     application: applicationServiceMock.createStartContract(),
     embeddable: start,
     notifications: {} as any,
@@ -76,7 +76,7 @@ test('DashboardContainer in edit mode shows edit mode actions', async () => {
     ExitFullScreenButton: () => null,
     uiActions: {} as any,
   };
-  const container = new DashboardContainer(initialInput, options);
+  const container = new DashboardContainerEmbeddable(initialInput, options);
 
   const embeddable = await container.addNewEmbeddable<
     ContactCardEmbeddableInput,

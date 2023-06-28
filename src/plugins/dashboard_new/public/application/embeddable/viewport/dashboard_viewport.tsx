@@ -31,12 +31,12 @@
 import React from 'react';
 import { Subscription } from 'rxjs';
 import { PanelState, EmbeddableStart } from '../../../embeddable_plugin';
-import { DashboardContainer, DashboardReactContextValue } from '../dashboard_container';
+import { DashboardContainerEmbeddable, DashboardReactContextValue } from '../dashboard_container_embeddable';
 import { DashboardGrid } from '../grid';
 import { context } from '../../../../../opensearch_dashboards_react/public';
 
 export interface DashboardViewportProps {
-  container: DashboardContainer;
+  container: DashboardContainerEmbeddable;
   PanelComponent: EmbeddableStart['EmbeddablePanel'];
   renderEmpty?: () => React.ReactNode;
 }

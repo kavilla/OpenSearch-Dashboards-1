@@ -26,7 +26,7 @@ import {
 import { showCloneModal } from '../top_nav/show_clone_modal';
 import { showOptionsPopover } from '../top_nav/show_options_popover';
 import { saveDashboard } from '../lib';
-import { DashboardContainer } from '../embeddable/dashboard_container';
+import { DashboardContainerEmbeddable } from '../embeddable/dashboard_container_embeddable';
 import { DashboardConstants, createDashboardEditUrl } from '../../dashboard_constants';
 import { unhashUrl } from '../../../../opensearch_dashboards_utils/public';
 
@@ -53,7 +53,7 @@ export const getNavActions = (
   stateContainer: DashboardAppStateContainer,
   savedDashboard: any,
   services: DashboardServices,
-  dashboardContainer?: DashboardContainer
+  dashboardContainer?: DashboardContainerEmbeddable
 ) => {
   const {
     history,

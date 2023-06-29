@@ -57,9 +57,21 @@ import { PanelPlacementMethod, IPanelPlacementArgs } from './panel/dashboard_pan
 import { EmbeddableStateTransfer, EmbeddableOutput } from '../../../../embeddable/public';
 import { SerializedDashboard, Dashboard } from '../../dashboard';
 import { DashboardStartDeps } from '../../plugin';
+
+export interface DashboardContainerEmbeddableFactoryDeps {
+  application: DashboardStartDeps['application'];
+  overlays: DashboardStartDeps['overlays'];
+  notifications: DashboardStartDeps['notifications'];
+  embeddable: DashboardStartDeps['embeddable'];
+  inspector: DashboardStartDeps['inspector'];
+  SavedObjectFinder: DashboardStartDeps['SavedObjectFinder'];
+  ExitFullScreenButton: DashboardStartDeps['ExitFullScreenButton'];
+  uiActions: DashboardStartDeps['uiActions'];
+}
+
 export interface DashboardContainerEmbeddableConfiguration {
   savedDashboard: Dashboard,
-  deps: Pick<DashboardStartDeps, 'application' | 'overlays' | 'notifications' | 'embeddable' | 'inspector'>;
+  deps: DashboardContainerEmbeddableFactoryDeps
 }
 
 export interface DashboardContainerEmbeddableInput extends ContainerInput {
@@ -103,6 +115,8 @@ export type DashboardReactContext = OpenSearchDashboardsReactContext<DashboardCo
 export class DashboardContainerEmbeddable extends Container<InheritedChildEmbeddableInput, DashboardContainerEmbeddableInput> {
   public readonly type = DASHBOARD_CONTAINER_TYPE;
 
+  private savedDashboard: Dashboard;
+  private readonly deps: DashboardContainerEmbeddableConfiguration['deps'];
   public renderEmpty?: undefined | (() => React.ReactNode);
   public getChangesFromAppStateForContainerState?: (containerInput: any) => any;
 
@@ -110,7 +124,7 @@ export class DashboardContainerEmbeddable extends Container<InheritedChildEmbedd
 
   constructor(
     initialInput: DashboardContainerEmbeddableInput,
-    private readonly deps: DashboardContainerEmbeddableConfiguration['deps'],
+    { savedDashboard, deps }: DashboardContainerEmbeddableConfiguration,
     stateTransfer?: EmbeddableStateTransfer,
     parent?: Container
   ) {
@@ -122,6 +136,9 @@ export class DashboardContainerEmbeddable extends Container<InheritedChildEmbedd
       deps.embeddable.getEmbeddableFactory,
       parent
     );
+    this.savedDashboard = savedDashboard;
+    console.log(this.savedDashboard);
+    this.deps = deps;
     this.embeddablePanel = deps.embeddable.getEmbeddablePanel(stateTransfer);
   }
 

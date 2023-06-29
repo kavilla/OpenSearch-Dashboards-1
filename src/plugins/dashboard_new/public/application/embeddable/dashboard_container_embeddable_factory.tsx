@@ -43,6 +43,12 @@ import { convertToSerializedDashboard } from '../../saved_dashboards';
 import { Dashboard, SerializedDashboard } from '../../dashboard';
 import { StartServicesGetter } from 'src/plugins/opensearch_dashboards_utils/public';
 import { DashboardStartDeps } from '../../plugin'
+import {
+  convertPanelStateToSavedDashboardPanel,
+  convertSavedDashboardPanelToPanelState,
+} from '../lib/embeddable_saved_object_converters';
+import { SavedDashboardPanel } from '../../types';
+import { DashboardPanelState } from './types';
 
 // Can just use DashboardServices
 export interface DashboardContainerEmbeddableFactoryDeps {
@@ -85,6 +91,10 @@ export class DashboardContainerFactoryDefinition
     };
   }
 
+  // The factory create a dashboard container embeddable for an existing dashboard
+  // 1. The function will get the values from dashboard saved object loader and serialize the values
+  // 2. Create a new Dashboard class using the serialize values and set the state
+  // 3. Create the dashboard container embeddable using the dashboard object
   public async createFromSavedObject(
     savedObjectId: string,
     input: DashboardContainerEmbeddableInput,
@@ -101,15 +111,17 @@ export class DashboardContainerFactoryDefinition
       return new DashboardContainerEmbeddable(
         input,
         {
-          application: this.deps.start().core.application,
-          overlays: this.deps.start().core.overlays,
-          notifications: this.deps.start().plugins.notifications,
-          embeddable: this.deps.start().plugins.embeddable,
-          inspector: this.deps.start().plugins.inspector,
-          // SavedObjectFinder: this.deps.start().contract,
-          // ExitFullScreenButton: this.deps.start().core.overlays,
-          // uiActions: this.deps.start().core.overlays,
-
+          savedDashboard: dashboard,
+          deps: {
+            application: this.deps.start().core.application,
+            overlays: this.deps.start().core.overlays,
+            notifications: this.deps.start().plugins.notifications,
+            embeddable: this.deps.start().plugins.embeddable,
+            inspector: this.deps.start().plugins.inspector,
+            SavedObjectFinder: this.deps.start().plugins.SavedObjectFinder,
+            ExitFullScreenButton: this.deps.start().plugins.ExitFullScreenButton,
+            uiActions: this.deps.start().plugins.uiActions,
+          }
         },
         stateTransfer,
         parent
@@ -120,23 +132,34 @@ export class DashboardContainerFactoryDefinition
     }
   }
 
+  // The factory create a dashboard container embeddable for a new dashboard
+  // 1. The function will get the values from input prop
+  // 2. Create a new Dashboard class using the input and set the state
+  // 3. Create the dashboard container embeddable using the dashboard object 
   public create = async (
     input: DashboardContainerEmbeddableInput & { savedDashboard?: SerializedDashboard },
     parent?: Container
   ): Promise<DashboardContainerEmbeddable | ErrorEmbeddable> => {
-    const dashboard = new Dashboard(input)
-    await dashboard.setState(input)
+    const dashboard = new Dashboard(input.savedDashboard)
+    await dashboard.setState(input.savedDashboard)
     const stateTransfer = this.deps.start().plugins.embeddable.getStateTransfer(this.getHistory());
-    return new DashboardContainerEmbeddable(input, {
-      application: this.deps.start().core.application,
-      overlays: this.deps.start().core.overlays,
-      notifications: this.deps.start().plugins.notifications,
-      embeddable: this.deps.start().plugins.embeddable,
-      inspector: this.deps.start().plugins.inspector,
-      // SavedObjectFinder: this.deps.start().contract,
-      // ExitFullScreenButton: this.deps.start().core.overlays,
-      // uiActions: this.deps.start().core.overlays,
-
-    }, stateTransfer, parent);
+    return new DashboardContainerEmbeddable(
+      input, 
+      {
+        savedDashboard: dashboard,
+        deps: {
+          application: this.deps.start().core.application,
+          overlays: this.deps.start().core.overlays,
+          notifications: this.deps.start().plugins.notifications,
+          embeddable: this.deps.start().plugins.embeddable,
+          inspector: this.deps.start().plugins.inspector,
+          SavedObjectFinder: this.deps.start().plugins.SavedObjectFinder,
+          ExitFullScreenButton: this.deps.start().plugins.ExitFullScreenButton,
+          uiActions: this.deps.start().plugins.uiActions
+        }
+      }, 
+      stateTransfer, 
+      parent
+    );
   };
 }

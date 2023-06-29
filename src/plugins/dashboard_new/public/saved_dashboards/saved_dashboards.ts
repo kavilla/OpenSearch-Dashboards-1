@@ -12,7 +12,7 @@
 import { SavedObjectLoader, SavedObjectOpenSearchDashboardsServices } from '../../../saved_objects/public';
 import { createSavedDashboardClass } from './_saved_dashboard';
 
-export type SavedDashboardLoader = ReturnType<typeof createSavedDashboardLoader>;
+export type SavedDashboardsLoader = ReturnType<typeof createSavedDashboardLoader>;
 
 export function createSavedDashboardLoader(services: SavedObjectOpenSearchDashboardsServices) {
   const SavedDashboard = createSavedDashboardClass(services);

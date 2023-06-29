@@ -12,13 +12,8 @@
 import { History } from 'history';
 import { TimeRange, Query, Filter, DataPublicPluginStart } from 'src/plugins/data/public';
 import {
-  PersistedState,
-  SavedVisState,
-  VisualizationsStart,
-  Vis,
-  VisualizeEmbeddableContract,
-  VisSavedObject,
-} from 'src/plugins/visualizations/public';
+  DashboardStart
+} from 'src/plugins/dashboard_new/public';
 import {
   SavedObject as SavedObjectType,
   SavedObjectAttributes,
@@ -32,6 +27,7 @@ import {
   ToastsStart,
 } from 'src/core/public';
 import { NavigationPublicPluginStart as NavigationStart } from 'src/plugins/navigation/public';
+import { Start as InspectorStartContract } from 'src/plugins/inspector/public';
 import {
   Storage,
   IOsdUrlStateStorage,
@@ -44,30 +40,12 @@ import { OpenSearchDashboardsLegacyStart } from 'src/plugins/opensearch_dashboar
 import { EmbeddableStart, ViewMode } from 'src/plugins/embeddable/public';
 import { UrlForwardingStart } from 'src/plugins/url_forwarding/public';
 import { DashboardContainerEmbeddable, DashboardStart, SavedObjectDashboard } from '../../../dashboard_new/public';
-import { SavedDashboardPanel730ToLatest, DashboardCapabilities, DashboardProvider } from '../../common';
 import { PublicContract } from '@osd/utility-types';
-
-export interface SavedDashboardState {
-  panels: SavedDashboardPanel[];
-  fullScreenMode: boolean;
-  title: string;
-  description: string;
-  timeRestore: boolean;
-  options: {
-    hidePanelTitles: boolean;
-    useMargins: boolean;
-  };
-  viewMode: ViewMode;
-  expandedPanelId?: string;
-}
+import { UiActionsStart } from '../ui_actions_plugin';
+import { DashboardCapabilities, DashboardProvider } from '../../common';
+import { SavedDashboardState } from '../types';
 
 export type PureDashboardState = SavedDashboardState;
-
-/**
- * This should always represent the latest dashboard panel shape, after all possible migrations.
- */
-export type SavedDashboardPanel = SavedDashboardPanel730ToLatest;
-
 export interface DashboardAppState {
   query: Query | string;
   filters: Filter[];
@@ -115,37 +93,40 @@ export interface EditorRenderProps {
 }
 
 export interface DashboardServices extends CoreStart {
-  pluginInitializerContext: PluginInitializerContext;
-  opensearchDashboardsVersion: string;
+  embeddable: EmbeddableStart;
   history: History;
   osdUrlStateStorage: IOsdUrlStateStorage;
-  core: CoreStart;
+  // urlForwarding?
+  pluginInitializerContext: PluginInitializerContext;
+  chrome: ChromeStart;
   data: DataPublicPluginStart;
+  localStorage: Storage;
   navigation: NavigationStart;
+  toastNotifications: ToastsStart;
+  share?: SharePluginStart;
+  dashboardCapabilities: DashboardCapabilities;
+  dashboards: DashboardStart;
+  savedObjectsPublic: SavedObjectsStart;
+  savedDashboards: DashboardStart['getSavedDashboardsLoader'];
+  //setActiveUrl,
+  restorePreviousUrl: () => void;
+  scopedHistory: ScopedHistory;
+  //core: CoreStart;
+  setHeaderActionMenu: AppMountParameters['setHeaderActionMenu'];
+  opensearchDashboardsVersion: string;
   savedObjectsClient: SavedObjectsClientContract;
-  savedDashboards: SavedObjectLoader;
   dashboardProviders: () => { [key: string]: DashboardProvider } | undefined;
   dashboardConfig: OpenSearchDashboardsLegacyStart['dashboardConfig'];
-  dashboardCapabilities: DashboardCapabilities;
   embeddableCapabilities: {
     visualizeCapabilities: any;
     mapsCapabilities: any;
   };
   uiSettings: IUiSettingsClient;
-  chrome: ChromeStart;
   savedQueryService: DataPublicPluginStart['query']['savedQueries'];
-  embeddable: EmbeddableStart;
-  localStorage: Storage;
-  share?: SharePluginStart;
   usageCollection?: UsageCollectionSetup;
   navigateToDefaultApp: UrlForwardingStart['navigateToDefaultApp'];
   navigateToLegacyOpenSearchDashboardsUrl: UrlForwardingStart['navigateToLegacyOpenSearchDashboardsUrl'];
-  scopedHistory: ScopedHistory;
-  setHeaderActionMenu: AppMountParameters['setHeaderActionMenu'];
-  savedObjectsPublic: SavedObjectsStart;
-  restorePreviousUrl: () => void;
   addBasePath?: (url: string) => string;
-  toastNotifications: ToastsStart;
 }
 
 export interface ISavedDashboard {

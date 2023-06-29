@@ -31,6 +31,7 @@ import {
   AggConfigOptions,
   SearchSourceFields,
 } from '../../../plugins/data/public';
+import { SerializedDashboard } from '../dashboard';
 
 export interface DashboardParams {
   [key: string]: any;
@@ -64,7 +65,7 @@ export class Dashboard<TDashboardParams = DashboardParams> {
 
   public readonly uiState: PersistedState;
 
-  constructor(dashboardState: SerializedVis = {} as any) {
+  constructor(dashboardState: SerializedDashboard = {} as any) {
     this.params = this.getParams(dashboardState.params);
     this.uiState = new PersistedState(dashboardState.uiState);
     this.id = dashboardState.id;

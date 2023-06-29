@@ -28,35 +28,48 @@
  * under the License.
  */
 
-import {
-  SavedObject as SavedObjectType,
-  SavedObjectAttributes,
-} from 'src/core/public';
+import { SavedObject } from '../../saved_objects/public';
+import { Filter, ISearchSource, Query, RefreshInterval } from '../../data/public';
+import { SavedDashboardPanel730ToLatest } from '../common';
+import { ViewMode } from 'src/plugins/embeddable/public';
 
-// TODO: Replace Saved object interfaces by the ones Core will provide when it is ready.
-export type SavedObjectAttribute =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | SavedObjectAttributes
-  | SavedObjectAttributes[];
+/**
+ * This should always represent the latest dashboard panel shape, after all possible migrations.
+ */
+export type SavedDashboardPanel = SavedDashboardPanel730ToLatest;
 
-export interface SimpleSavedObject<T extends SavedObjectAttributes> {
-  attributes: T;
-  _version?: SavedObjectType<T>['version'];
-  id: SavedObjectType<T>['id'];
-  type: SavedObjectType<T>['type'];
-  migrationVersion: SavedObjectType<T>['migrationVersion'];
-  error: SavedObjectType<T>['error'];
-  references: SavedObjectType<T>['references'];
-  get(key: string): any;
-  set(key: string, value: any): T;
-  has(key: string): boolean;
-  save(): Promise<SimpleSavedObject<T>>;
-  delete(): void;
+export interface SavedDashboardState {
+  panels: SavedDashboardPanel[];
+  fullScreenMode: boolean;
+  title: string;
+  description: string;
+  timeRestore: boolean;
+  options: {
+    hidePanelTitles: boolean;
+    useMargins: boolean;
+  };
+  viewMode: ViewMode;
+  expandedPanelId?: string;
 }
+
+export interface ISavedDashboard {
+  id?: string;
+  timeRestore: boolean;
+  timeTo?: string;
+  timeFrom?: string;
+  description?: string;
+  panelsJSON: string;
+  optionsJSON?: string;
+  // TODO: write a migration to rid of this, it's only around for bwc.
+  uiStateJSON?: string;
+  lastSavedTitle: string;
+  refreshInterval?: RefreshInterval;
+  searchSource?: ISearchSource;
+  getQuery(): Query;
+  getFilters(): Filter[];
+}
+
+export interface DashboardSavedObject extends SavedObject, ISavedDashboard {}
 
 interface FieldSubType {
   multi?: { parent: string };

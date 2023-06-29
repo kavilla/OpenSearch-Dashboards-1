@@ -118,6 +118,7 @@ export class DashboardViewport extends React.Component<DashboardViewportProps, S
   private renderEmptyScreen() {
     const { renderEmpty } = this.props;
     const { isEmbeddedExternally, isFullScreenMode } = this.state;
+    // TODO: change this after we add the exit full screen react component
     return (
       <div className="dshDashboardEmptyScreen">
         {isFullScreenMode && (
@@ -141,6 +142,7 @@ export class DashboardViewport extends React.Component<DashboardViewportProps, S
       description,
       useMargins,
     } = this.state;
+     // TODO: change this after we add the exit full screen react component
     return (
       <div
         data-shared-items-count={Object.values(panels).length}

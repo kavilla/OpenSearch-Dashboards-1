@@ -54,7 +54,7 @@ export {
   DashboardUrlGeneratorState,
 } from './url_generator';
 export { addEmbeddableToDashboardUrl } from './url_utils/url_helper';
-export { SavedObjectDashboard } from './saved_dashboards';
+export { DashboardSavedObject } from './saved_dashboards';
 export { SavedDashboardPanel } from './application/types';
 export { AttributeService, ATTRIBUTE_SERVICE_KEY } from './attribute_service';
 

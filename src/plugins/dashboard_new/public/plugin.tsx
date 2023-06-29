@@ -110,13 +110,14 @@ import {
   ACTION_LIBRARY_NOTIFICATION,
   LibraryNotificationActionContext,
   LibraryNotificationAction,
+  DashboardAppState,
 } from './application';
 import {
   createDashboardUrlGenerator,
   DASHBOARD_APP_URL_GENERATOR,
   DashboardUrlGeneratorState,
 } from './url_generator';
-import { createSavedDashboardLoader } from './saved_dashboards';
+import { createSavedDashboardLoader, SavedDashboardsLoader } from './saved_dashboards';
 import { DashboardConstants } from './dashboard_constants';
 import { addEmbeddableToDashboardUrl } from './url_utils/url_helper';
 import { PlaceholderEmbeddableFactory } from './application/embeddable/placeholder';
@@ -126,6 +127,10 @@ import {
   AttributeServiceOptions,
   ATTRIBUTE_SERVICE_KEY,
 } from './attribute_service/attribute_service';
+import {
+  createStartServicesGetter,
+  StartServicesGetter,
+} from '../../opensearch_dashboards_utils/public';
 import { DashboardProvider, DashboardServices } from './types';
 
 declare module '../../share/public' {
@@ -140,18 +145,7 @@ export interface DashboardFeatureFlagConfig {
   allowByValueEmbeddables: boolean;
 }
 
-interface SetupDependencies {
-  data: DataPublicPluginSetup;
-  embeddable: EmbeddableSetup;
-  home?: HomePublicPluginSetup;
-  opensearchDashboardsLegacy: OpenSearchDashboardsLegacySetup;
-  urlForwarding: UrlForwardingSetup;
-  share?: SharePluginSetup;
-  uiActions: UiActionsSetup;
-  usageCollection?: UsageCollectionSetup;
-}
-
-interface StartDependencies {
+export interface DashboardStartDeps {
   data: DataPublicPluginStart;
   opensearchDashboardsLegacy: OpenSearchDashboardsLegacyStart;
   urlForwarding: UrlForwardingStart;
@@ -162,6 +156,25 @@ interface StartDependencies {
   share?: SharePluginStart;
   uiActions: UiActionsStart;
   savedObjects: SavedObjectsStart;
+  capabilities: CoreStart['application']['capabilities'];
+  application: CoreStart['application'];
+  overlays: CoreStart['overlays'];
+  notifications: CoreStart['notifications'];
+  SavedObjectFinder: React.ComponentType<any>;
+  ExitFullScreenButton: React.ComponentType<any>;
+  // TODO: dashboardNew -- is this okay?
+  dashboard: DashboardStart;
+}
+
+export interface DashboardSetupDeps {
+  data: DataPublicPluginSetup;
+  embeddable: EmbeddableSetup;
+  home?: HomePublicPluginSetup;
+  opensearchDashboardsLegacy: OpenSearchDashboardsLegacySetup;
+  urlForwarding: UrlForwardingSetup;
+  share?: SharePluginSetup;
+  uiActions: UiActionsSetup;
+  usageCollection?: UsageCollectionSetup;
 }
 
 export type RegisterDashboardProviderFn = (provider: DashboardProvider) => void;
@@ -171,7 +184,8 @@ export interface DashboardSetup {
 }
 
 export interface DashboardStart {
-  getSavedDashboardLoader: () => SavedObjectLoader;
+  getSavedDashboardsLoader: () => SavedDashboardsLoader;
+  createDashboard: (dashboardAppState: DashboardAppState) => Promise<any>; // TODO: dashboardNew: any -> Dashboard
   addEmbeddableToDashboard: (options: {
     embeddableId: string;
     embeddableType: string;
@@ -203,7 +217,10 @@ declare module '../../../plugins/ui_actions/public' {
 }
 
 export class DashboardPlugin
-  implements Plugin<DashboardSetup, DashboardStart, SetupDependencies, StartDependencies> {
+  implements Plugin<DashboardSetup, DashboardStart, DashboardSetupDeps, DashboardStartDeps> {
+  private getStartServicesOrDie?: StartServicesGetter<DashboardStartDeps, DashboardStart>;
+
+  
   constructor(private initializerContext: PluginInitializerContext) {}
 
   private appStateUpdater = new BehaviorSubject<AppUpdater>(() => ({}));
@@ -216,12 +233,14 @@ export class DashboardPlugin
   private dashboardUrlGenerator?: DashboardUrlGenerator;
 
   public setup(
-    core: CoreSetup<StartDependencies, DashboardStart>,
-    { share, uiActions, embeddable, home, urlForwarding, data, usageCollection }: SetupDependencies
+    core: CoreSetup<DashboardStartDeps, DashboardStart>,
+    { share, uiActions, embeddable, home, urlForwarding, data, usageCollection }: DashboardSetupDeps
   ): DashboardSetup {
     this.dashboardFeatureFlagConfig = this.initializerContext.config.get<
       DashboardFeatureFlagConfig
     >();
+    const start = (this.getStartServicesOrDie = createStartServicesGetter(core.getStartServices));
+
     const expandPanelAction = new ExpandPanelAction();
     uiActions.registerAction(expandPanelAction);
     uiActions.attachAction(CONTEXT_MENU_TRIGGER, expandPanelAction.id);
@@ -234,7 +253,7 @@ export class DashboardPlugin
           return {
             appBasePath: coreStart.application.getUrlForApp('dashboards'),
             useHashedUrl: coreStart.uiSettings.get('state:storeInSessionStorage'),
-            savedDashboardLoader: selfStart.getSavedDashboardLoader(),
+            savedDashboardLoader: selfStart.getSavedDashboardsLoader(),
           };
         })
       );
@@ -350,8 +369,8 @@ export class DashboardPlugin
       savedObjectsType: 'dashboard',
       savedObjectsName: 'Dashboard',
       appId: 'dashboardNew',
-      viewUrlPathFn: (obj) => `#/view/${obj.id}`,
-      editUrlPathFn: (obj) => `/view/${obj.id}?_a=(viewMode:edit)`,
+      viewUrlPathFn: (obj: any) => `#/view/${obj.id}`,
+      editUrlPathFn: (obj: any) => `/view/${obj.id}?_a=(viewMode:edit)`,
       createUrl: core.http.basePath.prepend('/app/dashboardsNew#/create'),
       createSortText: 'Dashboard',
       createLinkText: (
@@ -417,7 +436,7 @@ export class DashboardPlugin
           share: shareStart,
           data: dataStart,
           savedObjectsClient: coreStart.savedObjects.client,
-          savedDashboards: dashboardStart.getSavedDashboardLoader(),
+          savedDashboards: dashboardStart.getSavedDashboardsLoader(),
           dashboardProviders: () => this.dashboardProviders,
           chrome: coreStart.chrome,
           addBasePath: coreStart.http.basePath.prepend,
@@ -525,7 +544,7 @@ export class DashboardPlugin
     core.application.navigateToApp('dashboardsNew', { path: dashboardUrl });
   }
 
-  public start(core: CoreStart, plugins: StartDependencies): DashboardStart {
+  public start(core: CoreStart, plugins: DashboardStartDeps): DashboardStart {
     const { notifications } = core;
     const {
       uiActions,
@@ -561,7 +580,7 @@ export class DashboardPlugin
       uiActions.attachAction(PANEL_NOTIFICATION_TRIGGER, libraryNotificationAction.id);
     }
 
-    const savedDashboardLoader = createSavedDashboardLoader({
+    const savedDashboardsLoader = createSavedDashboardLoader({
       savedObjectsClient: core.savedObjects.client,
       indexPatterns,
       search,
@@ -573,7 +592,7 @@ export class DashboardPlugin
     )! as DashboardContainerFactory;
 
     return {
-      getSavedDashboardLoader: () => savedDashboardLoader,
+      getSavedDashboardsLoader: () => savedDashboardsLoader,
       addEmbeddableToDashboard: this.addEmbeddableToDashboard.bind(this, core),
       dashboardUrlGenerator: this.dashboardUrlGenerator,
       dashboardFeatureFlagConfig: this.dashboardFeatureFlagConfig!,

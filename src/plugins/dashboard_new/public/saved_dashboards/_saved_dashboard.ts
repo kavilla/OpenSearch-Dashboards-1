@@ -30,40 +30,61 @@
 
 import {
   createSavedObjectClass,
-  SavedObject,
   SavedObjectOpenSearchDashboardsServices,
 } from '../../../saved_objects/public';
 import { extractReferences, injectReferences } from './saved_dashboard_references';
 
-import { Filter, ISearchSource, Query, RefreshInterval } from '../../../data/public';
 import { createDashboardEditUrl } from '../dashboard_constants';
+import { ISavedDashboard } from '../types';
+import { SerializedDashboard } from '../../dashboard';
+import { DashboardSavedObject } from '../types';
 
-export interface SavedObjectDashboard extends SavedObject {
-  id?: string;
-  timeRestore: boolean;
-  timeTo?: string;
-  timeFrom?: string;
-  description?: string;
-  panelsJSON: string;
-  optionsJSON?: string;
-  // TODO: write a migration to rid of this, it's only around for bwc.
-  uiStateJSON?: string;
-  lastSavedTitle: string;
-  refreshInterval?: RefreshInterval;
-  searchSource: ISearchSource;
-  getQuery(): Query;
-  getFilters(): Filter[];
-}
+export const convertToSerializedDashboard = (savedDashboard: ISavedDashboard): SerializedDashboard => {
+  const { id, timeRestore, timeTo, timeFrom, description, refreshInterval, panelsJSON, optionsJSON, uiStateJSON, searchSource, lastSavedTitle } = savedDashboard;
+
+  return {
+    id,
+    timeRestore,
+    timeTo,
+    timeFrom,
+    description,
+    refreshInterval,
+    panels: JSON.parse(panelsJSON || '{}'),
+    options: JSON.parse(optionsJSON || '{}'),
+    uiState: JSON.parse(uiStateJSON || '{}'),
+    lastSavedTitle,
+    searchSource,
+    query: savedDashboard.getQuery(),
+    filters: savedDashboard.getFilters()
+  };
+};
+
+export const convertFromSerializedDashboard = (serializedDashboard: SerializedDashboard): ISavedDashboard => {
+  const {id, timeRestore, timeTo, timeFrom, refreshInterval, description, panels, options, uiState, lastSavedTitle, searchSource, query, filters} = serializedDashboard
+  
+  return {
+    id,
+    timeRestore,
+    timeTo,
+    timeFrom,
+    description,
+    panelsJSON: JSON.stringify(panels),
+    optionsJSON: JSON.stringify(options),
+    uiStateJSON: JSON.stringify(uiState),
+    lastSavedTitle,
+    refreshInterval,
+    searchSource,
+    getQuery: () => query,
+    getFilters: () => filters
+  };
+};
 
 export function createSavedDashboardClass(
   services: SavedObjectOpenSearchDashboardsServices
-): new (id: string) => SavedObjectDashboard {
+): new (id: string) => DashboardSavedObject {
   const SavedObjectClass = createSavedObjectClass(services);
   class SavedDashboard extends SavedObjectClass {
-    // save these objects with the 'dashboard' type
     public static type = 'dashboard';
-
-    // if type:dashboard has no mapping, we push this mapping into OpenSearch
     public static mapping: Record<string, any> = {
       title: 'text',
       hits: 'integer',
@@ -84,6 +105,7 @@ export function createSavedDashboardClass(
         },
       },
     };
+    // Order these fields to the top, the rest are alphabetical
     public static fieldOrder = ['title', 'description'];
     public static searchSource = true;
     public showInRecentlyAccessed = true;
@@ -129,5 +151,5 @@ export function createSavedDashboardClass(
     }
   }
 
-  return (SavedDashboard as unknown) as new (id: string) => SavedObjectDashboard;
+  return (SavedDashboard as unknown) as new (id: string) => DashboardSavedObject;
 }

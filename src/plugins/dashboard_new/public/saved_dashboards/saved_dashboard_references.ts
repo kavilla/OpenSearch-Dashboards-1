@@ -29,7 +29,7 @@
  */
 
 import { SavedObjectAttributes, SavedObjectReference } from 'opensearch-dashboards/public';
-import { SavedObjectDashboard } from './_saved_dashboard';
+import { DashboardSavedObject } from '../types';
 
 export function extractReferences({
   attributes,
@@ -67,7 +67,7 @@ export function extractReferences({
 }
 
 export function injectReferences(
-  savedObject: SavedObjectDashboard,
+  savedObject: DashboardSavedObject,
   references: SavedObjectReference[]
 ) {
   // Skip if panelsJSON is missing otherwise this will cause saved object import to fail when

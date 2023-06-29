@@ -17,7 +17,7 @@ import { DashboardEditorDashboardInstance } from '../types';
 import { AppMountParameters } from 'opensearch-dashboards/public';
 
 interface DashboardTopNavProps {
-  isChromeVisible?: boolean;
+  isChromeVisible: boolean;
   dashboardInstance: DashboardEditorDashboardInstance;
   stateContainer: DashboardAppStateContainer;
   currentAppState: DashboardAppState;
@@ -77,7 +77,7 @@ const TopNav = ({
     return false;
   };
 
-  const shouldShowNavBarComponent = (forceShow: boolean): boolean =>
+  const shouldShowNavBarComponent = (forceShow: boolean): boolean  =>
     (forceShow || isChromeVisible) && !currentAppState.dashboard.fullScreenMode;
 
   useEffect(() => {

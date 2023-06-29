@@ -111,6 +111,7 @@ import {
   LibraryNotificationActionContext,
   LibraryNotificationAction,
   DashboardAppState,
+  DashboardServices,
 } from './application';
 import {
   createDashboardUrlGenerator,
@@ -131,8 +132,9 @@ import {
   createStartServicesGetter,
   StartServicesGetter,
 } from '../../opensearch_dashboards_utils/public';
-import { DashboardProvider, DashboardServices } from './types';
-
+import { DashboardProvider } from '../common';
+import { Dashboard, SerializedDashboard } from './dashboard';
+import { convertToSerializedDashboard, convertFromSerializedDashboard } from './saved_dashboards/_saved_dashboard';
 declare module '../../share/public' {
   export interface UrlGeneratorStateMapping {
     [DASHBOARD_APP_URL_GENERATOR]: UrlGeneratorState<DashboardUrlGeneratorState>;
@@ -185,7 +187,9 @@ export interface DashboardSetup {
 
 export interface DashboardStart {
   getSavedDashboardsLoader: () => SavedDashboardsLoader;
-  createDashboard: (dashboardAppState: DashboardAppState) => Promise<any>; // TODO: dashboardNew: any -> Dashboard
+  createDashboard: (dashboardState: SerializedDashboard) => Promise<Dashboard>;
+  convertToSerializedDashboard: typeof convertToSerializedDashboard;
+  convertFromSerializedDashboard: typeof convertFromSerializedDashboard;
   addEmbeddableToDashboard: (options: {
     embeddableId: string;
     embeddableType: string;
@@ -220,7 +224,6 @@ export class DashboardPlugin
   implements Plugin<DashboardSetup, DashboardStart, DashboardSetupDeps, DashboardStartDeps> {
   private getStartServicesOrDie?: StartServicesGetter<DashboardStartDeps, DashboardStart>;
 
-  
   constructor(private initializerContext: PluginInitializerContext) {}
 
   private appStateUpdater = new BehaviorSubject<AppUpdater>(() => ({}));
@@ -298,7 +301,7 @@ export class DashboardPlugin
     };
 
     const factory = new DashboardContainerFactoryDefinition(
-      getStartServices,
+      { start },
       () => this.currentHistory!
     );
     embeddable.registerEmbeddableFactory(factory.type, factory);
@@ -428,7 +431,7 @@ export class DashboardPlugin
             useHash: coreStart.uiSettings.get('state:storeInSessionStorage'),
             ...withNotifyOnErrors(coreStart.notifications.toasts),
           }),
-          core: coreStart,
+          //core: coreStart,
           dashboardConfig,
           navigateToDefaultApp,
           navigateToLegacyOpenSearchDashboardsUrl,
@@ -436,14 +439,15 @@ export class DashboardPlugin
           share: shareStart,
           data: dataStart,
           savedObjectsClient: coreStart.savedObjects.client,
-          savedDashboards: dashboardStart.getSavedDashboardsLoader(),
+          savedDashboards: dashboardStart.getSavedDashboardsLoader,
           dashboardProviders: () => this.dashboardProviders,
           chrome: coreStart.chrome,
           addBasePath: coreStart.http.basePath.prepend,
           uiSettings: coreStart.uiSettings,
           savedQueryService: dataStart.query.savedQueries,
+          dashboards: pluginsStart.dashboard,
           embeddable: embeddableStart,
-          dashboardCapabilities: coreStart.application.capabilities.dashboard,
+          dashboardCapabilities: coreStart.application.capabilities.dashboard as any,
           embeddableCapabilities: {
             visualizeCapabilities: coreStart.application.capabilities.visualize,
             mapsCapabilities: coreStart.application.capabilities.maps,
@@ -593,6 +597,13 @@ export class DashboardPlugin
 
     return {
       getSavedDashboardsLoader: () => savedDashboardsLoader,
+      createDashboard: async (dashboardState: SerializedDashboard) => {
+        const dashboard = new Dashboard(dashboardState)
+        await dashboard.setState(dashboardState)
+        return dashboard
+      }, 
+      convertToSerializedDashboard,
+      convertFromSerializedDashboard,
       addEmbeddableToDashboard: this.addEmbeddableToDashboard.bind(this, core),
       dashboardUrlGenerator: this.dashboardUrlGenerator,
       dashboardFeatureFlagConfig: this.dashboardFeatureFlagConfig!,

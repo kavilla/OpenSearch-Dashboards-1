@@ -41,7 +41,7 @@ export {
   DEFAULT_PANEL_HEIGHT,
 } from './application';
 export { DashboardConstants, createDashboardEditUrl } from './dashboard_constants';
-
+export { Dashboard } from './dashboard';
 export {
   DashboardSetup,
   DashboardStart,
@@ -54,8 +54,7 @@ export {
   DashboardUrlGeneratorState,
 } from './url_generator';
 export { addEmbeddableToDashboardUrl } from './url_utils/url_helper';
-export { DashboardSavedObject } from './saved_dashboards';
-export { SavedDashboardPanel } from './application/types';
+export { SavedDashboardPanel, DashboardSavedObject } from './types';
 export { AttributeService, ATTRIBUTE_SERVICE_KEY } from './attribute_service';
 
 export function plugin(initializerContext: PluginInitializerContext) {

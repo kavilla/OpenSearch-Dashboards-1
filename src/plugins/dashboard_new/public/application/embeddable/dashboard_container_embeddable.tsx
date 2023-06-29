@@ -32,10 +32,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { I18nProvider } from '@osd/i18n/react';
 import { RefreshInterval, TimeRange, Query, Filter } from 'src/plugins/data/public';
-import { CoreStart } from 'src/core/public';
-import { Start as InspectorStartContract } from 'src/plugins/inspector/public';
 import uuid from 'uuid';
-import { UiActionsStart } from '../../ui_actions_plugin';
 import {
   Container,
   ContainerInput,
@@ -58,9 +55,15 @@ import {
 import { PLACEHOLDER_EMBEDDABLE } from './placeholder';
 import { PanelPlacementMethod, IPanelPlacementArgs } from './panel/dashboard_panel_placement';
 import { EmbeddableStateTransfer, EmbeddableOutput } from '../../../../embeddable/public';
-import { SavedObjectDashboard } from '../..';
+import { SerializedDashboard, Dashboard } from '../../dashboard';
+import { DashboardStartDeps } from '../../plugin';
+export interface DashboardContainerEmbeddableConfiguration {
+  savedDashboard: Dashboard,
+  deps: Pick<DashboardStartDeps, 'application' | 'overlays' | 'notifications' | 'embeddable' | 'inspector'>;
+}
 
 export interface DashboardContainerEmbeddableInput extends ContainerInput {
+  savedDashboard: SerializedDashboard; 
   viewMode: ViewMode;
   filters: Filter[];
   query: Query;
@@ -76,7 +79,6 @@ export interface DashboardContainerEmbeddableInput extends ContainerInput {
     [panelId: string]: DashboardPanelState<EmbeddableInput & { [k: string]: unknown }>;
   };
   isEmptyState?: boolean;
-  savedDashboard?: SavedObjectDashboard;
 }
 
 interface IndexSignature {
@@ -93,21 +95,10 @@ export interface InheritedChildEmbeddableInput extends IndexSignature {
   id: string;
 }
 
-export interface DashboardContainerEmbeddableOptions {
-  application: CoreStart['application'];
-  overlays: CoreStart['overlays'];
-  notifications: CoreStart['notifications'];
-  embeddable: EmbeddableStart;
-  inspector: InspectorStartContract;
-  SavedObjectFinder: React.ComponentType<any>;
-  ExitFullScreenButton: React.ComponentType<any>;
-  uiActions: UiActionsStart;
-}
-
 export type DashboardReactContextValue = OpenSearchDashboardsReactContextValue<
-DashboardContainerEmbeddableOptions
+  DashboardContainerEmbeddableConfiguration['deps']
 >;
-export type DashboardReactContext = OpenSearchDashboardsReactContext<DashboardContainerEmbeddableOptions>;
+export type DashboardReactContext = OpenSearchDashboardsReactContext<DashboardContainerEmbeddableConfiguration['deps']>;
 
 export class DashboardContainerEmbeddable extends Container<InheritedChildEmbeddableInput, DashboardContainerEmbeddableInput> {
   public readonly type = DASHBOARD_CONTAINER_TYPE;
@@ -119,7 +110,7 @@ export class DashboardContainerEmbeddable extends Container<InheritedChildEmbedd
 
   constructor(
     initialInput: DashboardContainerEmbeddableInput,
-    private readonly options: DashboardContainerEmbeddableOptions,
+    private readonly deps: DashboardContainerEmbeddableConfiguration['deps'],
     stateTransfer?: EmbeddableStateTransfer,
     parent?: Container
   ) {
@@ -128,10 +119,10 @@ export class DashboardContainerEmbeddable extends Container<InheritedChildEmbedd
         ...initialInput,
       },
       { embeddableLoaded: {} },
-      options.embeddable.getEmbeddableFactory,
+      deps.embeddable.getEmbeddableFactory,
       parent
     );
-    this.embeddablePanel = options.embeddable.getEmbeddablePanel(stateTransfer);
+    this.embeddablePanel = deps.embeddable.getEmbeddablePanel(stateTransfer);
   }
 
   protected createNewPanelState<
@@ -231,7 +222,7 @@ export class DashboardContainerEmbeddable extends Container<InheritedChildEmbedd
   public render(dom: HTMLElement) {
     ReactDOM.render(
       <I18nProvider>
-        <OpenSearchDashboardsContextProvider services={this.options}>
+        <OpenSearchDashboardsContextProvider services={this.deps}>
           <DashboardViewport
             renderEmpty={this.renderEmpty}
             container={this}

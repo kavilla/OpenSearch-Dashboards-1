@@ -12,7 +12,7 @@ import {
 } from '../../../../opensearch_dashboards_react/public';
 import { CreateButton } from '../listing/create_button';
 import { DashboardConstants } from '../../dashboard_constants';
-import { DashboardServices } from '../../types';
+import { DashboardServices } from '../types';
 import { getTableColumns } from '../utils/get_table_columns';
 import { getNoItemsMessage } from '../utils/get_no_items_message';
 
@@ -111,8 +111,16 @@ export const DashboardListing = () => {
   // );
 
   const deleteItems = useCallback(
-    (dashboards: object[]) => {
-      return savedDashboards.delete(dashboards.map((d: any) => d.id));
+    async (dashboards: object[]) => {
+      await Promise.all(
+        dashboards.map((dashboard:any) => savedObjectsClient.delete(dashboard.appId, dashboard.id))
+      ).catch((error)=>{
+        notifications.toasts.addError(error, {
+          title: i18n.translate('dashboard.dashboardListingDeleteErrorTitle', {
+            defaultMessage: 'Error deleting dashboard',
+          }),
+        });
+      })
     },
     [savedDashboards]
   );

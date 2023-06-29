@@ -23,53 +23,20 @@ import {
   import { createSavedSearchesLoader } from '../../../../discover/public';
   import { DashboardEmbeddableContract, DashboardServices } from '../types';
 import { Dashboard } from '../../dashboard';
-import { SavedObjectDashboard } from '../../saved_dashboards';
+import { SavedObjectDashboard } from 'src/plugins/dashboard/public';
   
   const createDashboardEmbeddable = async (
     dashboard: Dashboard,
     dashboardServices: DashboardServices
   ) => {
-    const { chrome, data, overlays, createDashboardEmbeddableFromObject, savedObjects } = dashboardServices;
-    const embeddableHandler = (await createDashboardEmbeddableFromObject(dashboard, {
+    const { data } = dashboardServices;
+    const embeddableHandler = new DashboardEmbeddable(dashboard, {
       timeRange: data.query.timefilter.timefilter.getTime(),
       filters: data.query.filterManager.getFilters(),
       id: '',
-    })) as DashboardEmbeddableContract;
-  
-    embeddableHandler.getOutput$().subscribe((output) => {
-      if (output.error) {
-        data.search.showError(
-          ((output.error as unknown) as ExpressionValueError['error']).original || output.error
-        );
-      }
-    });
+    }) as DashboardEmbeddableContract;
   
     return embeddableHandler;
-  };
-  
-  export const getVisualizationInstanceFromInput = async (
-    visualizeServices: VisualizeServices,
-    input: VisualizeInput
-  ) => {
-    const { visualizations } = visualizeServices;
-    const visState = input.savedVis as SerializedVis;
-    let vis = await visualizations.createVis(visState.type, cloneDeep(visState));
-    if (vis.type.setup) {
-      try {
-        vis = await vis.type.setup(vis);
-      } catch {
-        // skip this catch block
-      }
-    }
-    const { embeddableHandler, savedSearch } = await createVisualizeEmbeddableAndLinkSavedSearch(
-      vis,
-      visualizeServices
-    );
-    return {
-      vis,
-      embeddableHandler,
-      savedSearch,
-    };
   };
   
   export const getDashboardInstance = async (
@@ -81,14 +48,11 @@ import { SavedObjectDashboard } from '../../saved_dashboards';
      */
     opts?: Record<string, unknown> | string
   ) => {
-    const { savedDashboards } = dashboardServices;
-    const savedDashboard: SavedObjectDashboard = await savedDashboards.get(opts);
-  
-    if (typeof opts !== 'string') {
-      savedVis.searchSourceFields = { index: opts?.indexPattern } as SearchSourceFields;
-    }
+    const { dashboards, savedDashboards } = dashboardServices;
+    const savedDashboard: SavedObjectDashboard = await savedDashboards().get(opts);
 
-    let dashboard = await dashboardServices.createDashboard()
+    const serializedDashboard = dashboards.convertToSerializedDashboard(savedDashboard)
+    let dashboard = await dashboards.createDashboard(serializedDashboard)
   
     const embeddableHandler = await createDashboardEmbeddable(
       dashboard,
@@ -97,7 +61,7 @@ import { SavedObjectDashboard } from '../../saved_dashboards';
     return {
       dashboard,
       embeddableHandler,
-      savedVis,
+      savedDashboard
     };
   };
   

@@ -11,175 +11,142 @@
 
 /**
  * @name Dashboard
- *
- * @description This class consists of aggs, params, listeners, title, and type.
- *  - Aggs: Instances of IAggConfig.
- *  - Params: The settings in the Options tab.
- *
- * Not to be confused with vislib/vis.js.
  */
 
-import { isFunction, defaults, cloneDeep } from 'lodash';
-import { Assign } from '@osd/utility-types';
-import { i18n } from '@osd/i18n';
-import { PersistedState } from './persisted_state';
-import { getTypes, getAggs, getSearch, getSavedSearchLoader } from './services';
-import {
-  IAggConfigs,
-  IndexPattern,
-  ISearchSource,
-  AggConfigOptions,
-  SearchSourceFields,
-} from '../../../plugins/data/public';
-import { SerializedDashboard } from '../dashboard';
+import { cloneDeep } from 'lodash';
+import { Filter, ISearchSource, Query, RefreshInterval } from '../../data/public';
+import { SavedDashboardPanel } from '../public';
+
+export interface SerializedDashboard {
+  id?: string;
+  timeRestore?: boolean;
+  timeTo?: string;
+  timeFrom?: string;
+  description?: string;
+  panels?: SavedDashboardPanel[];
+  options?: {
+    hidePanelTitles: boolean;
+    useMargins: boolean;
+  };
+  uiState?: string;
+  lastSavedTitle?: string; // TODO: DO WE STILL NEED THIS?
+  refreshInterval?: RefreshInterval; // TODO: SHOULD THIS NOT BE OPTIONAL?
+  searchSource?: ISearchSource;
+  query: Query;
+  filters: Filter[];
+  title: string;
+}
 
 export interface DashboardParams {
   [key: string]: any;
 }
 
-// type PartialDashboardState = Assign<SerializedVis, { data: Partial<SerializedVisData> }>;
+const getSearchSource = async(inputSearchSource: ISearchSource) => {
+  return inputSearchSource.createCopy();
+}
 
-// id?: string;
-// timeRestore: boolean;
-// timeTo?: string;
-// timeFrom?: string;
-// description?: string;
-// panelsJSON: string;
-// optionsJSON?: string;
-// // TODO: write a migration to rid of this, it's only around for bwc.
-// uiStateJSON?: string;
-// lastSavedTitle: string;
-// refreshInterval?: RefreshInterval;
-// searchSource: ISearchSource;
-// getQuery(): Query;
-// getFilters(): Filter[];
+type PartialDashboardState = Partial<SerializedDashboard>;
 
 export class Dashboard<TDashboardParams = DashboardParams> {
   public readonly id?: string;
-  public title: string = '';
+  public timeRestore?: boolean;
+  public timeTo: string = '';
+  public timeFrom: string = '';
   public description: string = '';
-  public params: TDashboardParams;
-  // Session state is for storing information that is transitory, and will not be saved with the visualization.
-  // For instance, map bounds, which depends on the view port, browser window size, etc.
-  public sessionState: Record<string, any> = {};
-
-  public readonly uiState: PersistedState;
+  public panels: SavedDashboardPanel[] = [];
+  public options: Record<string, any> = {};
+  public uiState: string = '';
+  public lastSavedTitle = '';
+  public refreshInterval: RefreshInterval;
+  public searchSource?: ISearchSource;
+  public query: Query;
+  public filters: Filter[];
+  public title: string = '';
 
   constructor(dashboardState: SerializedDashboard = {} as any) {
-    this.params = this.getParams(dashboardState.params);
-    this.uiState = new PersistedState(dashboardState.uiState);
     this.id = dashboardState.id;
-  }
-
-  private getParams(params: VisParams) {
-    return defaults({}, cloneDeep(params ?? {}), cloneDeep(this.type.visConfig?.defaults ?? {}));
+    this.refreshInterval = this.getRefreshInterval(dashboardState.refreshInterval!);
+    this.query = this.getQuery(dashboardState.query);
+    this.filters = this.getFilters(dashboardState.filters);
   }
 
   async setState(state: PartialDashboardState) {
-    let typeChanged = false;
-    if (state.type && this.type.name !== state.type) {
-      // @ts-ignore
-      this.type = this.getType(state.type);
-      typeChanged = true;
+    if (state.timeRestore) {
+      this.timeRestore = state.timeRestore;
     }
-    if (state.title !== undefined) {
-      this.title = state.title;
+    if (state.timeTo) {
+      this.timeTo = state.timeTo;
     }
-    if (state.description !== undefined) {
+    if (state.timeFrom) {
+      this.timeFrom = state.timeFrom;
+    }
+    if (state.description) {
       this.description = state.description;
     }
-    if (state.params || typeChanged) {
-      this.params = this.getParams(state.params);
+    if (state.panels) {
+      this.panels = state.panels;
     }
-    if (state.data && state.data.searchSource) {
-      this.data.searchSource = await getSearch().searchSource.create(state.data.searchSource!);
-      this.data.indexPattern = this.data.searchSource.getField('index');
+    if (state.options) {
+      this.options = state.options;
     }
-    if (state.data && state.data.savedSearchId) {
-      this.data.savedSearchId = state.data.savedSearchId;
-      if (this.data.searchSource) {
-        this.data.searchSource = await getSearchSource(
-          this.data.searchSource,
-          this.data.savedSearchId
-        );
-        this.data.indexPattern = this.data.searchSource.getField('index');
-      }
+    if (state.uiState) {
+      this.uiState = state.uiState;
     }
-    if (state.data && (state.data.aggs || !this.data.aggs)) {
-      const aggs = state.data.aggs ? cloneDeep(state.data.aggs) : [];
-      const configStates = this.initializeDefaultsFromSchemas(aggs, this.type.schemas.all || []);
-      if (!this.data.indexPattern) {
-        if (aggs.length) {
-          const errorMessage = i18n.translate(
-            'visualizations.initializeWithoutIndexPatternErrorMessage',
-            {
-              defaultMessage: 'Trying to initialize aggs without index pattern',
-            }
-          );
-          throw new Error(errorMessage);
-        }
-        return;
-      }
-      this.data.aggs = getAggs().createAggConfigs(this.data.indexPattern, configStates);
+    if (state.lastSavedTitle) {
+      this.lastSavedTitle = state.lastSavedTitle;
     }
+    if (state.refreshInterval) {
+      this.refreshInterval = state.refreshInterval;
+    }
+    if (state.searchSource) {
+      this.searchSource = state.searchSource;
+    }
+    if (state.query) {
+      this.query = state.query;
+    }
+    if (state.filters) {
+      this.filters = state.filters;
+    }
+    if (state.title) {
+      this.title = state.title;
+    }
+  }
+
+  private getRefreshInterval(refreshInterval: RefreshInterval) {
+    return cloneDeep(refreshInterval ?? {});
+  }
+
+  private getQuery(query: Query) {
+    return cloneDeep(query ?? {});
+  }
+
+  private getFilters(filters: Filter[]) {
+    return cloneDeep(filters ?? {});
   }
 
   clone() {
-    const { data, ...restOfSerialized } = this.serialize();
-    const vis = new Vis(this.type.name, restOfSerialized as any);
-    vis.setState({ ...restOfSerialized, data: {} });
-    const aggs = this.data.indexPattern
-      ? getAggs().createAggConfigs(this.data.indexPattern, data.aggs)
-      : undefined;
-    vis.data = {
-      ...this.data,
-      aggs,
-    };
-    return vis;
+    const serializedDashboard = this.serialize();
+    const dashboard = new Dashboard(serializedDashboard);
+    dashboard.setState(serializedDashboard);
+    return dashboard;
   }
 
-  serialize(): SerializedVis {
-    const aggs = this.data.aggs ? this.data.aggs.aggs.map((agg) => agg.toJSON()) : [];
+  serialize(): SerializedDashboard {
     return {
       id: this.id,
-      title: this.title,
+      timeRestore: this.timeRestore!,
+      timeTo: this.timeTo,
+      timeFrom: this.timeFrom,
       description: this.description,
-      type: this.type.name,
-      params: cloneDeep(this.params) as any,
-      uiState: this.uiState.toJSON(),
-      data: {
-        aggs: aggs as any,
-        searchSource: this.data.searchSource ? this.data.searchSource.getSerializedFields() : {},
-        savedSearchId: this.data.savedSearchId,
-      },
+      panels: this.panels,
+      options: cloneDeep(this.options) as any,
+      uiState: this.uiState,
+      lastSavedTitle: this.lastSavedTitle,
+      refreshInterval: this.refreshInterval,
+      searchSource: this.searchSource,
+      query: this.query,
+      filters: this.filters,
+      title: this.title
     };
-  }
-
-  // deprecated
-  isHierarchical() {
-    if (isFunction(this.type.hierarchicalData)) {
-      return !!this.type.hierarchicalData(this);
-    } else {
-      return !!this.type.hierarchicalData;
-    }
-  }
-
-  private initializeDefaultsFromSchemas(configStates: AggConfigOptions[], schemas: any) {
-    // Set the defaults for any schema which has them. If the defaults
-    // for some reason has more then the max only set the max number
-    // of defaults (not sure why a someone define more...
-    // but whatever). Also if a schema.name is already set then don't
-    // set anything.
-    const newConfigs = [...configStates];
-    schemas
-      .filter((schema: any) => Array.isArray(schema.defaults) && schema.defaults.length > 0)
-      .filter(
-        (schema: any) => !configStates.find((agg) => agg.schema && agg.schema === schema.name)
-      )
-      .forEach((schema: any) => {
-        const defaultSchemaConfig = schema.defaults.slice(0, schema.max);
-        defaultSchemaConfig.forEach((d: any) => newConfigs.push(d));
-      });
-    return newConfigs;
   }
 }

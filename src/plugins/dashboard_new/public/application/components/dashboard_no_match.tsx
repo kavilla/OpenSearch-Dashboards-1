@@ -5,7 +5,7 @@
 
 import { useEffect } from 'react';
 import { useOpenSearchDashboards } from '../../../../opensearch_dashboards_react/public';
-import { DashboardServices } from '../../types';
+import { DashboardServices } from '../types';
 
 export const DashboardNoMatch = () => {
   const { services } = useOpenSearchDashboards<DashboardServices>();

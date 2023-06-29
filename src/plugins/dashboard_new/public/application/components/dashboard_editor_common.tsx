@@ -8,7 +8,7 @@ interface DashboardEditorCommonProps {
     dashboardInstance?: DashboardEditorDashboardInstance;
     appState: DashboardAppStateContainer | null;
     currentAppState?: DashboardAppState;
-    isChromeVisible?: boolean;
+    isChromeVisible: boolean;
     hasUnsavedChanges: boolean;
     setHasUnsavedChanges: (value:boolean) => void;
     //hasUnappliedChanges: boolean;
@@ -40,7 +40,7 @@ export const DashboardEditorCommon = ({
   dashboardContainer
 }:DashboardEditorCommonProps) => {
     return (
-        <div className={`app-container dashboardEditor dashboardEditor--${dashboardInstance?.dashboard.type.name}`}>
+        <div className={`app-container dashboardEditor dashboardEditor--${dashboardInstance?.dashboard.title}`}>
       {dashboardInstance && appState && dashboardContainer && currentAppState && (
         <DashboardTopNav
           currentAppState={currentAppState}

@@ -12,6 +12,7 @@ import {
 } from '../../../../../opensearch_dashboards_utils/public';
 import { DashboardConstants } from '../../../dashboard_constants';
 import { DashboardServices, IEditorController, SavedDashboardInstance } from '../../types';
+import { getDashboardInstance } from '../get_dashboard_instance';
 
 /**
  * This effect is responsible for instantiating a saved dashboard or creating a new one
@@ -48,7 +49,7 @@ export const useSavedDashboardInstance = (
         if (history.location.pathname === '/create') {
           try {
             //savedDashboardInstance = await savedDashboards.get();
-            savedDashboardInstance = await getDashboardInstance()
+            savedDashboardInstance = await getDashboardInstance(services)
           } catch {
             redirectWhenMissing({
               history,
@@ -63,29 +64,29 @@ export const useSavedDashboardInstance = (
         } else if (dashboardIdFromUrl) {
           try {
             //savedDashboardInstance = await savedDashboards.get(dashboardIdFromUrl);
-            savedDashboardInstance = await getDashboardInstance(dashboardIdFromUr)
+            savedDashboardInstance = await getDashboardInstance(services, dashboardIdFromUrl)
 
             // Update time filter to match the saved dashboard if time restore has been set to true when saving the dashboard
             // We should only set the time filter according to time restore once when we are loading the dashboard
-            if (savedDashboardInstance.timeRestore) {
-              if (savedDashboardInstance.timeFrom && savedDashboardInstance.timeTo) {
-                services.data.query.timefilter.timefilter.setTime({
-                  from: savedDashboardInstance.timeFrom,
-                  to: savedDashboardInstance.timeTo,
-                });
-              }
-              if (savedDashboardInstance.refreshInterval) {
-                services.data.query.timefilter.timefilter.setRefreshInterval(
-                  savedDashboardInstance.refreshInterval
-                );
-              }
-            }
+            // if (savedDashboardInstance.timeRestore) {
+            //   if (savedDashboardInstance.timeFrom && savedDashboardInstance.timeTo) {
+            //     services.data.query.timefilter.timefilter.setTime({
+            //       from: savedDashboardInstance.timeFrom,
+            //       to: savedDashboardInstance.timeTo,
+            //     });
+            //   }
+            //   if (savedDashboardInstance.refreshInterval) {
+            //     services.data.query.timefilter.timefilter.setRefreshInterval(
+            //       savedDashboardInstance.refreshInterval
+            //     );
+            //   }
+            // }
 
-            chrome.recentlyAccessed.add(
-              savedDashboardInstance.getFullPath(),
-              savedDashboardInstance.title,
-              dashboardIdFromUrl
-            );
+            // chrome.recentlyAccessed.add(
+            //   savedDashboardInstance.getFullPath(),
+            //   savedDashboardInstance.title,
+            //   dashboardIdFromUrl
+            // );
           } catch (error) {
             // Preserve BWC of v5.3.0 links for new, unsaved dashboards.
             // See https://github.com/elastic/kibana/issues/10951 for more context.
@@ -114,7 +115,24 @@ export const useSavedDashboardInstance = (
 
         const { embeddableHandler, savedDashboard, dashboard} = savedDashboardInstance;
 
-        setSavedDashboardInstance(savedDashboard);
+        let dashboardEditorController;
+        // do not create editor in embeded mode
+        if (isChromeVisible) {
+          const Editor = DefaultEditorController;
+          dashboardEditorController = new Editor(
+            dashboardEditorRef.current,
+            dashboard,
+            eventEmitter,
+            embeddableHandler
+          );
+        } else if (dashboardEditorRef.current) {
+          embeddableHandler.render(dashboardEditorRef.current);
+        }
+
+        setState({
+          savedDashboard,
+          dashboardEditorController
+        });
       } catch (error) {
         toastNotifications.addWarning({
           title: i18n.translate('dashboardNew.createDashboard.failedToLoadErrorMessage', {

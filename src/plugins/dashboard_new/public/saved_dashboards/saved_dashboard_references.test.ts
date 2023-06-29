@@ -29,7 +29,7 @@
  */
 
 import { extractReferences, injectReferences } from './saved_dashboard_references';
-import { SavedObjectDashboard } from './_saved_dashboard';
+import { DashboardSavedObject } from '../types';
 
 describe('extractReferences', () => {
   test('extracts references from panelsJSON', () => {
@@ -136,7 +136,7 @@ describe('injectReferences', () => {
           title: 'Title 2',
         },
       ]),
-    } as SavedObjectDashboard;
+    } as DashboardSavedObject;
     const references = [
       {
         name: 'panel_0',
@@ -164,7 +164,7 @@ Object {
     const context = {
       id: '1',
       title: 'test',
-    } as SavedObjectDashboard;
+    } as DashboardSavedObject;
     injectReferences(context, []);
     expect(context).toMatchInlineSnapshot(`
 Object {
@@ -179,7 +179,7 @@ Object {
       id: '1',
       panelsJSON: '{}',
       title: 'test',
-    } as SavedObjectDashboard;
+    } as DashboardSavedObject;
     injectReferences(context, []);
     expect(context).toMatchInlineSnapshot(`
 Object {
@@ -203,7 +203,7 @@ Object {
           title: 'Title 2',
         },
       ]),
-    } as SavedObjectDashboard;
+    } as DashboardSavedObject;
     const references = [
       {
         name: 'panel_0',
@@ -231,7 +231,7 @@ Object {
           title: 'Title 1',
         },
       ]),
-    } as SavedObjectDashboard;
+    } as DashboardSavedObject;
     expect(() => injectReferences(context, [])).toThrowErrorMatchingInlineSnapshot(
       `"Could not find reference \\"panel_0\\""`
     );

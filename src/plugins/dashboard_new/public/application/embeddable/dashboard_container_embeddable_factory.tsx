@@ -29,31 +29,24 @@
  */
 
 import { i18n } from '@osd/i18n';
-import { UiActionsStart } from 'src/plugins/ui_actions/public';
-import { CoreStart, ScopedHistory } from 'src/core/public';
-import { EmbeddableFactory, EmbeddableStart } from '../../../../embeddable/public';
+import { ScopedHistory } from 'src/core/public';
+import { EmbeddableFactory } from '../../../../embeddable/public';
 import {
   ContainerOutput,
   EmbeddableFactoryDefinition,
   ErrorEmbeddable,
   Container,
-  IContainer,
 } from '../../embeddable_plugin';
 import { DashboardContainerEmbeddable, DashboardContainerEmbeddableInput } from './dashboard_container_embeddable';
 import { DASHBOARD_CONTAINER_TYPE } from './dashboard_constants';
-import { createDashboardContainerEmbeddableFromObject } from './create_dashboard_container_embeddable_from_object';
-import { DataPublicPluginStart } from 'src/plugins/data/public';
 import { convertToSerializedDashboard } from '../../saved_dashboards';
-import { Dashboard } from '../../dashboard';
+import { Dashboard, SerializedDashboard } from '../../dashboard';
 import { StartServicesGetter } from 'src/plugins/opensearch_dashboards_utils/public';
 import { DashboardStartDeps } from '../../plugin'
-import { Capabilities } from 'opensearch-dashboards/public';
 
 // Can just use DashboardServices
 export interface DashboardContainerEmbeddableFactoryDeps {
-  start: StartServicesGetter<
-    Pick<DashboardStartDeps, 'capabilities' | 'embeddable' | 'dashboard' >
-  >
+  start: StartServicesGetter<DashboardStartDeps>
 }
 
 export type DashboardContainerFactory = EmbeddableFactory<
@@ -94,8 +87,8 @@ export class DashboardContainerFactoryDefinition
 
   public async createFromSavedObject(
     savedObjectId: string,
-    input: Partial<DashboardContainerEmbeddableInput> & { id: string },
-    parent?: IContainer
+    input: DashboardContainerEmbeddableInput,
+    parent?: Container
   ): Promise<DashboardContainerEmbeddable | ErrorEmbeddable> {
     const savedDashboards = await this.deps.start().plugins.dashboard.getSavedDashboardsLoader();
 
@@ -104,43 +97,46 @@ export class DashboardContainerFactoryDefinition
       const serializedDashboard = convertToSerializedDashboard(savedObject);
       const dashboard = new Dashboard(serializedDashboard);
       await dashboard.setState(serializedDashboard);
-      // return createDashboardContainerEmbeddableFromObject(this.deps)(
-      //   dashboard,
-      //   input, 
-      //   savedDashboards,
-      // );
-
-      const embeddableInput = {
-
-      }
-
-    //   initialInput: DashboardContainerEmbeddableInput,
-    // private readonly options: DashboardContainerEmbeddableOptions,
-    // stateTransfer?: EmbeddableStateTransfer,
-    // parent?: Container
-
-    const stateTransfer = this.deps.start().plugins.embeddable.getStateTransfer(this.getHistory());
-
-
+      const stateTransfer = this.deps.start().plugins.embeddable.getStateTransfer(this.getHistory());
       return new DashboardContainerEmbeddable(
         input,
-        this.deps,
+        {
+          application: this.deps.start().core.application,
+          overlays: this.deps.start().core.overlays,
+          notifications: this.deps.start().plugins.notifications,
+          embeddable: this.deps.start().plugins.embeddable,
+          inspector: this.deps.start().plugins.inspector,
+          // SavedObjectFinder: this.deps.start().contract,
+          // ExitFullScreenButton: this.deps.start().core.overlays,
+          // uiActions: this.deps.start().core.overlays,
+
+        },
         stateTransfer,
         parent
       )
-    } catch (e) {
+    } catch (e: any) {
       console.error(e); // eslint-disable-line no-console
       return new ErrorEmbeddable(e, input, parent);
     }
   }
 
   public create = async (
-    initialInput: DashboardContainerEmbeddableInput,
+    input: DashboardContainerEmbeddableInput & { savedDashboard?: SerializedDashboard },
     parent?: Container
   ): Promise<DashboardContainerEmbeddable | ErrorEmbeddable> => {
-    const dashboard = new Dashboard(initialInput)
-    await dashboard.setState(initialInput)
+    const dashboard = new Dashboard(input)
+    await dashboard.setState(input)
     const stateTransfer = this.deps.start().plugins.embeddable.getStateTransfer(this.getHistory());
-    return new DashboardContainerEmbeddable(initialInput, this.deps, stateTransfer, parent);
+    return new DashboardContainerEmbeddable(input, {
+      application: this.deps.start().core.application,
+      overlays: this.deps.start().core.overlays,
+      notifications: this.deps.start().plugins.notifications,
+      embeddable: this.deps.start().plugins.embeddable,
+      inspector: this.deps.start().plugins.inspector,
+      // SavedObjectFinder: this.deps.start().contract,
+      // ExitFullScreenButton: this.deps.start().core.overlays,
+      // uiActions: this.deps.start().core.overlays,
+
+    }, stateTransfer, parent);
   };
 }

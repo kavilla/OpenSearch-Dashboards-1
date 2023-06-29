@@ -12,9 +12,6 @@
 import { History } from 'history';
 import { TimeRange, Query, Filter, DataPublicPluginStart } from 'src/plugins/data/public';
 import {
-  DashboardStart
-} from 'src/plugins/dashboard_new/public';
-import {
   SavedObject as SavedObjectType,
   SavedObjectAttributes,
   CoreStart,
@@ -39,11 +36,13 @@ import { SavedObjectLoader, SavedObject, SavedObjectsStart } from 'src/plugins/s
 import { OpenSearchDashboardsLegacyStart } from 'src/plugins/opensearch_dashboards_legacy/public';
 import { EmbeddableStart, ViewMode } from 'src/plugins/embeddable/public';
 import { UrlForwardingStart } from 'src/plugins/url_forwarding/public';
-import { DashboardContainerEmbeddable, DashboardStart, SavedObjectDashboard } from '../../../dashboard_new/public';
+import { DashboardContainerEmbeddable, DashboardStart} from '../../../dashboard_new/public';
 import { PublicContract } from '@osd/utility-types';
 import { UiActionsStart } from '../ui_actions_plugin';
 import { DashboardCapabilities, DashboardProvider } from '../../common';
 import { SavedDashboardState } from '../types';
+import { Dashboard } from '../dashboard';
+import { SavedObjectDashboard } from 'src/plugins/dashboard/public';
 
 export type PureDashboardState = SavedDashboardState;
 export interface DashboardAppState {
@@ -145,13 +144,13 @@ export interface SavedDashboardInstance {
   embeddableHandler: DashboardEmbeddableContract;
 }
 
-export interface ByValueDashboardInstance {
-  dashboard: Dashboard;
-  savedSearch?: SavedObject;
-  embeddableHandler: DashboardEmbeddableContract;
-}
+// export interface ByValueDashboardInstance {
+//   dashboard: Dashboard;
+//   savedSearch?: SavedObject;
+//   embeddableHandler: DashboardEmbeddableContract;
+// }
 
-export type DashboardEditorDashboardInstance = SavedDashboardInstance | ByValueDashboardInstance;
+export type DashboardEditorDashboardInstance = SavedDashboardInstance;
 
 export interface IEditorController {
   render(props: EditorRenderProps): void;

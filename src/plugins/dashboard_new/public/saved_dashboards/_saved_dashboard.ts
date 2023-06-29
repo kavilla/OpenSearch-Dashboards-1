@@ -36,7 +36,7 @@ import { extractReferences, injectReferences } from './saved_dashboard_reference
 
 import { createDashboardEditUrl } from '../dashboard_constants';
 import { ISavedDashboard } from '../types';
-import { SerializedDashboard } from '../../dashboard';
+import { SerializedDashboard } from '../dashboard';
 import { DashboardSavedObject } from '../types';
 
 export const convertToSerializedDashboard = (savedDashboard: ISavedDashboard): SerializedDashboard => {

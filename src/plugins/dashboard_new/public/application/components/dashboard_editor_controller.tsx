@@ -1,40 +1,38 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import EventEmitter from "events";
-import { Dashboard } from "../../dashboard";
-import { DashboardEmbeddableContract } from "../types";
-import { unmountComponentAtNode } from "react-dom";
-import { useRef } from "react";
+/*
+ * Copyright OpenSearch Contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React from 'react';
+import EventEmitter from 'events';
+import { render, unmountComponentAtNode } from 'react-dom';
+import { Dashboard } from '../../dashboard';
+import { DashboardEmbeddableContainerEditorRenderProps, DashboardEmbeddableContract } from '../types';
+import { DashboardEmbeddableContainerEditor } from './dashboard_embeddable_container_editor';
 
 class DashboardEditorController {
-    constructor(
-        private el: HTMLElement,
-        private dashboard: Dashboard,
-        private eventEmitter: EventEmitter,
-        private embeddableHandler: DashboardEmbeddableContract
-      ) {}
+  constructor(
+    private el: HTMLElement,
+    private dashboard: Dashboard,
+    private eventEmitter: EventEmitter,
+    private embeddableHandler: DashboardEmbeddableContract
+  ) {}
 
-      const dashboardRef = useRef<HTMLDivElement>(null);
+  render(props: DashboardEmbeddableContainerEditorRenderProps) {
+    render(
+      <DashboardEmbeddableContainerEditor
+        eventEmitter={this.eventEmitter}
+        embeddableHandler={this.embeddableHandler}
+        dashboard={this.dashboard}
+        {...props}
+      />,
+      this.el
+    );
+  }
 
-      useEffect(() => {
-        if (!dashboardRef.current) {
-          return;
-        }
-    
-        embeddableHandler.render(visRef.current);
-        setTimeout(() => {
-          eventEmitter.emit('embeddableRendered');
-        });
-    
-        return () => embeddableHandler.destroy();
-      }, [embeddableHandler, eventEmitter]);
-
-    render() {
-
-    }
-
-    destroy() {
-        unmountComponentAtNode(this.el);
-    }
+  destroy() {
+    unmountComponentAtNode(this.el);
+  }
 }
 
-export { DashboardEditorController }
+export { DashboardEditorController };

@@ -45,7 +45,7 @@ import {
   DashboardAppStateContainer,
   DashboardServices,
   SavedDashboardPanel,
-} from '../../../types';
+} from '../../types';
 import { migrateLegacyQuery } from '../../lib/migrate_legacy_query';
 import { getSavedObjectFinder } from '../../../../../saved_objects/public';
 import { DashboardConstants } from '../../../dashboard_constants';

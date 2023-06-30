@@ -9,11 +9,9 @@ import { cloneDeep } from 'lodash';
 import { map } from 'rxjs/operators';
 import { connectToQueryState, opensearchFilters } from '../../../../../data/public';
 import { migrateLegacyQuery } from '../../lib/migrate_legacy_query';
-import { DashboardServices } from '../../../types';
-
-import { DashboardAppStateContainer } from '../../../types';
 import { migrateAppState, getAppStateDefaults } from '../../lib';
 import { createDashboardAppState } from '../create_dashboard_app_state';
+import { DashboardAppStateContainer, DashboardAppStateDefaults, DashboardEditorDashboardInstance, DashboardServices } from '../../types';
 
 /**
  * This effect is responsible for instantiating the dashboard app state container,
@@ -22,16 +20,35 @@ import { createDashboardAppState } from '../create_dashboard_app_state';
 export const useDashboardAppState = (
   services: DashboardServices,
   eventEmitter: EventEmitter,
-  instance: any
+  instance: DashboardEditorDashboardInstance,
 ) => {
-  const [appState, setAppState] = useState<DashboardAppStateContainer | undefined>();
+  const [appState, setAppState] = useState<DashboardAppStateContainer | null>(null);
 
   useEffect(() => {
     if (instance) {
-      const { dashboardConfig, usageCollection, opensearchDashboardsVersion } = services;
-      const hideWriteControls = dashboardConfig.getHideWriteControls();
+      const { usageCollection, opensearchDashboardsVersion } = services;
+
+      // export const visStateToEditorState = (
+      //   visInstance: VisualizeEditorVisInstance,
+      //   services: VisualizeServices
+      // ) => {
+      //   const vis = visInstance.vis;
+      //   const savedVisState = services.visualizations.convertFromSerializedVis(vis.serialize());
+      //   const savedVis = 'savedVis' in visInstance ? visInstance.savedVis : undefined;
+      //   return {
+      //     uiState:
+      //       savedVis && savedVis.uiStateJSON ? JSON.parse(savedVis.uiStateJSON) : vis.uiState.toJSON(),
+      //     query: vis.data.searchSource?.getOwnField('query') || getDefaultQuery(services),
+      //     filters: (vis.data.searchSource?.getOwnField('filter') as Filter[]) || [],
+      //     vis: { ...savedVisState.visState, title: vis.title },
+      //     linked: savedVis && savedVis.id ? !!savedVis.savedSearchId : !!savedVisState.savedSearchId,
+      //   };
+      // };
+
+      // QUESTION: I DONT KNOW IF WE NEED SOMETHING LIKE DASHBOARHSTATETOEDITORSTATE HERE LIKE HOW VISUALIZE DOES
+      // THEY SERIALIZE IT AND THEN UN-SERIALIZE IT???
       const stateDefaults = migrateAppState(
-        getAppStateDefaults(instance, hideWriteControls),
+        instance.appStateDefaults,
         opensearchDashboardsVersion,
         usageCollection
       );

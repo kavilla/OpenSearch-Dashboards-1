@@ -16,6 +16,16 @@
 import { cloneDeep } from 'lodash';
 import { Filter, ISearchSource, Query, RefreshInterval } from '../../data/public';
 import { SavedDashboardPanel } from '../public';
+import { DashboardPanelState } from './application';
+import { EmbeddableInput } from './embeddable_plugin';
+import {
+  convertSavedDashboardPanelToPanelState,
+  convertPanelStateToSavedDashboardPanel,
+} from './application/lib/embeddable_saved_object_converters';
+
+export interface SerializedPanels {
+  [panelId: string]: DashboardPanelState<EmbeddableInput & { [k: string]: unknown }>;
+}
 
 export interface SerializedDashboard {
   id?: string;
@@ -23,7 +33,7 @@ export interface SerializedDashboard {
   timeTo?: string;
   timeFrom?: string;
   description?: string;
-  panels?: SavedDashboardPanel[];
+  panels?: SerializedPanels;
   options?: {
     hidePanelTitles: boolean;
     useMargins: boolean;
@@ -41,9 +51,9 @@ export interface DashboardParams {
   [key: string]: any;
 }
 
-const getSearchSource = async(inputSearchSource: ISearchSource) => {
+const getSearchSource = async (inputSearchSource: ISearchSource) => {
   return inputSearchSource.createCopy();
-}
+};
 
 type PartialDashboardState = Partial<SerializedDashboard>;
 
@@ -62,12 +72,15 @@ export class Dashboard<TDashboardParams = DashboardParams> {
   public query: Query;
   public filters: Filter[];
   public title?: string;
+  // TODO: dashboardNew - pass version to dashboard class
+  public version = '3.0.0';
 
   constructor(dashboardState: SerializedDashboard = {} as any) {
     this.id = dashboardState.id;
     this.refreshInterval = this.getRefreshInterval(dashboardState.refreshInterval!);
     this.query = this.getQuery(dashboardState.query);
     this.filters = this.getFilters(dashboardState.filters);
+    this.panels = this.getPanels(dashboardState.panels);
   }
 
   async setState(state: PartialDashboardState) {
@@ -84,7 +97,7 @@ export class Dashboard<TDashboardParams = DashboardParams> {
       this.description = state.description;
     }
     if (state.panels) {
-      this.panels = state.panels;
+      this.panels = this.getPanels(state.panels);
     }
     if (state.options) {
       this.options = state.options;
@@ -116,12 +129,28 @@ export class Dashboard<TDashboardParams = DashboardParams> {
     return cloneDeep(refreshInterval ?? {});
   }
 
-  private getQuery(query: Query) : Query {
-    return cloneDeep(query ?? {} as Query);
+  private getQuery(query: Query): Query {
+    return cloneDeep(query ?? ({} as Query));
   }
 
   private getFilters(filters: Filter[]) {
-    return cloneDeep(filters ?? {} as Filter[]);
+    return cloneDeep(filters ?? ({} as Filter[]));
+  }
+
+  private getPanels(panels?: SerializedPanels) {
+    const convertedPanelStateMap: { [key: string]: SavedDashboardPanel } = {};
+
+    if (!panels) {
+      return [];
+    }
+
+    Object.values(panels).forEach((panelState) => {
+      convertedPanelStateMap[panelState.explicitInput.id] = convertPanelStateToSavedDashboardPanel(
+        panelState,
+        this.version
+      );
+    });
+    return Object.values(convertedPanelStateMap);
   }
 
   clone() {
@@ -138,7 +167,7 @@ export class Dashboard<TDashboardParams = DashboardParams> {
       timeTo: this.timeTo,
       timeFrom: this.timeFrom,
       description: this.description,
-      panels: this.panels,
+      panels: this.serializePanels(),
       options: cloneDeep(this.options) as any,
       uiState: this.uiState,
       lastSavedTitle: this.lastSavedTitle,
@@ -146,7 +175,17 @@ export class Dashboard<TDashboardParams = DashboardParams> {
       searchSource: this.searchSource,
       query: this.query,
       filters: this.filters,
-      title: this.title!
+      title: this.title!,
     };
+  }
+
+  serializePanels(): SerializedPanels {
+    const embeddablesMap: {
+      [key: string]: DashboardPanelState;
+    } = {};
+    this.panels.forEach((panel: SavedDashboardPanel) => {
+      embeddablesMap[panel.panelIndex] = convertSavedDashboardPanelToPanelState(panel);
+    });
+    return embeddablesMap;
   }
 }

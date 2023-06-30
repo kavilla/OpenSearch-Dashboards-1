@@ -29,31 +29,29 @@
  */
 
 import { ViewMode } from '../../embeddable_plugin';
-import { DashboardSavedObject } from '../../types';
 import { DashboardAppStateDefaults } from '../types';
 import { SerializedDashboard } from '../../dashboard';
 
 export function getAppStateDefaults(
-  savedDashboard: DashboardSavedObject,
-  serializedDashboard: SerializedDashboard,
+  dashboard: SerializedDashboard,
   hideWriteControls: boolean
 ): DashboardAppStateDefaults {
   return {
-    savedDashboard: serializedDashboard,
+    savedDashboard: dashboard,
     isFullScreenMode: false,
-    title: savedDashboard.title || '',
-    description: savedDashboard.description || '',
+    title: dashboard.title || '',
+    description: dashboard.description || '',
     timeRange: {
-      from: savedDashboard.timeFrom!,
-      to: savedDashboard.timeTo!
+      from: dashboard.timeFrom!,
+      to: dashboard.timeTo!,
     },
-    timeRestore: savedDashboard.timeRestore,
-    panels: savedDashboard.panelsJSON ? JSON.parse(savedDashboard.panelsJSON) : [],
-    options: savedDashboard.optionsJSON ? JSON.parse(savedDashboard.optionsJSON) : {},
-    query: savedDashboard.getQuery(),
-    filters: savedDashboard.getFilters() ?  savedDashboard.getFilters(): [],
-    viewMode: savedDashboard.id || hideWriteControls ? ViewMode.VIEW : ViewMode.EDIT,
+    timeRestore: dashboard.timeRestore,
+    panels: dashboard.panels ?? {},
+    options: dashboard.options,
+    query: dashboard.query,
+    filters: dashboard.filters,
+    viewMode: dashboard.id || hideWriteControls ? ViewMode.VIEW : ViewMode.EDIT,
     useMargins: true, // TODO: dashboardNew -- not saved?
-    id: savedDashboard.id || ''
+    id: dashboard.id || '',
   };
 }

@@ -14,6 +14,7 @@ import { DashboardConstants } from '../../../dashboard_constants';
 import { DashboardServices, IEditorController, SavedDashboardInstance } from '../../types';
 import { getDashboardInstance } from '../get_dashboard_instance';
 import { getCreateBreadcrumbs, getEditBreadcrumbs } from '../breadcrumbs';
+import { DashboardEditorController } from '../../components';
 
 /**
  * This effect is responsible for instantiating a saved dashboard or creating a new one
@@ -28,8 +29,8 @@ export const useSavedDashboardInstance = (
   const [state, setState] = useState<{
     savedDashboardInstance?: SavedDashboardInstance;
     dashboardEditorController?: IEditorController;
-  }>({})
-  const dashboardEditorRef = useRef<HTMLDivElement>(null)
+  }>({});
+  const dashboardEditorRef = useRef<HTMLElement>(null);
   const dashboardId = useRef('');
 
   useEffect(() => {
@@ -39,7 +40,6 @@ export const useSavedDashboardInstance = (
       history,
       http: { basePath },
       notifications,
-      savedDashboards,
       toastNotifications,
     } = services;
 
@@ -47,74 +47,32 @@ export const useSavedDashboardInstance = (
       try {
         let savedDashboardInstance: SavedDashboardInstance;
         if (history.location.pathname === '/create') {
-          try {
-            //savedDashboardInstance = await savedDashboards.get();
-            savedDashboardInstance = await getDashboardInstance(services)
-          } catch {
-            redirectWhenMissing({
-              history,
-              basePath,
-              navigateToApp,
-              mapping: {
-                dashboard: DashboardConstants.LANDING_PAGE_PATH,
-              },
-              toastNotifications: notifications.toasts,
-            });
-          }
-        } else if (dashboardIdFromUrl) {
-          try {
-            //savedDashboardInstance = await savedDashboards.get(dashboardIdFromUrl);
-            savedDashboardInstance = await getDashboardInstance(services, dashboardIdFromUrl)
+          savedDashboardInstance = await getDashboardInstance(services);
+        } else {
+          savedDashboardInstance = await getDashboardInstance(services, dashboardIdFromUrl);
+          // Update time filter to match the saved dashboard if time restore has been set to true when saving the dashboard
+          // We should only set the time filter according to time restore once when we are loading the dashboard
+          // if (savedDashboardInstance.timeRestore) {
+          //   if (savedDashboardInstance.timeFrom && savedDashboardInstance.timeTo) {
+          //     services.data.query.timefilter.timefilter.setTime({
+          //       from: savedDashboardInstance.timeFrom,
+          //       to: savedDashboardInstance.timeTo,
+          //     });
+          //   }
+          //   if (savedDashboardInstance.refreshInterval) {
+          //     services.data.query.timefilter.timefilter.setRefreshInterval(
+          //       savedDashboardInstance.refreshInterval
+          //     );
+          //   }
+          // }
 
-            // Update time filter to match the saved dashboard if time restore has been set to true when saving the dashboard
-            // We should only set the time filter according to time restore once when we are loading the dashboard
-            // if (savedDashboardInstance.timeRestore) {
-            //   if (savedDashboardInstance.timeFrom && savedDashboardInstance.timeTo) {
-            //     services.data.query.timefilter.timefilter.setTime({
-            //       from: savedDashboardInstance.timeFrom,
-            //       to: savedDashboardInstance.timeTo,
-            //     });
-            //   }
-            //   if (savedDashboardInstance.refreshInterval) {
-            //     services.data.query.timefilter.timefilter.setRefreshInterval(
-            //       savedDashboardInstance.refreshInterval
-            //     );
-            //   }
-            // }
-
-            // chrome.recentlyAccessed.add(
-            //   savedDashboardInstance.getFullPath(),
-            //   savedDashboardInstance.title,
-            //   dashboardIdFromUrl
-            // );
-          } catch (error) {
-            // Preserve BWC of v5.3.0 links for new, unsaved dashboards.
-            // See https://github.com/elastic/kibana/issues/10951 for more context.
-            if (error instanceof SavedObjectNotFound && dashboardIdFromUrl === 'create') {
-              // Note preserve querystring part is necessary so the state is preserved through the redirect.
-              history.replace({
-                ...history.location, // preserve query,
-                pathname: DashboardConstants.CREATE_NEW_DASHBOARD_URL,
-              });
-
-              notifications.toasts.addWarning(
-                i18n.translate('dashboardNew.urlWasRemovedInSixZeroWarningMessage', {
-                  defaultMessage:
-                    'The url "dashboard/create" was removed in 6.0. Please update your bookmarks.',
-                })
-              );
-              return new Promise(() => {});
-            } else {
-              // E.g. a corrupt or deleted dashboard
-              notifications.toasts.addDanger(error.message);
-              history.push(DashboardConstants.LANDING_PAGE_PATH);
-              return new Promise(() => {});
-            }
-          }
+          // chrome.recentlyAccessed.add(
+          //   savedDashboardInstance.getFullPath(),
+          //   savedDashboardInstance.title,
+          //   dashboardIdFromUrl
+          // );
         }
-
-        // QUESTION: why do i have this error -- used before assigned, i am doing what visualize is doing
-        const { embeddableHandler, savedDashboard, dashboard} = savedDashboardInstance;
+        const { embeddableHandler, savedDashboard, dashboard } = savedDashboardInstance;
 
         // TODO: Finish breadcrumb logics --> saved/unsaved
         if (savedDashboard.id) {
@@ -127,10 +85,9 @@ export const useSavedDashboardInstance = (
         let dashboardEditorController;
         // do not create editor in embeded mode
         if (isChromeVisible) {
-          // QUESTION: Do we also create a editor controller here?
-          const Editor = DashboardEditorController;
-          dashboardEditorController = new Editor(
-            dashboardEditorRef.current,
+          dashboardEditorController = new DashboardEditorController(
+            // QUSTION: WHY THIS GIVES ME ERROR
+            dashboardEditorRef.current!,
             dashboard,
             eventEmitter,
             embeddableHandler
@@ -141,15 +98,52 @@ export const useSavedDashboardInstance = (
 
         setState({
           savedDashboardInstance,
-          dashboardEditorController
+          dashboardEditorController,
         });
-      } catch (error) {
-        toastNotifications.addWarning({
-          title: i18n.translate('dashboardNew.createDashboard.failedToLoadErrorMessage', {
-            defaultMessage: 'Failed to load the dashboard',
-          }),
-        });
-        history.replace(DashboardConstants.LANDING_PAGE_PATH);
+      } catch (error: any) {
+        if (history.location.pathname === '/create') {
+          redirectWhenMissing({
+            history,
+            basePath,
+            navigateToApp,
+            mapping: {
+              dashboard: DashboardConstants.LANDING_PAGE_PATH,
+            },
+            toastNotifications: notifications.toasts,
+            // TODO: dashboardNew -> do we do this?
+            // onBeforeRedirect() {
+            //   setActiveUrl(VisualizeConstants.LANDING_PAGE_PATH);
+            // },
+          });
+        } else if (error instanceof SavedObjectNotFound && dashboardIdFromUrl === 'create') {
+          // Preserve BWC of v5.3.0 links for new, unsaved dashboards.
+          // See https://github.com/elastic/kibana/issues/10951 for more context.
+          // Note preserve querystring part is necessary so the state is preserved through the redirect.
+          history.replace({
+            ...history.location, // preserve query,
+            pathname: DashboardConstants.CREATE_NEW_DASHBOARD_URL,
+          });
+
+          notifications.toasts.addWarning(
+            i18n.translate('dashboardNew.urlWasRemovedInSixZeroWarningMessage', {
+              defaultMessage:
+                'The url "dashboard/create" was removed in 6.0. Please update your bookmarks.',
+            })
+          );
+          return new Promise(() => {});
+        } else {
+          // E.g. a corrupt or deleted dashboard
+          // TODO: this is from old version:
+          // notifications.toasts.addDanger(error!.message);
+          // history.push(DashboardConstants.LANDING_PAGE_PATH);
+          // return new Promise(() => {});
+          toastNotifications.addWarning({
+            title: i18n.translate('dashboardNew.createDashboard.failedToLoadErrorMessage', {
+              defaultMessage: 'Failed to load the dashboard',
+            }),
+          });
+          history.replace(DashboardConstants.LANDING_PAGE_PATH);
+        }
       }
     };
 
@@ -170,10 +164,30 @@ export const useSavedDashboardInstance = (
       setState({});
       getSavedDashboardInstance();
     }
-  }, [eventEmitter, isChromeVisible, services, state.savedDashboardInstance, state.dashboardEditorController, dashboardIdFromUrl]);
+  }, [
+    eventEmitter,
+    isChromeVisible,
+    services,
+    state.savedDashboardInstance,
+    state.dashboardEditorController,
+    dashboardIdFromUrl,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      if (state.dashboardEditorController) {
+        state.dashboardEditorController.destroy();
+      } else if (state.savedDashboardInstance?.embeddableHandler) {
+        state.savedDashboardInstance.embeddableHandler.destroy();
+      }
+      if (state.savedDashboardInstance?.savedDashboard) {
+        state.savedDashboardInstance.savedDashboard.destroy();
+      }
+    };
+  }, [state]);
 
   return {
     ...state,
-    dashboardEditorRef
+    dashboardEditorRef,
   };
 };

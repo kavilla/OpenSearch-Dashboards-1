@@ -32,27 +32,31 @@ import {
 } from 'src/plugins/opensearch_dashboards_utils/public';
 import { SharePluginStart } from 'src/plugins/share/public';
 import { UsageCollectionSetup } from 'src/plugins/usage_collection/public';
-import { SavedObjectLoader, SavedObject, SavedObjectsStart } from 'src/plugins/saved_objects/public';
+import {
+  SavedObjectLoader,
+  SavedObject,
+  SavedObjectsStart,
+} from 'src/plugins/saved_objects/public';
 import { OpenSearchDashboardsLegacyStart } from 'src/plugins/opensearch_dashboards_legacy/public';
 import { EmbeddableStart, ViewMode } from 'src/plugins/embeddable/public';
 import { UrlForwardingStart } from 'src/plugins/url_forwarding/public';
-import { DashboardContainerEmbeddable, DashboardStart} from '../../../dashboard_new/public';
 import { PublicContract } from '@osd/utility-types';
+import { DashboardSavedObject } from 'src/plugins/dashboard_new/public';
+import { DashboardContainerEmbeddable, DashboardStart } from '../../../dashboard_new/public';
 import { UiActionsStart } from '../ui_actions_plugin';
 import { DashboardCapabilities, DashboardProvider } from '../../common';
 import { SavedDashboardState } from '../types';
-import { Dashboard, SerializedDashboard } from '../dashboard';
-import { SavedDashboardPanel, DashboardSavedObject } from 'src/plugins/dashboard_new/public';
+import { Dashboard, SerializedDashboard, SerializedPanels } from '../dashboard';
 
 export type PureDashboardState = SavedDashboardState;
 export interface DashboardAppState {
-  panels: SavedDashboardPanel[];
+  panels: SerializedPanels;
   isFullScreenMode: boolean;
   title: string;
   description: string;
   timeRange: TimeRange;
   timeRestore?: boolean;
-  options: {
+  options?: {
     hidePanelTitles: boolean;
     useMargins: boolean;
   };
@@ -73,11 +77,12 @@ export interface DashboardAppStateTransitions {
     prop: T,
     value: DashboardAppState[T]
   ) => DashboardAppState;
-  setDashboard: (state: DashboardAppState) => (dashboard: Partial<PureDashboardState>) => DashboardAppState;
-  // unlinkSavedSearch: (
-  //   state: DashboardAppState
-  // ) => ({ query, parentFilters }: { query?: Query; parentFilters?: Filter[] }) => DashboardAppState;
-  updateDashboardState: (state: DashboardAppState) => (dashboard: PureDashboardState) => DashboardAppState;
+  setDashboard: (
+    state: DashboardAppState
+  ) => (dashboard: Partial<PureDashboardState>) => DashboardAppState;
+  updateDashboardState: (
+    state: DashboardAppState
+  ) => (dashboard: PureDashboardState) => DashboardAppState;
   updateSavedQuery: (state: DashboardAppState) => (savedQueryId?: string) => DashboardAppState;
 }
 
@@ -88,21 +93,14 @@ export type DashboardAppStateContainer = ReduxLikeStateContainer<
 
 export type DashboardAppStateDefaults = DashboardAppState & {
   description?: string;
-  id?: string;
+  id: string;
 };
 
-export interface EditorRenderProps {
-  core: CoreStart;
-  data: DataPublicPluginStart;
+export interface DashboardEmbeddableContainerEditorRenderProps {
   filters: Filter[];
   timeRange: TimeRange;
   query?: Query;
   savedSearch?: SavedObject;
-  //uiState: PersistedState;
-  /**
-   * Flag to determine if visualiztion is linked to the saved search
-   */
-  //linked: boolean;
 }
 
 export interface DashboardServices extends CoreStart {
@@ -122,10 +120,10 @@ export interface DashboardServices extends CoreStart {
   savedObjectsPublic: SavedObjectsStart;
   // TODO: change this name to be function like
   savedDashboards: DashboardStart['getSavedDashboardsLoader'];
-  //setActiveUrl,
+  // setActiveUrl,
   restorePreviousUrl: () => void;
   scopedHistory: ScopedHistory;
-  //core: CoreStart;
+  // core: CoreStart;
   setHeaderActionMenu: AppMountParameters['setHeaderActionMenu'];
   opensearchDashboardsVersion: string;
   savedObjectsClient: SavedObjectsClientContract;
@@ -141,37 +139,31 @@ export interface DashboardServices extends CoreStart {
   navigateToDefaultApp: UrlForwardingStart['navigateToDefaultApp'];
   navigateToLegacyOpenSearchDashboardsUrl: UrlForwardingStart['navigateToLegacyOpenSearchDashboardsUrl'];
   addBasePath?: (url: string) => string;
-  inspector: InspectorStartContract,
-  SavedObjectFinder: React.ComponentType<any>,
-  ExitFullScreenButton: React.ComponentType<any>,
-  uiActions: UiActionsStart
+  inspector: InspectorStartContract;
+  SavedObjectFinder: React.ComponentType<any>;
+  ExitFullScreenButton: React.ComponentType<any>;
+  uiActions: UiActionsStart;
 }
 
 export interface ISavedDashboard {
   id?: string;
   title: string;
   description?: string;
-
 }
 
 export type DashboardEmbeddableContract = PublicContract<DashboardContainerEmbeddable>;
 
 export interface SavedDashboardInstance {
   dashboard: Dashboard;
-  savedDashboard: DashboardSavedObject; 
-  //savedSearch?: SavedObject;
+  savedDashboard: DashboardSavedObject;
+  // savedSearch?: SavedObject;
   embeddableHandler: DashboardEmbeddableContract;
+  appStateDefaults: DashboardAppStateDefaults;
 }
-
-// export interface ByValueDashboardInstance {
-//   dashboard: Dashboard;
-//   savedSearch?: SavedObject;
-//   embeddableHandler: DashboardEmbeddableContract;
-// }
 
 export type DashboardEditorDashboardInstance = SavedDashboardInstance;
 
 export interface IEditorController {
-  render(props: EditorRenderProps): void;
+  render(props: DashboardEmbeddableContainerEditorRenderProps): void;
   destroy(): void;
 }

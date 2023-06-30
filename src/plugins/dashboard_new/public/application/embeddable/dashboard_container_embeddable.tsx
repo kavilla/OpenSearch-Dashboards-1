@@ -55,9 +55,8 @@ import {
 import { PLACEHOLDER_EMBEDDABLE } from './placeholder';
 import { PanelPlacementMethod, IPanelPlacementArgs } from './panel/dashboard_panel_placement';
 import { EmbeddableStateTransfer, EmbeddableOutput } from '../../../../embeddable/public';
-import { SerializedDashboard, Dashboard } from '../../dashboard';
+import { SerializedDashboard, SerializedPanels, Dashboard } from '../../dashboard';
 import { DashboardStartDeps } from '../../plugin';
-import { SavedDashboardPanel } from '../../types';
 
 export interface DashboardContainerEmbeddableFactoryDeps {
   application: DashboardStartDeps['application'];
@@ -71,15 +70,15 @@ export interface DashboardContainerEmbeddableFactoryDeps {
 }
 
 export interface DashboardContainerEmbeddableConfiguration {
-  savedDashboard: Dashboard,
-  deps: DashboardContainerEmbeddableFactoryDeps
+  savedDashboard: Dashboard;
+  deps: DashboardContainerEmbeddableFactoryDeps;
 }
 
 export interface DashboardContainerEmbeddableInput extends ContainerInput {
-  savedDashboard: SerializedDashboard; 
+  savedDashboard: SerializedDashboard;
   viewMode: ViewMode;
   filters: Filter[];
-  query: Query ;
+  query: Query;
   timeRange: TimeRange;
   refreshConfig?: RefreshInterval;
   expandedPanelId?: string;
@@ -88,9 +87,7 @@ export interface DashboardContainerEmbeddableInput extends ContainerInput {
   description?: string;
   isEmbeddedExternally?: boolean;
   isFullScreenMode: boolean;
-  panels: {
-    [panelId: string]: DashboardPanelState<EmbeddableInput & { [k: string]: unknown }>;
-  };
+  panels: SerializedPanels;
   isEmptyState?: boolean;
 }
 
@@ -111,9 +108,14 @@ export interface InheritedChildEmbeddableInput extends IndexSignature {
 export type DashboardReactContextValue = OpenSearchDashboardsReactContextValue<
   DashboardContainerEmbeddableConfiguration['deps']
 >;
-export type DashboardReactContext = OpenSearchDashboardsReactContext<DashboardContainerEmbeddableConfiguration['deps']>;
+export type DashboardReactContext = OpenSearchDashboardsReactContext<
+  DashboardContainerEmbeddableConfiguration['deps']
+>;
 
-export class DashboardContainerEmbeddable extends Container<InheritedChildEmbeddableInput, DashboardContainerEmbeddableInput> {
+export class DashboardContainerEmbeddable extends Container<
+  InheritedChildEmbeddableInput,
+  DashboardContainerEmbeddableInput
+> {
   public readonly type = DASHBOARD_CONTAINER_TYPE;
 
   private savedDashboard: Dashboard;

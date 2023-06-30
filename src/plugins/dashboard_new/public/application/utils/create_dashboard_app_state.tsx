@@ -9,14 +9,10 @@ import {
   createStateContainer,
   syncState,
 } from '../../../../opensearch_dashboards_utils/public';
-import {
-  DashboardAppState,
-  DashboardAppStateTransitions,
-  DashboardAppStateInUrl,
-  DashboardServices,
-} from '../../types';
 import { ViewMode } from '../../embeddable_plugin';
 import { getDashboardIdFromUrl } from '../lib';
+import { DashboardAppState, DashboardAppStateTransitions, DashboardServices } from '../types';
+import { DashboardAppStateInUrl } from 'src/plugins/dashboard/public/types';
 
 const STATE_STORAGE_KEY = '_a';
 
@@ -34,25 +30,38 @@ export const createDashboardAppState = ({
   instance,
 }: Arguments) => {
   const urlState = osdUrlStateStorage.get<DashboardAppState>(STATE_STORAGE_KEY);
-  const { opensearchDashboardsVersion, usageCollection, history } = services;
-  const initialState = migrateAppState(
-    {
+  const { history } = services;
+  const initialState = ({
       ...stateDefaults,
       ...urlState,
-    },
-    opensearchDashboardsVersion,
-    usageCollection
-  );
+    })
+
+    // export interface DashboardAppStateTransitions {
+    //   set: (
+    //     state: DashboardAppState
+    //   ) => <T extends keyof DashboardAppState>(
+    //     prop: T,
+    //     value: DashboardAppState[T]
+    //   ) => DashboardAppState;
+    //   setDashboard: (
+    //     state: DashboardAppState
+    //   ) => (dashboard: Partial<PureDashboardState>) => DashboardAppState;
+    //   updateDashboardState: (
+    //     state: DashboardAppState
+    //   ) => (dashboard: PureDashboardState) => DashboardAppState;
+    //   updateSavedQuery: (state: DashboardAppState) => (savedQueryId?: string) => DashboardAppState;
+    // }
 
   const pureTransitions = {
     set: (state) => (prop, value) => ({ ...state, [prop]: value }),
-    setOption: (state) => (option, value) => ({
+    setDashboard: (state) => (dashboard) => ({
       ...state,
-      options: {
-        ...state.options,
-        [option]: value,
-      },
+      dashboard: {
+        ...state.dashboard,
+        ...dashboard
+      }
     }),
+    
   } as DashboardAppStateTransitions;
   /*
      make sure url ('_a') matches initial state

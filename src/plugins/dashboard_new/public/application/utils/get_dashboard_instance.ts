@@ -10,11 +10,10 @@
  */
 
 import { Dashboard, DashboardContainerEmbeddable } from 'src/plugins/dashboard_new/public';
-import { DashboardServices } from '../types';
-import { DashboardSavedObject } from '../../types';
+import { DashboardServices, SavedDashboardInstance } from '../types';
+import { SavedObjectDashboard } from '../../types';
 import { getAppStateDefaults } from '../lib';
-import { SerializedDashboard } from '../../dashboard';
-  
+
 export const getDashboardInstance = async (
   dashboardServices: DashboardServices,
   /**
@@ -23,49 +22,33 @@ export const getDashboardInstance = async (
    * Both come from url search query
    */
   opts?: Record<string, unknown> | string
-) => {
-  const { scopedHistory, embeddable, dashboards, savedDashboards } = dashboardServices;
-  
+): Promise<SavedDashboardInstance> => {
+  const { scopedHistory, embeddable, dashboards, savedDashboards, dashboardConfig } = dashboardServices;
+
   // Get the existing dashboard/default new dashboard from saved object loader
-  const savedDashboard: DashboardSavedObject = await savedDashboards().get(opts);
+  const savedDashboard: SavedObjectDashboard = await savedDashboards().get(opts);
   // Serialized the saved object dashboard
   const serializedDashboard = dashboards.convertToSerializedDashboard(savedDashboard);
   // Create a Dashboard class using the serialized dashboard
-  let dashboard = await dashboards.createDashboard(serializedDashboard) as Dashboard;
+  const dashboard = (await dashboards.createDashboard(serializedDashboard)) as Dashboard;
 
   const stateTransfer = embeddable.getStateTransfer(scopedHistory);
-  const appStateDefaults = getAppStateDefaults(savedDashboard, serializedDashboard, true);
+  const appStateDefaults = getAppStateDefaults(serializedDashboard, dashboardConfig.getHideWriteControls());
 
-  // WHAT WE NEED:
-  // panels: {
-  //   [panelId: string]: DashboardPanelState<EmbeddableInput & { [k: string]: unknown }>;
-  // };
-
-  //WHAT WE PASS IN NOW
-//   export type SavedDashboardPanel730ToLatest = Pick<
-//   RawSavedDashboardPanel730ToLatest,
-//   Exclude<keyof RawSavedDashboardPanel730ToLatest, 'name'>
-// > & {
-//   readonly id?: string;
-//   readonly type: string;
-// };
-
-  // Create the dashboard container embeddable
   const embeddableHandler = new DashboardContainerEmbeddable(
     {
-      ...appStateDefaults
+      ...appStateDefaults,
     },
     {
       savedDashboard: dashboard,
-      deps: dashboardServices
+      deps: dashboardServices,
     },
-    stateTransfer,
-    parent
-  )
+    stateTransfer
+  );
   return {
     dashboard,
     embeddableHandler,
-    savedDashboard
+    savedDashboard,
+    appStateDefaults
   };
 };
-  

@@ -33,7 +33,7 @@ import { i18n } from '@osd/i18n';
 import { METRIC_TYPE } from '@osd/analytics';
 
 import { UsageCollectionSetup } from 'src/plugins/usage_collection/public';
-import { DashboardAppState, SavedDashboardPanel } from '../../types';
+import { SavedDashboardState, SavedDashboardPanel } from '../../types';
 import {
   migratePanelsTo730,
   SavedDashboardPanelTo60,
@@ -50,10 +50,10 @@ import {
  * Once we hit a major version, we can remove support for older style URLs and get rid of this logic.
  */
 export function migrateAppState(
-  appState: { [key: string]: any } & DashboardAppState,
+  appState: { [key: string]: any } & SavedDashboardState,
   opensearchDashboardsVersion: string,
   usageCollection?: UsageCollectionSetup
-): DashboardAppState {
+): SavedDashboardState {
   if (!appState.panels) {
     throw new Error(
       i18n.translate('dashboardNew.panel.invalidData', {

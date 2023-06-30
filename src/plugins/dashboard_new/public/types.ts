@@ -28,10 +28,10 @@
  * under the License.
  */
 
+import { ViewMode } from 'src/plugins/embeddable/public';
 import { SavedObject } from '../../saved_objects/public';
 import { Filter, ISearchSource, Query, RefreshInterval } from '../../data/public';
 import { SavedDashboardPanel730ToLatest } from '../common';
-import { ViewMode } from 'src/plugins/embeddable/public';
 
 /**
  * This should always represent the latest dashboard panel shape, after all possible migrations.
@@ -69,7 +69,7 @@ export interface ISavedDashboard {
   getFilters(): Filter[];
 }
 
-export interface DashboardSavedObject extends SavedObject, ISavedDashboard {}
+export interface SavedObjectDashboard extends SavedObject, ISavedDashboard {}
 
 interface FieldSubType {
   multi?: { parent: string };

@@ -37,10 +37,24 @@ import { extractReferences, injectReferences } from './saved_dashboard_reference
 import { createDashboardEditUrl } from '../dashboard_constants';
 import { ISavedDashboard } from '../types';
 import { SerializedDashboard } from '../dashboard';
-import { DashboardSavedObject } from '../types';
+import { SavedObjectDashboard } from '../types';
 
-export const convertToSerializedDashboard = (savedDashboard: ISavedDashboard): SerializedDashboard => {
-  const { id, timeRestore, timeTo, timeFrom, description, refreshInterval, panelsJSON, optionsJSON, uiStateJSON, searchSource, lastSavedTitle } = savedDashboard;
+export const convertToSerializedDashboard = (
+  savedDashboard: ISavedDashboard
+): SerializedDashboard => {
+  const {
+    id,
+    timeRestore,
+    timeTo,
+    timeFrom,
+    description,
+    refreshInterval,
+    panelsJSON,
+    optionsJSON,
+    uiStateJSON,
+    searchSource,
+    lastSavedTitle,
+  } = savedDashboard;
 
   return {
     id,
@@ -55,13 +69,29 @@ export const convertToSerializedDashboard = (savedDashboard: ISavedDashboard): S
     lastSavedTitle,
     searchSource,
     query: savedDashboard.getQuery(),
-    filters: savedDashboard.getFilters()
+    filters: savedDashboard.getFilters(),
   };
 };
 
-export const convertFromSerializedDashboard = (serializedDashboard: SerializedDashboard): ISavedDashboard => {
-  const {id, timeRestore, timeTo, timeFrom, refreshInterval, description, panels, options, uiState, lastSavedTitle, searchSource, query, filters} = serializedDashboard
-  
+export const convertFromSerializedDashboard = (
+  serializedDashboard: SerializedDashboard
+): ISavedDashboard => {
+  const {
+    id,
+    timeRestore,
+    timeTo,
+    timeFrom,
+    refreshInterval,
+    description,
+    panels,
+    options,
+    uiState,
+    lastSavedTitle,
+    searchSource,
+    query,
+    filters,
+  } = serializedDashboard;
+
   return {
     id,
     timeRestore,
@@ -75,13 +105,13 @@ export const convertFromSerializedDashboard = (serializedDashboard: SerializedDa
     refreshInterval,
     searchSource,
     getQuery: () => query,
-    getFilters: () => filters
+    getFilters: () => filters,
   };
 };
 
 export function createSavedDashboardClass(
   services: SavedObjectOpenSearchDashboardsServices
-): new (id: string) => DashboardSavedObject {
+): new (id: string) => SavedObjectDashboard {
   const SavedObjectClass = createSavedObjectClass(services);
   class SavedDashboard extends SavedObjectClass {
     public static type = 'dashboard';
@@ -151,5 +181,5 @@ export function createSavedDashboardClass(
     }
   }
 
-  return (SavedDashboard as unknown) as new (id: string) => DashboardSavedObject;
+  return (SavedDashboard as unknown) as new (id: string) => SavedObjectDashboard;
 }

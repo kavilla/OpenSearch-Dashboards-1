@@ -4,7 +4,7 @@
  */
 
 import { Filter } from 'src/plugins/data/public';
-import { DashboardServices } from '../../types';
+import { DashboardServices } from '../types';
 
 export const getDefaultQuery = ({ data }: DashboardServices) => {
   return data.query.queryString.getDefaultQuery();

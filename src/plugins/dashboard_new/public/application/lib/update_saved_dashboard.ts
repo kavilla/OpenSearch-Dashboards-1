@@ -33,10 +33,10 @@ import { Query, RefreshInterval, TimefilterContract } from 'src/plugins/data/pub
 import { FilterUtils } from './filter_utils';
 import { opensearchFilters } from '../../../../data/public';
 import { DashboardAppState } from '../types';
-import { DashboardSavedObject } from '../../types';
+import { SavedObjectDashboard } from '../../types';
 
 export function updateSavedDashboard(
-  savedDashboard: DashboardSavedObject,
+  savedDashboard: SavedObjectDashboard,
   appState: DashboardAppState,
   timeFilter: TimefilterContract
 ) {
@@ -64,8 +64,8 @@ export function updateSavedDashboard(
   const unpinnedFilters = appState.filters.filter(
     (filter) => !opensearchFilters.isFilterPinned(filter)
   );
-  savedDashboard.searchSource.setField('filter', unpinnedFilters);
+  savedDashboard.searchSource?.setField('filter', unpinnedFilters);
 
   // save the queries
-  savedDashboard.searchSource.setField('query', appState.query as Query);
+  savedDashboard.searchSource?.setField('query', appState.query as Query);
 }

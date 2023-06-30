@@ -6,7 +6,7 @@
 import EventEmitter from 'events';
 import { useEffect, useState } from 'react';
 import { merge } from 'rxjs';
-import { DashboardAppState, DashboardAppStateContainer, DashboardServices } from '../../../types';
+import { DashboardAppState, DashboardAppStateContainer, DashboardServices } from '../../types';
 import { DashboardContainerEmbeddable } from '../../embeddable';
 
 export const useEditorUpdates = (

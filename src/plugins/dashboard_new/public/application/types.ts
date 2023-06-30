@@ -50,11 +50,12 @@ import { Dashboard, SerializedDashboard, SerializedPanels } from '../dashboard';
 
 export type PureDashboardState = SavedDashboardState;
 export interface DashboardAppState {
-  panels: SerializedPanels;
+  dashboard?: PureDashboardState;
+  panels?: SerializedPanels;
   isFullScreenMode: boolean;
   title: string;
   description: string;
-  timeRange: TimeRange;
+  timeRange?: TimeRange;
   timeRestore?: boolean;
   options?: {
     hidePanelTitles: boolean;
@@ -62,11 +63,11 @@ export interface DashboardAppState {
   };
   query: Query;
   filters: Filter[];
-  viewMode: ViewMode;
+  viewMode?: ViewMode;
   expandedPanelId?: string;
   savedQuery?: string;
-  savedDashboard: SerializedDashboard;
-  useMargins: boolean;
+  savedDashboard?: SerializedDashboard;
+  useMargins?: boolean;
 }
 
 // TODO: dashboardNew -- setOptions() is needed?
@@ -161,7 +162,7 @@ export interface SavedDashboardInstance {
   appStateDefaults: DashboardAppStateDefaults;
 }
 
-export type DashboardEditorDashboardInstance = SavedDashboardInstance;
+export type EditorDashboardInstance = SavedDashboardInstance;
 
 export interface IEditorController {
   render(props: DashboardEmbeddableContainerEditorRenderProps): void;

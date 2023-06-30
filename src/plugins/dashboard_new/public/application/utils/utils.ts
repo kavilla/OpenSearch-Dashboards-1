@@ -4,26 +4,27 @@
  */
 
 import { Filter } from 'src/plugins/data/public';
-import { DashboardServices } from '../types';
+import { DashboardServices, EditorDashboardInstance } from '../types';
 
 export const getDefaultQuery = ({ data }: DashboardServices) => {
   return data.query.queryString.getDefaultQuery();
 };
 
 export const dashboardStateToEditorState = (
-  dashboardInstance: any,
+  dashboardInstance: EditorDashboardInstance,
   services: DashboardServices
 ) => {
-  const savedDashboardState = {
-    id: dashboardInstance.id,
-    title: dashboardInstance.title,
-    description: dashboardInstance.description,
-    searchSource: dashboardInstance.searchSource,
-    savedSearchId: dashboardInstance.savedSearchId,
-  };
+  const dashboard = dashboardInstance.dashboard;
+  const savedDashboardState = services.dashboards.convertFromSerializedDashboard(
+    dashboard.serialize()
+  );
+  const savedDashboard =
+    'savedDashboard' in dashboardInstance ? dashboardInstance.savedDashboard : undefined;
   return {
-    query: dashboardInstance.searchSource?.getOwnField('query') || getDefaultQuery(services),
-    filters: (dashboardInstance.searchSource?.getOwnField('filter') as Filter[]) || [],
-    savedDashboardState,
+    query: dashboard.searchSource?.getOwnField('query') || getDefaultQuery(services),
+    filters: (dashboard.searchSource?.getOwnField('filter') as Filter[]) || [],
+    panels: dashboard.panels,
+    dashboard: savedDashboardState,
+    ...savedDashboard,
   };
 };

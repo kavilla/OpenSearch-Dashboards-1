@@ -40,7 +40,7 @@ export type SavedDashboardPanel = SavedDashboardPanel730ToLatest;
 
 export interface SavedDashboardState {
   panels: SavedDashboardPanel[];
-  fullScreenMode: boolean;
+  isFullScreenMode: boolean;
   title: string;
   description: string;
   timeRestore: boolean;
@@ -95,9 +95,9 @@ export type NavAction = (anchorElement?: any) => void;
 //  * In URL panels are optional,
 //  * Panels are not added to the URL when in "view" mode
 //  */
-// export type DashboardAppStateInUrl = Omit<DashboardAppState, 'panels'> & {
-//   panels?: SavedDashboardPanel[];
-// };
+export type DashboardAppStateInUrl = Omit<SavedDashboardState, 'panels'> & {
+  panels?: SavedDashboardPanel[];
+};
 
 export interface SavedDashboardPanelMap {
   [key: string]: SavedDashboardPanel;

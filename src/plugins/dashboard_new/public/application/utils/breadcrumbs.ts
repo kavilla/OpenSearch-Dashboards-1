@@ -34,7 +34,7 @@ export function getEditBreadcrumbs(text: string = defaultEditText) {
       text: i18n.translate('dashboard.strings.dashboardEditTitle', {
         defaultMessage: 'Editing {title}',
         values: { title: text },
-      })
+      }),
     },
   ];
 }

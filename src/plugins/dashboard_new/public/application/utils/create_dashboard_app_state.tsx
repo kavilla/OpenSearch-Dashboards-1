@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { DashboardAppStateInUrl } from 'src/plugins/dashboard_new/public/types';
 import { migrateAppState } from '../lib/migrate_app_state';
 import {
   IOsdUrlStateStorage,
@@ -11,58 +12,60 @@ import {
 } from '../../../../opensearch_dashboards_utils/public';
 import { ViewMode } from '../../embeddable_plugin';
 import { getDashboardIdFromUrl } from '../lib';
-import { DashboardAppState, DashboardAppStateTransitions, DashboardServices } from '../types';
-import { DashboardAppStateInUrl } from 'src/plugins/dashboard/public/types';
+import {
+  PureDashboardState,
+  DashboardAppState,
+  DashboardAppStateTransitions,
+  DashboardServices,
+} from '../types';
 
 const STATE_STORAGE_KEY = '_a';
 
 interface Arguments {
+  stateDefaults: PureDashboardState;
   osdUrlStateStorage: IOsdUrlStateStorage;
-  stateDefaults: DashboardAppState;
   services: DashboardServices;
-  instance: any;
 }
+
+const pureTransitions = ({
+  set: (state: any) => (prop: any, value: any) => ({ ...state, [prop]: value }),
+  setDashboard: (state: { dashboard: any }) => (dashboard: any) => ({
+    ...state,
+    dashboard: {
+      ...state.dashboard,
+      ...dashboard,
+    },
+  }),
+} as unknown) as DashboardAppStateTransitions;
 
 export const createDashboardAppState = ({
   stateDefaults,
   osdUrlStateStorage,
   services,
-  instance,
 }: Arguments) => {
   const urlState = osdUrlStateStorage.get<DashboardAppState>(STATE_STORAGE_KEY);
   const { history } = services;
-  const initialState = ({
-      ...stateDefaults,
-      ...urlState,
-    })
+  const initialState = {
+    ...stateDefaults,
+    ...urlState,
+  };
 
-    // export interface DashboardAppStateTransitions {
-    //   set: (
-    //     state: DashboardAppState
-    //   ) => <T extends keyof DashboardAppState>(
-    //     prop: T,
-    //     value: DashboardAppState[T]
-    //   ) => DashboardAppState;
-    //   setDashboard: (
-    //     state: DashboardAppState
-    //   ) => (dashboard: Partial<PureDashboardState>) => DashboardAppState;
-    //   updateDashboardState: (
-    //     state: DashboardAppState
-    //   ) => (dashboard: PureDashboardState) => DashboardAppState;
-    //   updateSavedQuery: (state: DashboardAppState) => (savedQueryId?: string) => DashboardAppState;
-    // }
+  // export interface DashboardAppStateTransitions {
+  //   set: (
+  //     state: DashboardAppState
+  //   ) => <T extends keyof DashboardAppState>(
+  //     prop: T,
+  //     value: DashboardAppState[T]
+  //   ) => DashboardAppState;
+  //   setDashboard: (
+  //     state: DashboardAppState
+  //   ) => (dashboard: Partial<PureDashboardState>) => DashboardAppState;
+  //   updateDashboardState: (
+  //     state: DashboardAppState
+  //   ) => (dashboard: PureDashboardState) => DashboardAppState;
+  //   updateSavedQuery: (state: DashboardAppState) => (savedQueryId?: string) => DashboardAppState;
+  // }
 
-  const pureTransitions = {
-    set: (state) => (prop, value) => ({ ...state, [prop]: value }),
-    setDashboard: (state) => (dashboard) => ({
-      ...state,
-      dashboard: {
-        ...state.dashboard,
-        ...dashboard
-      }
-    }),
-    
-  } as DashboardAppStateTransitions;
   /*
      make sure url ('_a') matches initial state
      Initializing appState does two things - first it translates the defaults into AppState,

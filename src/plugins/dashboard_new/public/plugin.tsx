@@ -134,7 +134,10 @@ import {
 } from '../../opensearch_dashboards_utils/public';
 import { DashboardProvider } from '../common';
 import { Dashboard, SerializedDashboard } from './dashboard';
-import { convertToSerializedDashboard, convertFromSerializedDashboard } from './saved_dashboards/_saved_dashboard';
+import {
+  convertToSerializedDashboard,
+  convertFromSerializedDashboard,
+} from './saved_dashboards/_saved_dashboard';
 declare module '../../share/public' {
   export interface UrlGeneratorStateMapping {
     [DASHBOARD_APP_URL_GENERATOR]: UrlGeneratorState<DashboardUrlGeneratorState>;
@@ -241,7 +244,10 @@ export class DashboardPlugin
       DashboardFeatureFlagConfig
     >();
     const start = createStartServicesGetter(core.getStartServices);
-    start().plugins.SavedObjectFinder = getSavedObjectFinder(start().core.savedObjects, start().core.uiSettings);
+    start().plugins.SavedObjectFinder = getSavedObjectFinder(
+      start().core.savedObjects,
+      start().core.uiSettings
+    );
     const useHideChrome = ({ toggleChrome } = { toggleChrome: true }) => {
       React.useEffect(() => {
         if (toggleChrome) {
@@ -266,10 +272,7 @@ export class DashboardPlugin
     };
     start().plugins.ExitFullScreenButton = ExitFullScreenButton;
 
-    const factory = new DashboardContainerEmbeddableFactory(
-      { start },
-      () => this.currentHistory!
-    );
+    const factory = new DashboardContainerEmbeddableFactory({ start }, () => this.currentHistory!);
     embeddable.registerEmbeddableFactory(factory.type, factory);
 
     const expandPanelAction = new ExpandPanelAction();
@@ -413,7 +416,7 @@ export class DashboardPlugin
             useHash: coreStart.uiSettings.get('state:storeInSessionStorage'),
             ...withNotifyOnErrors(coreStart.notifications.toasts),
           }),
-          //core: coreStart,
+          // core: coreStart,
           dashboardConfig,
           navigateToDefaultApp,
           navigateToLegacyOpenSearchDashboardsUrl,
@@ -444,7 +447,7 @@ export class DashboardPlugin
           inspector: pluginsStart.inspector,
           SavedObjectFinder: pluginsStart.SavedObjectFinder,
           ExitFullScreenButton: pluginsStart.ExitFullScreenButton,
-          uiActions: pluginsStart.uiActions
+          uiActions: pluginsStart.uiActions,
         };
         // make sure the index pattern list is up to date
         await dataStart.indexPatterns.clearCache();
@@ -584,10 +587,10 @@ export class DashboardPlugin
     return {
       getSavedDashboardsLoader: () => savedDashboardsLoader,
       createDashboard: async (dashboardState: SerializedDashboard) => {
-        const dashboard = new Dashboard(dashboardState)
-        await dashboard.setState(dashboardState)
-        return dashboard
-      }, 
+        const dashboard = new Dashboard(dashboardState);
+        await dashboard.setState(dashboardState);
+        return dashboard;
+      },
       convertToSerializedDashboard,
       convertFromSerializedDashboard,
       addEmbeddableToDashboard: this.addEmbeddableToDashboard.bind(this, core),

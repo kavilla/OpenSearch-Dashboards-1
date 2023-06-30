@@ -40,12 +40,8 @@ import {
   convertSavedDashboardPanelToPanelState,
 } from '../../lib/embeddable_saved_object_converters';
 import { DashboardEmptyScreen, DashboardEmptyScreenProps } from '../../dashboard_empty_screen';
-import {
-  DashboardAppState,
-  DashboardAppStateContainer,
-  DashboardServices,
-  SavedDashboardPanel,
-} from '../../types';
+import { DashboardAppState, DashboardAppStateContainer, DashboardServices } from '../../types';
+import { SavedDashboardPanel } from '../../../types';
 import { migrateLegacyQuery } from '../../lib/migrate_legacy_query';
 import { getSavedObjectFinder } from '../../../../../saved_objects/public';
 import { DashboardConstants } from '../../../dashboard_constants';
@@ -136,7 +132,7 @@ const createDashboardEmbeddable = (
 
   const getShouldShowEditHelp = (appStateData: DashboardAppState) => {
     return (
-      !appStateData.panels.length &&
+      !appStateData.panels!.length &&
       appStateData.viewMode === ViewMode.EDIT &&
       !dashboardConfig.getHideWriteControls()
     );
@@ -144,7 +140,7 @@ const createDashboardEmbeddable = (
 
   const getShouldShowViewHelp = (appStateData: DashboardAppState) => {
     return (
-      !appStateData.panels.length &&
+      !appStateData.panels!.length &&
       appStateData.viewMode === ViewMode.VIEW &&
       !dashboardConfig.getHideWriteControls()
     );
@@ -152,12 +148,12 @@ const createDashboardEmbeddable = (
 
   const shouldShowUnauthorizedEmptyState = (appStateData: DashboardAppState) => {
     const readonlyMode =
-      !appStateData.panels.length &&
+      !appStateData.panels!.length &&
       !getShouldShowEditHelp(appStateData) &&
       !getShouldShowViewHelp(appStateData) &&
       dashboardConfig.getHideWriteControls();
     const userHasNoPermissions =
-      !appStateData.panels.length && !visualizeCapabilities.save && !mapsCapabilities.save;
+      !appStateData.panels!.length && !visualizeCapabilities.save && !mapsCapabilities.save;
     return readonlyMode || userHasNoPermissions;
   };
 
@@ -208,7 +204,7 @@ const createDashboardEmbeddable = (
     const embeddablesMap: {
       [key: string]: DashboardPanelState;
     } = {};
-    appStateData.panels.forEach((panel: SavedDashboardPanel) => {
+    appStateData.panels!.forEach((panel: SavedDashboardPanel) => {
       embeddablesMap[panel.panelIndex] = convertSavedDashboardPanelToPanelState(panel);
     });
 
@@ -216,19 +212,19 @@ const createDashboardEmbeddable = (
     return {
       id: savedDash.id || '',
       filters: data.query.filterManager.getFilters(),
-      hidePanelTitles: appStateData.options.hidePanelTitles,
+      hidePanelTitles: appStateData.options!.hidePanelTitles,
       query: data.query.queryString.getQuery(),
       timeRange: data.query.timefilter.timefilter.getTime(),
       refreshConfig: data.query.timefilter.timefilter.getRefreshInterval(),
       viewMode: appStateData.viewMode,
       panels: embeddablesMap,
-      isFullScreenMode: appStateData.fullScreenMode,
+      isFullScreenMode: appStateData.isFullScreenMode,
       isEmbeddedExternally: false, // TODO
       isEmptyState:
         getShouldShowEditHelp(appStateData) ||
         getShouldShowViewHelp(appStateData) ||
         shouldShowUnauthorizedEmptyState(appStateData),
-      useMargins: appStateData.options.useMargins,
+      useMargins: appStateData.options!.useMargins,
       lastReloadRequestTime, // TODO
       title: appStateData.title,
       description: appStateData.description,
@@ -363,7 +359,7 @@ const handleDashboardContainerChanges = (
   const savedDashboardPanelMap: { [key: string]: SavedDashboardPanel } = {};
   const { opensearchDashboardsVersion } = dashboardServices;
   const input = dashboardContainer.getInput();
-  appStateData.panels.forEach((savedDashboardPanel) => {
+  appStateData.panels!.forEach((savedDashboardPanel) => {
     if (input.panels[savedDashboardPanel.panelIndex] !== undefined) {
       savedDashboardPanelMap[savedDashboardPanel.panelIndex] = savedDashboardPanel;
     } else {
@@ -401,8 +397,8 @@ const handleDashboardContainerChanges = (
       // this.saveState({ replace: true });
     }
   }
-  if (input.isFullScreenMode !== appStateData.fullScreenMode) {
-    appState.transitions.set('fullScreenMode', input.isFullScreenMode);
+  if (input.isFullScreenMode !== appStateData.isFullScreenMode) {
+    appState.transitions.set('isFullScreenMode', input.isFullScreenMode);
   }
   if (input.expandedPanelId !== appStateData.expandedPanelId) {
     appState.transitions.set('expandedPanelId', input.expandedPanelId);

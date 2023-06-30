@@ -30,7 +30,7 @@
 
 import { nextTick } from 'test_utils/enzyme_helpers';
 import { isErrorEmbeddable, ViewMode } from '../../embeddable_plugin';
-import { DashboardContainerEmbeddable, DashboardContainerEmbeddableOptions } from './dashboard_container_embeddable';
+import { DashboardContainerEmbeddable, DashboardContainerEmbeddableConfiguration } from './dashboard_container_embeddable';
 import { getSampleDashboardInput, getSampleDashboardPanel } from '../test_helpers';
 import {
   CONTACT_CARD_EMBEDDABLE,
@@ -41,15 +41,18 @@ import {
 } from '../../embeddable_plugin_test_samples';
 import { embeddablePluginMock } from 'src/plugins/embeddable/public/mocks';
 
-const options: DashboardContainerEmbeddableOptions = {
-  application: {} as any,
-  embeddable: {} as any,
-  notifications: {} as any,
-  overlays: {} as any,
-  inspector: {} as any,
-  SavedObjectFinder: () => null,
-  ExitFullScreenButton: () => null,
-  uiActions: {} as any,
+const options: DashboardContainerEmbeddableConfiguration = {
+  savedDashboard: {} as any,
+  deps: {
+    application: {} as any,
+    embeddable: {} as any,
+    notifications: {} as any,
+    overlays: {} as any,
+    inspector: {} as any,
+    SavedObjectFinder: () => null,
+    ExitFullScreenButton: () => null,
+    uiActions: {} as any,
+  }
 };
 
 beforeEach(() => {
@@ -58,7 +61,7 @@ beforeEach(() => {
     CONTACT_CARD_EMBEDDABLE,
     new ContactCardEmbeddableFactory((() => null) as any, {} as any)
   );
-  options.embeddable = doStart();
+  options.deps.embeddable = doStart();
 });
 
 test('DashboardContainerEmbeddable initializes embeddables', (done) => {

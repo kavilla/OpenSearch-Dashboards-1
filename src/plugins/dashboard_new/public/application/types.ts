@@ -41,15 +41,28 @@ import { PublicContract } from '@osd/utility-types';
 import { UiActionsStart } from '../ui_actions_plugin';
 import { DashboardCapabilities, DashboardProvider } from '../../common';
 import { SavedDashboardState } from '../types';
-import { Dashboard } from '../dashboard';
-import { SavedObjectDashboard } from 'src/plugins/dashboard/public';
+import { Dashboard, SerializedDashboard } from '../dashboard';
+import { SavedDashboardPanel, DashboardSavedObject } from 'src/plugins/dashboard_new/public';
 
 export type PureDashboardState = SavedDashboardState;
 export interface DashboardAppState {
-  query: Query | string;
+  panels: SavedDashboardPanel[];
+  isFullScreenMode: boolean;
+  title: string;
+  description: string;
+  timeRange: TimeRange;
+  timeRestore?: boolean;
+  options: {
+    hidePanelTitles: boolean;
+    useMargins: boolean;
+  };
+  query: Query;
   filters: Filter[];
+  viewMode: ViewMode;
+  expandedPanelId?: string;
   savedQuery?: string;
-  dashboard: PureDashboardState;
+  savedDashboard: SerializedDashboard;
+  useMargins: boolean;
 }
 
 // TODO: dashboardNew -- setOptions() is needed?
@@ -75,6 +88,7 @@ export type DashboardAppStateContainer = ReduxLikeStateContainer<
 
 export type DashboardAppStateDefaults = DashboardAppState & {
   description?: string;
+  id?: string;
 };
 
 export interface EditorRenderProps {
@@ -106,6 +120,7 @@ export interface DashboardServices extends CoreStart {
   dashboardCapabilities: DashboardCapabilities;
   dashboards: DashboardStart;
   savedObjectsPublic: SavedObjectsStart;
+  // TODO: change this name to be function like
   savedDashboards: DashboardStart['getSavedDashboardsLoader'];
   //setActiveUrl,
   restorePreviousUrl: () => void;
@@ -126,6 +141,10 @@ export interface DashboardServices extends CoreStart {
   navigateToDefaultApp: UrlForwardingStart['navigateToDefaultApp'];
   navigateToLegacyOpenSearchDashboardsUrl: UrlForwardingStart['navigateToLegacyOpenSearchDashboardsUrl'];
   addBasePath?: (url: string) => string;
+  inspector: InspectorStartContract,
+  SavedObjectFinder: React.ComponentType<any>,
+  ExitFullScreenButton: React.ComponentType<any>,
+  uiActions: UiActionsStart
 }
 
 export interface ISavedDashboard {
@@ -139,8 +158,8 @@ export type DashboardEmbeddableContract = PublicContract<DashboardContainerEmbed
 
 export interface SavedDashboardInstance {
   dashboard: Dashboard;
-  savedDashboard: SavedObjectDashboard; 
-  savedSearch?: SavedObject;
+  savedDashboard: DashboardSavedObject; 
+  //savedSearch?: SavedObject;
   embeddableHandler: DashboardEmbeddableContract;
 }
 

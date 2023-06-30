@@ -29,22 +29,31 @@
  */
 
 import { ViewMode } from '../../embeddable_plugin';
-import { SavedObjectDashboard } from '../../saved_dashboards';
+import { DashboardSavedObject } from '../../types';
 import { DashboardAppStateDefaults } from '../types';
+import { SerializedDashboard } from '../../dashboard';
 
 export function getAppStateDefaults(
-  savedDashboard: SavedObjectDashboard,
+  savedDashboard: DashboardSavedObject,
+  serializedDashboard: SerializedDashboard,
   hideWriteControls: boolean
 ): DashboardAppStateDefaults {
   return {
-    fullScreenMode: false,
-    title: savedDashboard.title,
+    savedDashboard: serializedDashboard,
+    isFullScreenMode: false,
+    title: savedDashboard.title || '',
     description: savedDashboard.description || '',
+    timeRange: {
+      from: savedDashboard.timeFrom!,
+      to: savedDashboard.timeTo!
+    },
     timeRestore: savedDashboard.timeRestore,
     panels: savedDashboard.panelsJSON ? JSON.parse(savedDashboard.panelsJSON) : [],
     options: savedDashboard.optionsJSON ? JSON.parse(savedDashboard.optionsJSON) : {},
     query: savedDashboard.getQuery(),
-    filters: savedDashboard.getFilters(),
+    filters: savedDashboard.getFilters() ?  savedDashboard.getFilters(): [],
     viewMode: savedDashboard.id || hideWriteControls ? ViewMode.VIEW : ViewMode.EDIT,
+    useMargins: true, // TODO: dashboardNew -- not saved?
+    id: savedDashboard.id || ''
   };
 }

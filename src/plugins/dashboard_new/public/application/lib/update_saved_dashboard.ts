@@ -31,12 +31,12 @@
 import _ from 'lodash';
 import { Query, RefreshInterval, TimefilterContract } from 'src/plugins/data/public';
 import { FilterUtils } from './filter_utils';
-import { SavedObjectDashboard } from '../../saved_dashboards';
-import { DashboardAppState } from '../../types';
 import { opensearchFilters } from '../../../../data/public';
+import { DashboardAppState } from '../types';
+import { DashboardSavedObject } from '../../types';
 
 export function updateSavedDashboard(
-  savedDashboard: SavedObjectDashboard,
+  savedDashboard: DashboardSavedObject,
   appState: DashboardAppState,
   timeFilter: TimefilterContract
 ) {

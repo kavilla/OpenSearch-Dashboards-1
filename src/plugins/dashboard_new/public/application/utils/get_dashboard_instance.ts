@@ -9,59 +9,63 @@
  * GitHub history for details.
  */
 
-import {
-    SerializedVis,
-    Vis,
-    VisSavedObject,
-    VisualizeEmbeddableContract,
-    VisualizeInput,
-  } from 'src/plugins/visualizations/public';
-  import { SearchSourceFields } from 'src/plugins/data/public';
-  import { SavedObject } from 'src/plugins/saved_objects/public';
-  import { cloneDeep } from 'lodash';
-  import { ExpressionValueError } from 'src/plugins/expressions/public';
-  import { createSavedSearchesLoader } from '../../../../discover/public';
-  import { DashboardEmbeddableContract, DashboardServices } from '../types';
-import { Dashboard } from '../../dashboard';
-import { SavedObjectDashboard } from 'src/plugins/dashboard/public';
+import { Dashboard, DashboardContainerEmbeddable } from 'src/plugins/dashboard_new/public';
+import { DashboardServices } from '../types';
+import { DashboardSavedObject } from '../../types';
+import { getAppStateDefaults } from '../lib';
+import { SerializedDashboard } from '../../dashboard';
   
-  const createDashboardEmbeddable = async (
-    dashboard: Dashboard,
-    dashboardServices: DashboardServices
-  ) => {
-    const { data } = dashboardServices;
-    const embeddableHandler = new DashboardEmbeddable(dashboard, {
-      timeRange: data.query.timefilter.timefilter.getTime(),
-      filters: data.query.filterManager.getFilters(),
-      id: '',
-    }) as DashboardEmbeddableContract;
+export const getDashboardInstance = async (
+  dashboardServices: DashboardServices,
+  /**
+   * opts can be either a saved dashboard id passed as string,
+   * or an object of new dashboard params.
+   * Both come from url search query
+   */
+  opts?: Record<string, unknown> | string
+) => {
+  const { scopedHistory, embeddable, dashboards, savedDashboards } = dashboardServices;
   
-    return embeddableHandler;
-  };
-  
-  export const getDashboardInstance = async (
-    dashboardServices: DashboardServices,
-    /**
-     * opts can be either a saved dashboard id passed as string,
-     * or an object of new dashboard params.
-     * Both come from url search query
-     */
-    opts?: Record<string, unknown> | string
-  ) => {
-    const { dashboards, savedDashboards } = dashboardServices;
-    const savedDashboard: SavedObjectDashboard = await savedDashboards().get(opts);
+  // Get the existing dashboard/default new dashboard from saved object loader
+  const savedDashboard: DashboardSavedObject = await savedDashboards().get(opts);
+  // Serialized the saved object dashboard
+  const serializedDashboard = dashboards.convertToSerializedDashboard(savedDashboard);
+  // Create a Dashboard class using the serialized dashboard
+  let dashboard = await dashboards.createDashboard(serializedDashboard) as Dashboard;
 
-    const serializedDashboard = dashboards.convertToSerializedDashboard(savedDashboard)
-    let dashboard = await dashboards.createDashboard(serializedDashboard)
-  
-    const embeddableHandler = await createDashboardEmbeddable(
-      dashboard,
-      dashboardServices
-    );
-    return {
-      dashboard,
-      embeddableHandler,
-      savedDashboard
-    };
+  const stateTransfer = embeddable.getStateTransfer(scopedHistory);
+  const appStateDefaults = getAppStateDefaults(savedDashboard, serializedDashboard, true);
+
+  // WHAT WE NEED:
+  // panels: {
+  //   [panelId: string]: DashboardPanelState<EmbeddableInput & { [k: string]: unknown }>;
+  // };
+
+  //WHAT WE PASS IN NOW
+//   export type SavedDashboardPanel730ToLatest = Pick<
+//   RawSavedDashboardPanel730ToLatest,
+//   Exclude<keyof RawSavedDashboardPanel730ToLatest, 'name'>
+// > & {
+//   readonly id?: string;
+//   readonly type: string;
+// };
+
+  // Create the dashboard container embeddable
+  const embeddableHandler = new DashboardContainerEmbeddable(
+    {
+      ...appStateDefaults
+    },
+    {
+      savedDashboard: dashboard,
+      deps: dashboardServices
+    },
+    stateTransfer,
+    parent
+  )
+  return {
+    dashboard,
+    embeddableHandler,
+    savedDashboard
   };
+};
   

@@ -31,10 +31,12 @@
 import { PluginInitializerContext } from '../../../core/public';
 import { DashboardPlugin } from './plugin';
 
+import { DashboardContainerEmbeddableFactory, DashboardContainerEmbeddable } from './application';
+
 export {
   DashboardContainerEmbeddable,
   DashboardContainerEmbeddableInput,
-  DashboardContainerFactoryDefinition,
+  DashboardContainerEmbeddableFactoryContract,
   DASHBOARD_CONTAINER_TYPE,
   // Types below here can likely be made private when dashboard app moved into this NP plugin.
   DEFAULT_PANEL_WIDTH,

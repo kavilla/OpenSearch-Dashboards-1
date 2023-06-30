@@ -50,17 +50,18 @@ import {
 import { SavedDashboardPanel } from '../../types';
 import { DashboardPanelState } from './types';
 
-// Can just use DashboardServices
+
 export interface DashboardContainerEmbeddableFactoryDeps {
   start: StartServicesGetter<DashboardStartDeps>
 }
 
-export type DashboardContainerFactory = EmbeddableFactory<
+export type DashboardContainerEmbeddableFactoryContract = EmbeddableFactory<
   DashboardContainerEmbeddableInput,
   ContainerOutput,
   DashboardContainerEmbeddable
 >;
-export class DashboardContainerFactoryDefinition
+
+export class DashboardContainerEmbeddableFactory
   implements
     EmbeddableFactoryDefinition<DashboardContainerEmbeddableInput, ContainerOutput, DashboardContainerEmbeddable> {
   public readonly isContainerType = true;

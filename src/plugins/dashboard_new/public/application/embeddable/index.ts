@@ -28,11 +28,11 @@
  * under the License.
  */
 
-export {
-  DashboardContainerFactoryDefinition,
-  DashboardContainerFactory,
-} from './dashboard_container_embeddable_factory';
 export { DashboardContainerEmbeddable, DashboardContainerEmbeddableInput } from './dashboard_container_embeddable';
+export {
+  DashboardContainerEmbeddableFactory,
+  DashboardContainerEmbeddableFactoryContract,
+} from './dashboard_container_embeddable_factory';
 export { createPanelState } from './panel';
 
 export * from './types';

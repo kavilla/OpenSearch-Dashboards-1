@@ -11,15 +11,19 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { PublicContract } from '@osd/utility-types';
 import { Router } from 'react-router-dom';
 import { AppMountParameters } from 'opensearch-dashboards/public';
 import { OpenSearchDashboardsContextProvider } from '../../../opensearch_dashboards_react/public';
 import { addHelpMenuToAppChrome } from './help_menu/help_menu_util';
 import { DashboardApp } from './app';
-import { DashboardServices } from '../types';
+import { DashboardServices } from './types';
+import { DashboardContainerEmbeddable } from './embeddable';
+
 export * from './embeddable';
 export * from './actions';
 export * from './types';
+export type DashboardContainerEmbeddableContract = PublicContract<DashboardContainerEmbeddable>;
 
 export const renderApp = (
   { element, appBasePath, onAppLeave }: AppMountParameters,

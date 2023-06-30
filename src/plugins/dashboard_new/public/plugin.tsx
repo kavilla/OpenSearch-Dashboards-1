@@ -95,8 +95,8 @@ import {
   ClonePanelActionContext,
   createDashboardContainerByValueRenderer,
   DASHBOARD_CONTAINER_TYPE,
-  DashboardContainerFactory,
-  DashboardContainerFactoryDefinition,
+  DashboardContainerEmbeddableFactory,
+  DashboardContainerEmbeddableFactoryContract,
   ExpandPanelAction,
   ExpandPanelActionContext,
   ReplacePanelAction,
@@ -222,8 +222,6 @@ declare module '../../../plugins/ui_actions/public' {
 
 export class DashboardPlugin
   implements Plugin<DashboardSetup, DashboardStart, DashboardSetupDeps, DashboardStartDeps> {
-  private getStartServicesOrDie?: StartServicesGetter<DashboardStartDeps, DashboardStart>;
-
   constructor(private initializerContext: PluginInitializerContext) {}
 
   private appStateUpdater = new BehaviorSubject<AppUpdater>(() => ({}));
@@ -242,69 +240,53 @@ export class DashboardPlugin
     this.dashboardFeatureFlagConfig = this.initializerContext.config.get<
       DashboardFeatureFlagConfig
     >();
-    const start = (this.getStartServicesOrDie = createStartServicesGetter(core.getStartServices));
-
-    const expandPanelAction = new ExpandPanelAction();
-    uiActions.registerAction(expandPanelAction);
-    uiActions.attachAction(CONTEXT_MENU_TRIGGER, expandPanelAction.id);
-    const startServices = core.getStartServices();
-
-    if (share) {
-      this.dashboardUrlGenerator = share.urlGenerators.registerUrlGenerator(
-        createDashboardUrlGenerator(async () => {
-          const [coreStart, , selfStart] = await startServices;
-          return {
-            appBasePath: coreStart.application.getUrlForApp('dashboards'),
-            useHashedUrl: coreStart.uiSettings.get('state:storeInSessionStorage'),
-            savedDashboardLoader: selfStart.getSavedDashboardsLoader(),
-          };
-        })
-      );
-    }
-
-    const getStartServices = async () => {
-      const [coreStart, deps] = await core.getStartServices();
-
-      const useHideChrome = ({ toggleChrome } = { toggleChrome: true }) => {
-        React.useEffect(() => {
-          if (toggleChrome) {
-            coreStart.chrome.setIsVisible(false);
-          }
-
-          return () => {
-            if (toggleChrome) {
-              coreStart.chrome.setIsVisible(true);
-            }
-          };
-        }, [toggleChrome]);
-      };
-
-      const ExitFullScreenButton: React.FC<
-        ExitFullScreenButtonProps & {
-          toggleChrome: boolean;
+    const start = createStartServicesGetter(core.getStartServices);
+    start().plugins.SavedObjectFinder = getSavedObjectFinder(start().core.savedObjects, start().core.uiSettings);
+    const useHideChrome = ({ toggleChrome } = { toggleChrome: true }) => {
+      React.useEffect(() => {
+        if (toggleChrome) {
+          start().core.chrome.setIsVisible(false);
         }
-      > = ({ toggleChrome, ...props }) => {
-        useHideChrome({ toggleChrome });
-        return <ExitFullScreenButtonUi {...props} />;
-      };
-      return {
-        capabilities: coreStart.application.capabilities,
-        application: coreStart.application,
-        notifications: coreStart.notifications,
-        overlays: coreStart.overlays,
-        embeddable: deps.embeddable,
-        inspector: deps.inspector,
-        SavedObjectFinder: getSavedObjectFinder(coreStart.savedObjects, coreStart.uiSettings),
-        ExitFullScreenButton,
-        uiActions: deps.uiActions,
-      };
+
+        return () => {
+          if (toggleChrome) {
+            start().core.chrome.setIsVisible(true);
+          }
+        };
+      }, [toggleChrome]);
     };
 
-    const factory = new DashboardContainerFactoryDefinition(
+    const ExitFullScreenButton: React.FC<
+      ExitFullScreenButtonProps & {
+        toggleChrome: boolean;
+      }
+    > = ({ toggleChrome, ...props }) => {
+      useHideChrome({ toggleChrome });
+      return <ExitFullScreenButtonUi {...props} />;
+    };
+    start().plugins.ExitFullScreenButton = ExitFullScreenButton;
+
+    const factory = new DashboardContainerEmbeddableFactory(
       { start },
       () => this.currentHistory!
     );
     embeddable.registerEmbeddableFactory(factory.type, factory);
+
+    const expandPanelAction = new ExpandPanelAction();
+    uiActions.registerAction(expandPanelAction);
+    uiActions.attachAction(CONTEXT_MENU_TRIGGER, expandPanelAction.id);
+
+    if (share) {
+      this.dashboardUrlGenerator = share.urlGenerators.registerUrlGenerator(
+        createDashboardUrlGenerator(async () => {
+          return {
+            appBasePath: start().core.application.getUrlForApp('dashboards'),
+            useHashedUrl: start().core.uiSettings.get('state:storeInSessionStorage'),
+            savedDashboardLoader: start().plugins.dashboard.getSavedDashboardsLoader(),
+          };
+        })
+      );
+    }
 
     const placeholderFactory = new PlaceholderEmbeddableFactory();
     embeddable.registerEmbeddableFactory(placeholderFactory.type, placeholderFactory);
@@ -459,6 +441,10 @@ export class DashboardPlugin
           savedObjectsPublic: savedObjects,
           restorePreviousUrl,
           toastNotifications: coreStart.notifications.toasts,
+          inspector: pluginsStart.inspector,
+          SavedObjectFinder: pluginsStart.SavedObjectFinder,
+          ExitFullScreenButton: pluginsStart.ExitFullScreenButton,
+          uiActions: pluginsStart.uiActions
         };
         // make sure the index pattern list is up to date
         await dataStart.indexPatterns.clearCache();
@@ -593,7 +579,7 @@ export class DashboardPlugin
     });
     const dashboardContainerFactory = plugins.embeddable.getEmbeddableFactory(
       DASHBOARD_CONTAINER_TYPE
-    )! as DashboardContainerFactory;
+    )! as DashboardContainerEmbeddableFactoryContract;
 
     return {
       getSavedDashboardsLoader: () => savedDashboardsLoader,

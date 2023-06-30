@@ -29,12 +29,12 @@ export interface SerializedDashboard {
     useMargins: boolean;
   };
   uiState?: string;
-  lastSavedTitle?: string; // TODO: DO WE STILL NEED THIS?
+  lastSavedTitle: string; // TODO: DO WE STILL NEED THIS?
   refreshInterval?: RefreshInterval; // TODO: SHOULD THIS NOT BE OPTIONAL?
   searchSource?: ISearchSource;
   query: Query;
   filters: Filter[];
-  title: string;
+  title?: string;
 }
 
 export interface DashboardParams {
@@ -61,7 +61,7 @@ export class Dashboard<TDashboardParams = DashboardParams> {
   public searchSource?: ISearchSource;
   public query: Query;
   public filters: Filter[];
-  public title: string = '';
+  public title?: string;
 
   constructor(dashboardState: SerializedDashboard = {} as any) {
     this.id = dashboardState.id;
@@ -116,12 +116,12 @@ export class Dashboard<TDashboardParams = DashboardParams> {
     return cloneDeep(refreshInterval ?? {});
   }
 
-  private getQuery(query: Query) {
-    return cloneDeep(query ?? {});
+  private getQuery(query: Query) : Query {
+    return cloneDeep(query ?? {} as Query);
   }
 
   private getFilters(filters: Filter[]) {
-    return cloneDeep(filters ?? {});
+    return cloneDeep(filters ?? {} as Filter[]);
   }
 
   clone() {
@@ -146,7 +146,7 @@ export class Dashboard<TDashboardParams = DashboardParams> {
       searchSource: this.searchSource,
       query: this.query,
       filters: this.filters,
-      title: this.title
+      title: this.title!
     };
   }
 }

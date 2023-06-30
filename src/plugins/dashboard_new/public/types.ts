@@ -54,7 +54,7 @@ export interface SavedDashboardState {
 
 export interface ISavedDashboard {
   id?: string;
-  timeRestore: boolean;
+  timeRestore?: boolean;
   timeTo?: string;
   timeFrom?: string;
   description?: string;

@@ -31,8 +31,7 @@
 import { TimefilterContract } from 'src/plugins/data/public';
 import { SavedObjectSaveOpts } from 'src/plugins/saved_objects/public';
 import { updateSavedDashboard } from './update_saved_dashboard';
-
-import { DashboardAppStateContainer } from '../../types';
+import { DashboardAppStateContainer } from '../types';
 
 /**
  * Saves the dashboard.

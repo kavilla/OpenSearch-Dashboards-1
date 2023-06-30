@@ -30,7 +30,7 @@
 
 import * as React from 'react';
 import { DashboardContainerEmbeddableInput } from './dashboard_container_embeddable';
-import { DashboardContainerFactory } from './dashboard_container_embeddable_factory';
+import { DashboardContainerEmbeddableFactoryContract } from './dashboard_container_embeddable_factory';
 import { EmbeddableRenderer } from '../../../../embeddable/public';
 
 interface Props {
@@ -42,7 +42,7 @@ interface Props {
 export const createDashboardContainerByValueRenderer = ({
   factory,
 }: {
-  factory: DashboardContainerFactory;
+  factory: DashboardContainerEmbeddableFactoryContract;
 }): React.FC<Props> => (props: Props) => (
   <EmbeddableRenderer input={props.input} onInputUpdated={props.onInputUpdated} factory={factory} />
 );

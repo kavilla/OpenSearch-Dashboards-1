@@ -13,6 +13,7 @@ import {
 import { DashboardConstants } from '../../../dashboard_constants';
 import { DashboardServices, IEditorController, SavedDashboardInstance } from '../../types';
 import { getDashboardInstance } from '../get_dashboard_instance';
+import { getCreateBreadcrumbs, getEditBreadcrumbs } from '../breadcrumbs';
 
 /**
  * This effect is responsible for instantiating a saved dashboard or creating a new one
@@ -24,11 +25,10 @@ export const useSavedDashboardInstance = (
   isChromeVisible: boolean | undefined,
   dashboardIdFromUrl: string | undefined
 ) => {
-  //const [savedDashboardInstance, setSavedDashboardInstance] = useState<any>();
   const [state, setState] = useState<{
     savedDashboardInstance?: SavedDashboardInstance;
     dashboardEditorController?: IEditorController;
-  }>
+  }>({})
   const dashboardEditorRef = useRef<HTMLDivElement>(null)
   const dashboardId = useRef('');
 
@@ -113,12 +113,22 @@ export const useSavedDashboardInstance = (
           }
         }
 
+        // QUESTION: why do i have this error -- used before assigned, i am doing what visualize is doing
         const { embeddableHandler, savedDashboard, dashboard} = savedDashboardInstance;
+
+        // TODO: Finish breadcrumb logics --> saved/unsaved
+        if (savedDashboard.id) {
+          chrome.setBreadcrumbs(getEditBreadcrumbs(savedDashboard.title));
+          chrome.docTitle.change(savedDashboard.title);
+        } else {
+          chrome.setBreadcrumbs(getCreateBreadcrumbs());
+        }
 
         let dashboardEditorController;
         // do not create editor in embeded mode
         if (isChromeVisible) {
-          const Editor = DefaultEditorController;
+          // QUESTION: Do we also create a editor controller here?
+          const Editor = DashboardEditorController;
           dashboardEditorController = new Editor(
             dashboardEditorRef.current,
             dashboard,
@@ -130,7 +140,7 @@ export const useSavedDashboardInstance = (
         }
 
         setState({
-          savedDashboard,
+          savedDashboardInstance,
           dashboardEditorController
         });
       } catch (error) {
@@ -154,13 +164,16 @@ export const useSavedDashboardInstance = (
     } else if (
       dashboardIdFromUrl &&
       dashboardId.current !== dashboardIdFromUrl &&
-      savedDashboardInstance?.id !== dashboardIdFromUrl
+      state.savedDashboardInstance?.savedDashboard.id !== dashboardIdFromUrl
     ) {
       dashboardId.current = dashboardIdFromUrl;
-      setSavedDashboardInstance({});
+      setState({});
       getSavedDashboardInstance();
     }
-  }, [eventEmitter, isChromeVisible, services, savedDashboardInstance, dashboardIdFromUrl]);
+  }, [eventEmitter, isChromeVisible, services, state.savedDashboardInstance, state.dashboardEditorController, dashboardIdFromUrl]);
 
-  return savedDashboardInstance;
+  return {
+    ...state,
+    dashboardEditorRef
+  };
 };

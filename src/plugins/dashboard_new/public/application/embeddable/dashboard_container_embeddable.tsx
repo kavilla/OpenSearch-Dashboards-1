@@ -57,6 +57,7 @@ import { PanelPlacementMethod, IPanelPlacementArgs } from './panel/dashboard_pan
 import { EmbeddableStateTransfer, EmbeddableOutput } from '../../../../embeddable/public';
 import { SerializedDashboard, Dashboard } from '../../dashboard';
 import { DashboardStartDeps } from '../../plugin';
+import { SavedDashboardPanel } from '../../types';
 
 export interface DashboardContainerEmbeddableFactoryDeps {
   application: DashboardStartDeps['application'];
@@ -78,7 +79,7 @@ export interface DashboardContainerEmbeddableInput extends ContainerInput {
   savedDashboard: SerializedDashboard; 
   viewMode: ViewMode;
   filters: Filter[];
-  query: Query;
+  query: Query ;
   timeRange: TimeRange;
   refreshConfig?: RefreshInterval;
   expandedPanelId?: string;

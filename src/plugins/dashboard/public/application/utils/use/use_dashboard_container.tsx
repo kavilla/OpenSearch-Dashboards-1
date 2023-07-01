@@ -5,22 +5,14 @@
 
 import React, { useState } from 'react';
 import { cloneDeep, isEqual } from 'lodash';
-import { EMPTY, Observable, Subscription, merge, of, pipe } from 'rxjs';
-import {
-  catchError,
-  distinctUntilChanged,
-  filter,
-  map,
-  mapTo,
-  startWith,
-  switchMap,
-} from 'rxjs/operators';
+import { EMPTY, Subscription, merge } from 'rxjs';
+import { catchError, distinctUntilChanged, map, mapTo, startWith, switchMap } from 'rxjs/operators';
 import deepEqual from 'fast-deep-equal';
 import { EventEmitter } from 'stream';
 import { useEffect } from 'react';
 import { i18n } from '@osd/i18n';
 import _ from 'lodash';
-import { IndexPattern, opensearchFilters } from '../../../../../data/public';
+import { opensearchFilters } from '../../../../../data/public';
 import {
   DASHBOARD_CONTAINER_TYPE,
   DashboardContainer,

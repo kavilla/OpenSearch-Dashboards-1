@@ -63,7 +63,8 @@ export const useDashboardContainer = (
             savedDashboardInstance,
             services,
             appState,
-            dashboard
+            dashboard,
+            eventEmitter
           );
 
           setDashboardContainer(dashboardContainerEmbeddable);
@@ -79,7 +80,7 @@ export const useDashboardContainer = (
     };
 
     getDashboardContainer();
-  }, [savedDashboardInstance, appState, services, dashboard]);
+  }, [savedDashboardInstance, appState, services, dashboard, eventEmitter]);
 
   useEffect(() => {
     const incomingEmbeddable = services.embeddable
@@ -104,11 +105,10 @@ const createDashboardEmbeddable = (
   savedDash: any,
   dashboardServices: DashboardServices,
   appState: DashboardAppStateContainer,
-  dashboard: Dashboard
+  dashboard: Dashboard,
+  eventEmitter: EventEmitter
 ) => {
   let dashboardContainer: DashboardContainer;
-  let inputSubscription: Subscription | undefined;
-  let outputSubscription: Subscription | undefined;
 
   const {
     embeddable,
@@ -201,8 +201,8 @@ const createDashboardEmbeddable = (
     return emptyScreenProps;
   };
 
-  const getDashboardInput = () => {
-    const appStateData = appState.getState();
+  const getDashboardInput = (currentAppState?: any) => {
+    const appStateData = currentAppState ? currentAppState : appState.getState();
     const embeddablesMap: {
       [key: string]: DashboardPanelState;
     } = {};
@@ -253,13 +253,15 @@ const createDashboardEmbeddable = (
             ) : null;
           };
 
-          dashboardContainer.getChangesFromAppStateForContainerState = (currentContainer: any) => {
-            const appStateDashboardInput = getDashboardInput();
+          dashboardContainer.getChangesFromAppStateForContainerState = (
+            currentContainerState: any
+          ) => {
+            const appStateDashboardInput = getDashboardInput(currentContainerState);
             if (!dashboardContainer || isErrorEmbeddable(dashboardContainer)) {
               return appStateDashboardInput;
             }
 
-            const containerInput = currentContainer.getInput();
+            const containerInput = dashboardContainer.getInput();
             const differences: Partial<DashboardContainerInput> = {};
 
             // Filters shouldn't  be compared using regular isEqual
@@ -289,9 +291,7 @@ const createDashboardEmbeddable = (
             return Object.values(differences).length === 0 ? undefined : cloneDeep(differences);
           };
 
-          // TODO: handle dashboard container input and output subsciptions
-          // issue:
-          outputSubscription = merge(
+          merge(
             // output of dashboard container itself
             dashboardContainer.getOutput$(),
             // plus output of dashboard container children,
@@ -317,7 +317,7 @@ const createDashboardEmbeddable = (
             )
             .subscribe();
 
-          inputSubscription = dashboardContainer.getInput$().subscribe(() => {
+          dashboardContainer.getInput$().subscribe(() => {
             // This has to be first because handleDashboardContainerChanges causes
             // appState.save which will cause refreshDashboardContainer to be called.
 
@@ -340,7 +340,13 @@ const createDashboardEmbeddable = (
               appState.transitions.set('query', queryStringManager.getQuery());
             }
             // triggered when dashboard embeddable container has changes, and update the appState
-            handleDashboardContainerChanges(container, appState, dashboardServices, dashboard);
+            handleDashboardContainerChanges(
+              container,
+              appState,
+              dashboardServices,
+              dashboard,
+              eventEmitter
+            );
           });
           return dashboardContainer;
         }
@@ -353,7 +359,8 @@ const handleDashboardContainerChanges = (
   dashboardContainer: DashboardContainer,
   appState: DashboardAppStateContainer,
   dashboardServices: DashboardServices,
-  dashboard: Dashboard
+  dashboard: Dashboard,
+  eventEmitter: EventEmitter
 ) => {
   let dirty = false;
   let dirtyBecauseOfInitialStateMigration = false;
@@ -409,4 +416,6 @@ const handleDashboardContainerChanges = (
   if (!isEqual(input.query, migrateLegacyQuery(appState.get().query))) {
     appState.transitions.set('query', input.query);
   }
+
+  appState.transitions.set('isDirty', dirty);
 };

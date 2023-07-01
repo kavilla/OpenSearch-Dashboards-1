@@ -4,7 +4,7 @@
  */
 
 import EventEmitter from 'events';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { merge } from 'rxjs';
 import { DashboardAppState, DashboardAppStateContainer, DashboardServices } from '../../../types';
 import { DashboardContainer } from '../../embeddable';
@@ -24,6 +24,8 @@ export const useEditorUpdates = (
   // The specific behaviors need to check the functional tests and previous dashboard
   // const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [currentAppState, setCurrentAppState] = useState<DashboardAppState>();
+  const previousAppStateRef = useRef<DashboardAppState>();
+
   const dashboardDom = document.getElementById('dashboardViewport');
 
   const {
@@ -36,23 +38,29 @@ export const useEditorUpdates = (
       setCurrentAppState(initialState);
 
       const refreshDashboardContainer = () => {
-        if (dashboardContainer.getChangesFromAppStateForContainerState) {
-          const changes = dashboardContainer.getChangesFromAppStateForContainerState(
-            dashboardContainer
-          );
-          if (changes) {
-            dashboardContainer.updateInput(changes);
+        if (!dashboardContainer.getChangesFromAppStateForContainerState) {
+          return;
+        }
 
-            if (changes.filters || changes.query || changes.timeRange || changes.refreshConfig) {
-              appState.transitions.set('isDirty', true);
-            }
+        const changes = dashboardContainer.getChangesFromAppStateForContainerState(
+          previousAppStateRef.current
+        );
+
+        if (changes) {
+          dashboardContainer.updateInput(changes);
+
+          if (changes.filters || changes.query || changes.timeRange || changes.refreshConfig) {
+            appState.transitions.set('isDirty', true);
           }
         }
       };
 
+      // eventEmitter.on('dirtyStateChange', refreshDashboardContainer);
+
       const unsubscribeStateUpdates = appState.subscribe((state) => {
         // If app state is changes, then set unsaved changes to true
         // the only thing app state is not tracking is the time filter, need to check the previous dashboard if they count time filter change or not
+        previousAppStateRef.current = currentAppState;
         setCurrentAppState(state);
         refreshDashboardContainer();
       });
@@ -82,6 +90,8 @@ export const useEditorUpdates = (
     isEmbeddableRendered,
     timefilter,
     dashboard,
+    previousAppStateRef,
+    currentAppState,
   ]);
 
   useEffect(() => {

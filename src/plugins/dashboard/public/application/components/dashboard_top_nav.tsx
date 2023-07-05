@@ -4,7 +4,7 @@
  */
 
 import React, { memo, useState, useEffect } from 'react';
-import { Filter, IndexPattern } from 'src/plugins/data/public';
+import { IndexPattern } from 'src/plugins/data/public';
 import { useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useOpenSearchDashboards } from '../../../../opensearch_dashboards_react/public';
@@ -17,12 +17,12 @@ import { Dashboard } from '../../dashboard';
 interface DashboardTopNavProps {
   isChromeVisible: boolean;
   savedDashboardInstance: any;
-  stateContainer: DashboardAppStateContainer;
+  appState: DashboardAppStateContainer;
   dashboard: Dashboard;
   currentAppState: DashboardAppState;
   isEmbeddableRendered: boolean;
   indexPatterns: IndexPattern[];
-  dashboardContainer?: DashboardContainer;
+  currentContainer?: DashboardContainer;
   dashboardIdFromUrl?: string;
 }
 
@@ -37,11 +37,11 @@ export enum UrlParams {
 const TopNav = ({
   isChromeVisible,
   savedDashboardInstance,
-  stateContainer,
+  appState,
   dashboard,
   currentAppState,
   isEmbeddableRendered,
-  dashboardContainer,
+  currentContainer,
   indexPatterns,
   dashboardIdFromUrl,
 }: DashboardTopNavProps) => {
@@ -57,11 +57,11 @@ const TopNav = ({
 
   const handleRefresh = useCallback(
     (_payload: any, isUpdate?: boolean) => {
-      if (!isUpdate && dashboardContainer) {
-        dashboardContainer.reload();
+      if (!isUpdate && currentContainer) {
+        currentContainer.reload();
       }
     },
-    [dashboardContainer]
+    [currentContainer]
   );
 
   const isEmbeddedExternally = Boolean(queryParameters.get('embed'));
@@ -78,12 +78,12 @@ const TopNav = ({
   useEffect(() => {
     if (isEmbeddableRendered) {
       const navActions = getNavActions(
-        stateContainer,
+        appState,
         savedDashboardInstance,
         services,
         dashboard,
         dashboardIdFromUrl,
-        dashboardContainer
+        currentContainer
       );
       setTopNavMenu(
         getTopNavConfig(
@@ -97,12 +97,12 @@ const TopNav = ({
     currentAppState,
     services,
     dashboardConfig,
-    dashboardContainer,
+    currentContainer,
     savedDashboardInstance,
-    stateContainer,
+    appState,
     isEmbeddableRendered,
     dashboard,
-    dashboardIdFromUrl
+    dashboardIdFromUrl,
   ]);
 
   useEffect(() => {
@@ -139,7 +139,7 @@ const TopNav = ({
       showSaveQuery={services.dashboardCapabilities.saveQuery as boolean}
       savedQuery={undefined}
       onSavedQueryIdChange={(savedQueryId?: string) => {
-        stateContainer.transitions.set('savedQuery', savedQueryId);
+        appState.transitions.set('savedQuery', savedQueryId);
       }}
       savedQueryId={currentAppState?.savedQuery}
       onQuerySubmit={handleRefresh}

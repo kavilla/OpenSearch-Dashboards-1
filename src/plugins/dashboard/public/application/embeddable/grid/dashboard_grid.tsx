@@ -28,9 +28,8 @@
  * under the License.
  */
 
-import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import './_dashboard_grid.scss'
+import 'react-grid-layout/css/styles.css';
 
 // @ts-ignore
 import sizeMe from 'react-sizeme';
@@ -40,7 +39,7 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import React from 'react';
 import { Subscription } from 'rxjs';
-import ReactGridLayout, { Layout } from 'react-grid-layout';
+import ReactGridLayout, { Layout, ReactGridLayoutProps } from 'react-grid-layout';
 import { GridData } from '../../../../common';
 import { ViewMode, EmbeddableChildPanel, EmbeddableStart } from '../../../embeddable_plugin';
 import { DASHBOARD_GRID_COLUMN_COUNT, DASHBOARD_GRID_HEIGHT } from '../dashboard_constants';
@@ -48,6 +47,7 @@ import { DashboardPanelState } from '../types';
 import { withOpenSearchDashboards } from '../../../../../opensearch_dashboards_react/public';
 import { DashboardContainerInput } from '../dashboard_container';
 import { DashboardContainer, DashboardReactContextValue } from '../dashboard_container';
+import { DashboardGridItem } from './dashboard_grid_item';
 
 let lastValidGridSize = 0;
 
@@ -77,9 +77,9 @@ function ResponsiveGrid({
   size: { width: number };
   isViewMode: boolean;
   layout: Layout[];
-  onLayoutChange: () => void;
+  onLayoutChange: ReactGridLayoutProps['onLayoutChange'];
   children: JSX.Element[];
-  maximizedPanelId: string;
+  maximizedPanelId?: string;
   useMargins: boolean;
 }) {
   // This is to prevent a bug where view mode changes when the panel is expanded.  View mode changes will trigger
@@ -172,7 +172,7 @@ class DashboardGridUi extends React.Component<DashboardGridProps, State> {
     let layout;
     try {
       layout = this.buildLayoutFromPanels();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error); // eslint-disable-line no-console
 
       isLayoutInvalid = true;
@@ -263,34 +263,18 @@ class DashboardGridUi extends React.Component<DashboardGridProps, State> {
       }
     });
 
-    return _.map(panelsInOrder, (panel) => {
-      const expandPanel =
-        expandedPanelId !== undefined && expandedPanelId === panel.explicitInput.id;
-      const hidePanel = expandedPanelId !== undefined && expandedPanelId !== panel.explicitInput.id;
-      const classes = classNames({
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        'dshDashboardGrid__item--expanded': expandPanel,
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        'dshDashboardGrid__item--hidden': hidePanel,
-      });
-      return (
-        <div
-          style={{ zIndex: focusedPanelIndex === panel.explicitInput.id ? 2 : 'auto' }}
-          className={classes}
-          key={panel.explicitInput.id}
-          data-test-subj="dashboardPanel"
-          ref={(reactGridItem) => {
-            this.gridItems[panel.explicitInput.id] = reactGridItem;
-          }}
-        >
-          <EmbeddableChildPanel
-            embeddableId={panel.explicitInput.id}
-            container={this.props.container}
-            PanelComponent={this.props.PanelComponent}
-          />
-        </div>
-      );
-    });
+    return _.map(panelsInOrder, ({ explicitInput, type }) => (
+      <DashboardGridItem
+        expandedPanelId={expandedPanelId}
+        focusedPanelIndex={focusedPanelIndex}
+        id={explicitInput.id}
+        key={explicitInput.id}
+        type={type}
+        gridItems={this.gridItems}
+        container={this.props.container}
+        PanelComponent={this.props.PanelComponent}
+      />
+    ));
   }
 
   public render() {
@@ -300,15 +284,16 @@ class DashboardGridUi extends React.Component<DashboardGridProps, State> {
 
     const { viewMode } = this.state;
     const isViewMode = viewMode === ViewMode.VIEW;
+    const panels = this.renderPanels();
     return (
       <ResponsiveSizedGrid
         isViewMode={isViewMode}
         layout={this.buildLayoutFromPanels()}
         onLayoutChange={this.onLayoutChange}
-        maximizedPanelId={this.state.expandedPanelId}
+        maximizedPanelId={this.state.expandedPanelId!}
         useMargins={this.state.useMargins}
       >
-        {this.renderPanels()}
+        {panels}
       </ResponsiveSizedGrid>
     );
   }

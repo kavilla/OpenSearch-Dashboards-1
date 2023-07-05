@@ -15,13 +15,7 @@
 
 import { cloneDeep } from 'lodash';
 import { Filter, ISearchSource, Query, RefreshInterval } from '../../data/public';
-import { DashboardPanelState } from './application';
-import { EmbeddableInput } from './embeddable_plugin';
 import { SavedDashboardPanel } from './types';
-
-// export interface SerializedPanels {
-//   [panelId: string]: DashboardPanelState<EmbeddableInput & { [k: string]: unknown }>;
-// }
 
 export interface SerializedDashboard {
   id?: string;
@@ -124,52 +118,4 @@ export class Dashboard<TDashboardParams = DashboardParams> {
   private getRefreshInterval(refreshInterval: RefreshInterval) {
     return cloneDeep(refreshInterval ?? {});
   }
-
-  // private getQuery(query: Query): Query {
-  //   return cloneDeep(query ?? ({} as Query));
-  // }
-
-  // private getFilters(filters: Filter[]) {
-  //   return cloneDeep(filters ?? ({} as Filter[]));
-  // }
-
-  // private getPanels(panels?: SerializedPanels) {
-  //   return cloneDeep(panels ?? ({} as SerializedPanels));
-  // }
-
-  /* clone() {
-    const serializedDashboard = this.serialize();
-    const dashboard = new Dashboard(serializedDashboard);
-    dashboard.setState(serializedDashboard);
-    return dashboard;
-  }*/
-
-  /* serialize(): SerializedDashboard {
-    return {
-      id: this.id,
-      timeRestore: this.timeRestore!,
-      timeTo: this.timeTo,
-      timeFrom: this.timeFrom,
-      description: this.description,
-      panels: this.serializePanels(),
-      options: cloneDeep(this.options) as any,
-      uiState: this.uiState,
-      lastSavedTitle: this.lastSavedTitle,
-      refreshInterval: this.refreshInterval,
-      searchSource: this.searchSource,
-      query: this.query,
-      filters: this.filters,
-      title: this.title!,
-    };
-  }*/
-
-  /* serializePanels(): SerializedPanels {
-    const embeddablesMap: {
-      [key: string]: DashboardPanelState;
-    } = {};
-    this.panels.forEach((panel: SavedDashboardPanel) => {
-      embeddablesMap[panel.panelIndex] = convertSavedDashboardPanelToPanelState(panel);
-    });
-    return embeddablesMap;
-  }*/
 }

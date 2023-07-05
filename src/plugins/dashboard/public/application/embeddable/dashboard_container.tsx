@@ -28,6 +28,8 @@
  * under the License.
  */
 
+import './_dashboard_container.scss';
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { I18nProvider } from '@osd/i18n/react';
@@ -35,6 +37,7 @@ import { RefreshInterval, TimeRange, Query, Filter } from 'src/plugins/data/publ
 import { CoreStart } from 'src/core/public';
 import { Start as InspectorStartContract } from 'src/plugins/inspector/public';
 import uuid from 'uuid';
+import { useContext, createContext } from 'react';
 import { UiActionsStart } from '../../ui_actions_plugin';
 import {
   Container,
@@ -111,7 +114,6 @@ export class DashboardContainer extends Container<InheritedChildInput, Dashboard
   public readonly type = DASHBOARD_CONTAINER_TYPE;
 
   public renderEmpty?: undefined | (() => React.ReactNode);
-  public getChangesFromAppStateForContainerState?: (containerInput: any) => any;
 
   private embeddablePanel: EmbeddableStart['EmbeddablePanel'];
 

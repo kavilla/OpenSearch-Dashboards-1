@@ -12,7 +12,6 @@ import { useOpenSearchDashboards } from '../../../../opensearch_dashboards_react
 import { useSavedDashboardInstance } from '../utils/use/use_saved_dashboard_instance';
 import { DashboardServices } from '../../types';
 import { useDashboardAppAndGlobalState } from '../utils/use/use_dashboard_app_state';
-import { useDashboardContainer } from '../utils/use/use_dashboard_container';
 import { useEditorUpdates } from '../utils/use/use_editor_updates';
 import {
   setBreadcrumbsForExistingDashboard,
@@ -23,7 +22,7 @@ export const DashboardEditor = () => {
   const { id: dashboardIdFromUrl } = useParams<{ id: string }>();
   const { services } = useOpenSearchDashboards<DashboardServices>();
   const { chrome } = services;
-  const isChromeVisible = useChromeVisibility(services.chrome);
+  const isChromeVisible = useChromeVisibility(chrome);
   const [eventEmitter] = useState(new EventEmitter());
 
   const { savedDashboard: savedDashboardInstance, dashboard } = useSavedDashboardInstance(
@@ -33,48 +32,48 @@ export const DashboardEditor = () => {
     dashboardIdFromUrl
   );
 
-  const { appState } = useDashboardAppAndGlobalState(
+  const { appStateContainer, currentContainer, indexPatterns } = useDashboardAppAndGlobalState(
     services,
     eventEmitter,
-    savedDashboardInstance
+    savedDashboardInstance,
+    dashboard
   );
 
-  const { dashboardContainer, indexPatterns } = useDashboardContainer(
-    services,
-    isChromeVisible,
-    eventEmitter,
-    dashboard,
-    savedDashboardInstance,
-    appState
-  );
+  // const { dashboardContainer } = useDashboardContainer(
+  //   services,
+  //   isChromeVisible,
+  //   eventEmitter,
+  //   dashboard,
+  //   savedDashboardInstance,
+  //   appState
+  // );
 
   const { isEmbeddableRendered, currentAppState } = useEditorUpdates(
-    services,
     eventEmitter,
     dashboard,
     savedDashboardInstance,
-    dashboardContainer,
-    appState
+    currentContainer,
+    appStateContainer
   );
 
   useEffect(() => {
-    if (appState && dashboard) {
+    if (appStateContainer && dashboard) {
       if (savedDashboardInstance?.id) {
         chrome.setBreadcrumbs(
           setBreadcrumbsForExistingDashboard(
             savedDashboardInstance.title,
-            appState?.getState().viewMode,
+            appStateContainer?.getState().viewMode,
             dashboard.isDirty
           )
         );
         chrome.docTitle.change(savedDashboardInstance.title);
       } else {
         chrome.setBreadcrumbs(
-          setBreadcrumbsForNewDashboard(appState?.getState().viewMode, dashboard.isDirty)
+          setBreadcrumbsForNewDashboard(appStateContainer?.getState().viewMode, dashboard.isDirty)
         );
       }
     }
-  }, [appState?.getState(), savedDashboardInstance, chrome]);
+  }, [savedDashboardInstance, chrome, appStateContainer, dashboard]);
 
   useEffect(() => {
     // clean up all registered listeners if any is left
@@ -83,38 +82,22 @@ export const DashboardEditor = () => {
     };
   }, [eventEmitter]);
 
-  console.log('savedDashboardInstance', savedDashboardInstance);
-  console.log('dashboard', dashboard);
-  console.log('appState', appState);
-  console.log('appStateData', appState?.getState());
-  console.log('currentAppState', currentAppState);
-  console.log('isEmbeddableRendered', isEmbeddableRendered);
-  if (dashboard) {
-    console.log('isDirty', dashboard.isDirty);
-  }
-  console.log('dashboardContainer', dashboardContainer);
-  console.log('indexPatterns', indexPatterns);
-
   return (
     <div>
       <div>
-        {savedDashboardInstance &&
-          appState &&
-          dashboardContainer &&
-          currentAppState &&
-          dashboard && (
-            <DashboardTopNav
-              isChromeVisible={isChromeVisible}
-              savedDashboardInstance={savedDashboardInstance}
-              stateContainer={appState}
-              dashboard={dashboard}
-              currentAppState={currentAppState}
-              isEmbeddableRendered={isEmbeddableRendered}
-              indexPatterns={indexPatterns}
-              dashboardContainer={dashboardContainer}
-              dashboardIdFromUrl={dashboardIdFromUrl}
-            />
-          )}
+        {savedDashboardInstance && currentAppState && currentContainer && dashboard && (
+          <DashboardTopNav
+            isChromeVisible={isChromeVisible}
+            savedDashboardInstance={savedDashboardInstance}
+            appState={appStateContainer!}
+            dashboard={dashboard}
+            currentAppState={currentAppState}
+            isEmbeddableRendered={isEmbeddableRendered}
+            indexPatterns={indexPatterns}
+            currentContainer={currentContainer}
+            dashboardIdFromUrl={dashboardIdFromUrl}
+          />
+        )}
       </div>
     </div>
   );

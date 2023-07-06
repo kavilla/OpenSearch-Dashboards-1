@@ -299,7 +299,6 @@ class DashboardGridUi extends React.Component<DashboardGridProps, State> {
 
     const { viewMode } = this.state;
     const isViewMode = viewMode === ViewMode.VIEW;
-    const panels = this.renderPanels();
     return (
       <ResponsiveSizedGrid
         isViewMode={isViewMode}
@@ -308,7 +307,7 @@ class DashboardGridUi extends React.Component<DashboardGridProps, State> {
         maximizedPanelId={this.state.expandedPanelId!}
         useMargins={this.state.useMargins}
       >
-        {panels}
+        {this.renderPanels()}
       </ResponsiveSizedGrid>
     );
   }

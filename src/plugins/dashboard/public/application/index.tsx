@@ -14,7 +14,7 @@ import ReactDOM from 'react-dom';
 import { Router } from 'react-router-dom';
 import { AppMountParameters } from 'opensearch-dashboards/public';
 import { OpenSearchDashboardsContextProvider } from '../../../opensearch_dashboards_react/public';
-import { addHelpMenuToAppChrome } from './help_menu/help_menu_util';
+import { addHelpMenuToAppChrome } from './utils/help_menu_util';
 import { DashboardApp } from './app';
 import { DashboardServices } from '../types';
 export * from './embeddable';

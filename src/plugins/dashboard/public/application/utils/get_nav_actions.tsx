@@ -25,7 +25,7 @@ import {
 } from '../../embeddable_plugin';
 import { showCloneModal } from '../top_nav/show_clone_modal';
 import { showOptionsPopover } from '../top_nav/show_options_popover';
-import { saveDashboard } from '../lib';
+import { saveDashboard } from './save_dashboard';
 import { DashboardContainer } from '../embeddable/dashboard_container';
 import { DashboardConstants, createDashboardEditUrl } from '../../dashboard_constants';
 import { unhashUrl } from '../../../../opensearch_dashboards_utils/public';

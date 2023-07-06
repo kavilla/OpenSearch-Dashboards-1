@@ -26,7 +26,6 @@ export const DashboardApp = ({ onAppLeave }: DashboardAppProps) => {
       <Route path={[DashboardConstants.CREATE_NEW_DASHBOARD_URL, createDashboardEditUrl(':id')]}>
         <div className="app-container dshAppContainer">
           <DashboardEditor />
-          <div id="dashboardViewport" />
         </div>
       </Route>
       <Route exact path={['/', DashboardConstants.LANDING_PAGE_PATH]}>

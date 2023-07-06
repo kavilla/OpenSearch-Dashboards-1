@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { migrateAppState } from '../lib/migrate_app_state';
+import { migrateAppState } from './migrate_app_state';
 import {
   IOsdUrlStateStorage,
   createStateContainer,
@@ -16,7 +16,7 @@ import {
   DashboardServices,
 } from '../../types';
 import { ViewMode } from '../../embeddable_plugin';
-import { getDashboardIdFromUrl } from '../lib';
+import { getDashboardIdFromUrl } from './';
 import { syncQueryStateWithUrl } from '../../../../data/public';
 
 const APP_STATE_STORAGE_KEY = '_a';

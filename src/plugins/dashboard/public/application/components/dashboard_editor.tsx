@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { EventEmitter } from 'events';
 import { DashboardTopNav } from '../components/dashboard_top_nav';
@@ -52,18 +52,21 @@ export const DashboardEditor = () => {
           currentAppState &&
           currentContainer &&
           dashboard && (
-            <DashboardTopNav
-              isChromeVisible={isChromeVisible}
-              savedDashboardInstance={savedDashboardInstance}
-              appState={appStateContainer!}
-              dashboard={dashboard}
-              currentAppState={currentAppState}
-              isEmbeddableRendered={isEmbeddableRendered}
-              indexPatterns={indexPatterns}
-              currentContainer={currentContainer}
-              dashboardIdFromUrl={dashboardIdFromUrl}
-            />
+            <div>
+              <DashboardTopNav
+                isChromeVisible={isChromeVisible}
+                savedDashboardInstance={savedDashboardInstance}
+                appState={appStateContainer!}
+                dashboard={dashboard}
+                currentAppState={currentAppState}
+                isEmbeddableRendered={isEmbeddableRendered}
+                indexPatterns={indexPatterns}
+                currentContainer={currentContainer}
+                dashboardIdFromUrl={dashboardIdFromUrl}
+              />
+            </div>
           )}
+        <div id="dashboardViewport" />
       </div>
     </div>
   );

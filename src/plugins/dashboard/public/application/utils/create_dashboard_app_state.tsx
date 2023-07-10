@@ -22,7 +22,7 @@ import { syncQueryStateWithUrl } from '../../../../data/public';
 import { SavedObjectDashboard } from '../../saved_dashboards';
 
 const APP_STATE_STORAGE_KEY = '_a';
-const APP_STATE_ON_CHANGE_DEBOUNCE_MS = 5;
+const APP_STATE_ON_CHANGE_DEBOUNCE_MS = 10;
 
 interface Arguments {
   osdUrlStateStorage: IOsdUrlStateStorage;

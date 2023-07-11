@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { debounceTime } from 'rxjs/operators';
 import { migrateAppState } from '../lib/migrate_app_state';
 import {
   IOsdUrlStateStorage,
@@ -19,6 +20,7 @@ import { ViewMode } from '../../embeddable_plugin';
 import { getDashboardIdFromUrl } from '../lib';
 import { syncQueryStateWithUrl } from '../../../../data/public';
 import { SavedObjectDashboard } from '../../saved_dashboards';
+import { DashboardConstants } from '../../dashboard_constants';
 
 const APP_STATE_STORAGE_KEY = '_a';
 
@@ -114,6 +116,9 @@ export const createDashboardGlobalAndAppState = ({
           //    and just allow $scope.$on('destroy') fire later and clean up everything
         }
       },
+      state$: osdUrlStateStorage
+        .change$(APP_STATE_STORAGE_KEY)
+        .pipe(debounceTime(DashboardConstants.URL_APP_STATE_UPDATES_DEBOUNCE_MS)),
     },
     stateStorage: osdUrlStateStorage,
   });

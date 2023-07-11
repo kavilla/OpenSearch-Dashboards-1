@@ -9,6 +9,7 @@ import { i18n } from '@osd/i18n';
 import { EMPTY, Observable, Subscription, merge, pipe } from 'rxjs';
 import {
   catchError,
+  debounceTime,
   distinctUntilChanged,
   filter,
   map,
@@ -141,21 +142,24 @@ export const handleDashboardContainerInputs = (
   const subscriptions = new Subscription();
   const { filterManager, queryString } = services.data.query;
 
-  const inputSubscription = dashboardContainer.getInput$().subscribe(() => {
-    if (
-      !opensearchFilters.compareFilters(
-        dashboardContainer.getInput().filters,
-        filterManager.getFilters(),
-        opensearchFilters.COMPARE_ALL_OPTIONS
-      )
-    ) {
-      // Add filters modifies the object passed to it, hence the clone deep.
-      filterManager.addFilters(cloneDeep(dashboardContainer.getInput().filters));
-      appState.transitions.set('query', queryString.getQuery());
-    }
-    // triggered when dashboard embeddable container has changes, and update the appState
-    handleDashboardContainerChanges(dashboardContainer, appState, services, dashboard);
-  });
+  const inputSubscription = dashboardContainer
+    .getInput$()
+    .pipe(debounceTime(DashboardConstants.HANDLE_INPUT_CHANGES_DEBOUNCE_MS))
+    .subscribe(() => {
+      if (
+        !opensearchFilters.compareFilters(
+          dashboardContainer.getInput().filters,
+          filterManager.getFilters(),
+          opensearchFilters.COMPARE_ALL_OPTIONS
+        )
+      ) {
+        // Add filters modifies the object passed to it, hence the clone deep.
+        filterManager.addFilters(cloneDeep(dashboardContainer.getInput().filters));
+        appState.transitions.set('query', queryString.getQuery());
+      }
+      // triggered when dashboard embeddable container has changes, and update the appState
+      handleDashboardContainerChanges(dashboardContainer, appState, services, dashboard);
+    });
 
   subscriptions.add(inputSubscription);
 

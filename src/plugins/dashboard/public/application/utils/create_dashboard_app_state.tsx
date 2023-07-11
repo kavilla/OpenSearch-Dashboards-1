@@ -116,9 +116,9 @@ export const createDashboardGlobalAndAppState = ({
           //    and just allow $scope.$on('destroy') fire later and clean up everything
         }
       },
-      state$: osdUrlStateStorage
-        .change$(APP_STATE_STORAGE_KEY)
-        .pipe(debounceTime(DashboardConstants.URL_APP_STATE_UPDATES_DEBOUNCE_MS)),
+      // state$: osdUrlStateStorage
+      //   .change$(APP_STATE_STORAGE_KEY)
+      //   .pipe(debounceTime(DashboardConstants.URL_APP_STATE_UPDATES_DEBOUNCE_MS)),
     },
     stateStorage: osdUrlStateStorage,
   });

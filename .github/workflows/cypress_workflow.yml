@@ -57,11 +57,13 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            await github.rest.pulls.get({
+            const result = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: ${{ inputs.pr_number }}
             });
+            console.log(result);
+            return result;
 
       - name: Set source branch from PR number
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}

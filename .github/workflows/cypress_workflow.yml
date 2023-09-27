@@ -11,7 +11,7 @@ on:
       branch:
         description: 'Execute tests from this branch'
         required: true
-        default: $env:GITHUB_BASE_REF
+        default: ' ${{ env.GITHUB_BASE_REF }}'
         type: string
 
 

@@ -41,8 +41,8 @@ env:
   CYPRESS_DATASOURCE_MANAGEMENT_ENABLED: false
   OSD_SNAPSHOT_SKIP_VERIFY_CHECKSUM: true
   COMMENT_TAG: '[MANUAL CYPRESS TEST RUN RESULTS]'
-  COMMENT_SUCCESS_MSG: ':white_check_mark: Cypress test run succeeded.'
-  COMMENT_FAILURE_MSG: ':x: Cypress test run failed.'
+  COMMENT_SUCCESS_MSG: ':white_check_mark: Cypress test run succeeded!'
+  COMMENT_FAILURE_MSG: ':x: Cypress test run failed!'
 
 jobs:
   test-add-comment:

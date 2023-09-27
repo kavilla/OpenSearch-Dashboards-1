@@ -66,8 +66,8 @@ jobs:
       - name: Set source branch from PR number
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}
         run: |
-          echo "SOURCE_REPO=${{ fromJSON(steps.get_pr_info.outputs.result.head.repo.full_name) }}" >> $GITHUB_ENV
-          echo "SOURCE_BRANCH=${{ fromJSON(steps.get_pr_info.outputs.result.head.ref) }}" >> $GITHUB_ENV
+          echo "SOURCE_REPO=${{ steps.get_pr_info.outputs.result.head.repo.full_name }}" >> $GITHUB_ENV
+          echo "SOURCE_BRANCH=${{ steps.get_pr_info.outputs.result.head.ref }}" >> $GITHUB_ENV
 
       - name: Find Comment
         uses: peter-evans/find-comment@v2
@@ -248,6 +248,6 @@ jobs:
             Test repo: `${{ env.TEST_REPO }}`
             Test branch: `${{ env.TEST_BRANCH }}`
 
-            Link to results: 
+            #### Link to results: 
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           edit-mode: replace

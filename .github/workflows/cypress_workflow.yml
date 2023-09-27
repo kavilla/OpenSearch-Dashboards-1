@@ -246,7 +246,7 @@ jobs:
             Source repo: `${{ env.SOURCE_REPO }}`
             Source branch: `${{ env.SOURCE_BRANCH }}`
             Test repo: `${{ env.TEST_REPO }}`
-            Test branch: `${{ env.TEST_BRANCH }}`
+            Test branch: ``${{ env.TEST_BRANCH }}``
 
             #### Link to results: 
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

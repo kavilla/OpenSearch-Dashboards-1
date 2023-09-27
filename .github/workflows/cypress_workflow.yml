@@ -28,7 +28,7 @@ on:
 
 env:
   SOURCE_REPO: ${{ github.repository }}
-  SOURCE_BRANCH: ${{ github.base_ref }}
+  SOURCE_BRANCH: "${{ github.base_ref }}"
   TEST_REPO: ${{ inputs.test_repo != '' && inputs.test_repo || 'opensearch-project/opensearch-dashboards-functional-test' }}
   TEST_BRANCH: ${{ inputs.test_branch != '' && inputs.test_branch || github.base_ref }}
   FTR_PATH: 'ftr'
@@ -68,7 +68,7 @@ jobs:
       - name: Set source repo from PR number
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}
         run: |
-          echo "SOURCE_BRANCH=${{ steps.get_pr_info.outputs.result.head.ref }}" >> $GITHUB_ENV
+          echo "SOURCE_REPO=${{ steps.get_pr_info.outputs.result.head.repo.full_name }}" >> $GITHUB_ENV
 
       - name: Set source branch from PR number
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}
@@ -131,7 +131,7 @@ jobs:
       - name: Set source repo from PR number
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}
         run: |
-          echo "SOURCE_BRANCH=${{ steps.get_pr_info.outputs.result.head.ref }}" >> $GITHUB_ENV
+          echo "SOURCE_REPO=${{ steps.get_pr_info.outputs.result.head.repo.full_name }}" >> $GITHUB_ENV
 
       - name: Set source branch from PR number
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}

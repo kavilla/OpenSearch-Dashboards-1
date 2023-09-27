@@ -17,6 +17,10 @@ trash
 target
 /build
 /bwc_tmp
+/scripts/random/data
+/scripts/random/stdout.txt
+/scripts/random/data.tar.gz
+/scripts/random.tar.gz
 .jruby
 .idea
 *.iml

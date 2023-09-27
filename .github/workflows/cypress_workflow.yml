@@ -28,9 +28,9 @@ on:
 
 env:
   SOURCE_REPO: ${{ github.repository }}
-  SOURCE_BRANCH: ${{ github.base_ref }}
+  SOURCE_BRANCH: "${{ github.base_ref }}"
   TEST_REPO: ${{ inputs.test_repo != '' && inputs.test_repo || 'opensearch-project/opensearch-dashboards-functional-test' }}
-  TEST_BRANCH: ${{ inputs.test_branch != '' && inputs.test_branch || github.base_ref }}
+  TEST_BRANCH: "${{ inputs.test_branch != '' && inputs.test_branch || github.base_ref }}"
   FTR_PATH: 'ftr'
   START_CMD: 'node ../scripts/opensearch_dashboards --dev --no-base-path --no-watch'
   OPENSEARCH_SNAPSHOT_CMD: 'node ../scripts/opensearch snapshot'
@@ -57,17 +57,19 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            await github.rest.pulls.get({
+            const { data: result } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: ${{ inputs.pr_number }}
             });
+            core.setOutput('head_name', result.head.repo.full_name);
+            core.setOutput('head_ref', result.head.ref);
 
-      - name: Set source branch from PR number
+      - name: Set source repo from PR number
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}
         run: |
-          echo "SOURCE_REPO=${{ steps.get_pr_info.outputs.result.head.repo.full_name }}" >> $GITHUB_ENV
-          echo "SOURCE_BRANCH=${{ steps.get_pr_info.outputs.result.head.ref }}" >> $GITHUB_ENV
+          echo "SOURCE_REPO=${{ steps.get_pr_info.outputs.head_name }}" >> $GITHUB_ENV
+          echo "SOURCE_BRANCH=${{ steps.get_pr_info.outputs.head_ref }}" >> $GITHUB_ENV
 
       - name: Find Comment
         uses: peter-evans/find-comment@v2
@@ -115,24 +117,20 @@ jobs:
         id: get_pr_info
         uses: actions/github-script@v6
         with:
-          result-encoding: string
           script: |
-            const { data: pr } = await github.rest.pulls.get({
+            const { data: result } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: "${{ inputs.pr_number }}"
+              pull_number: ${{ inputs.pr_number }}
             });
+            core.setOutput('head_name', result.head.repo.full_name);
+            core.setOutput('head_ref', result.head.ref);
 
-            const sourceRepo = pr.head.repo.full_name;
-            const sourceBranch = pr.head.ref;
-            const sourceJSON = `{ 'source': { 'repo': '${sourceRepo}', 'branch': '${sourceBranch}' } }`;
-            return sourceJSON;
-
-      - name: Set source branch from PR number
+      - name: Set source repo from PR number
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}
         run: |
-          echo "SOURCE_REPO=${{ fromJSON(steps.get_pr_info.outputs.result.source.repo) }}" >> $GITHUB_ENV
-          echo "SOURCE_BRANCH=${{ fromJSON(steps.get_pr_info.outputs.result.source.branch) }}" >> $GITHUB_ENV
+          echo "SOURCE_REPO=${{ steps.get_pr_info.outputs.head_name }}" >> $GITHUB_ENV
+          echo "SOURCE_BRANCH=${{ steps.get_pr_info.outputs.head_ref }}" >> $GITHUB_ENV
 
       - run: |
           echo "Source repo: ${{ env.SOURCE_REPO }}"
@@ -246,7 +244,7 @@ jobs:
             Source repo: `${{ env.SOURCE_REPO }}`
             Source branch: `${{ env.SOURCE_BRANCH }}`
             Test repo: `${{ env.TEST_REPO }}`
-            Test branch: `${{ env.TEST_BRANCH }}`
+            Test branch: ``${{ env.TEST_BRANCH }}``
 
             #### Link to results: 
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

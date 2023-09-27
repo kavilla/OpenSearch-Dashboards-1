@@ -50,7 +50,8 @@ jobs:
       TERM: xterm
     name: Run cypress tests
     steps:
-      - run: |
+      - name: Output inputs
+        run: |
           echo "Repo: ${{ env.REPO }}"
           echo "Test branch: ${{ env.TEST_BRANCH }}"
           echo "Extra spec: ${{ env.ADDITIONAL_SPEC }}"

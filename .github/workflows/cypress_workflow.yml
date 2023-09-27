@@ -57,17 +57,18 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            await github.rest.pulls.get({
+            const { data: result } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: ${{ inputs.pr_number }}
             });
+            return result;
 
       - name: Set source repo from PR number
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}
         run: |
-          echo "SOURCE_REPO=${{ steps.get_pr_info.outputs.result.data.head.repo.full_name }}" >> $GITHUB_ENV
-          echo "SOURCE_BRANCH=${{ steps.get_pr_info.outputs.result.data.head.ref }}" >> $GITHUB_ENV
+          echo "SOURCE_REPO=${{ steps.get_pr_info.outputs.head.repo.full_name }}" >> $GITHUB_ENV
+          echo "SOURCE_BRANCH=${{ steps.get_pr_info.outputs.head.ref }}" >> $GITHUB_ENV
 
       - name: Find Comment
         uses: peter-evans/find-comment@v2
@@ -116,17 +117,18 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            await github.rest.pulls.get({
+            const { data: result } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: ${{ inputs.pr_number }}
             });
+            return result;
 
       - name: Set source repo from PR number
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}
         run: |
-          echo "SOURCE_REPO=${{ steps.get_pr_info.outputs.result.data.head.repo.full_name }}" >> $GITHUB_ENV
-          echo "SOURCE_BRANCH=${{ steps.get_pr_info.outputs.result.data.head.ref }}" >> $GITHUB_ENV
+          echo "SOURCE_REPO=${{ steps.get_pr_info.outputs.head.repo.full_name }}" >> $GITHUB_ENV
+          echo "SOURCE_BRANCH=${{ steps.get_pr_info.outputs.head.ref }}" >> $GITHUB_ENV
 
       - run: |
           echo "Source repo: ${{ env.SOURCE_REPO }}"

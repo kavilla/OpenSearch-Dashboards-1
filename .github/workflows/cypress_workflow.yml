@@ -50,6 +50,7 @@ jobs:
       TERM: xterm
     name: Run cypress tests
     steps:
+      - name: Verify inputs
       - run: |
           echo "Repo: ${{ env.REPO }}"
           echo "Test branch: ${{ env.TEST_BRANCH }}"

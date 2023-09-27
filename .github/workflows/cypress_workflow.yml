@@ -8,18 +8,30 @@ on:
       - '**/*.md'
   workflow_dispatch:
     inputs: 
-      branch:
-        description: 'Execute tests from this branch'
+      repository:
+        description: 'Repo of the tests'
+        default: 'opensearch-project/opensearch-dashboards-functional-test'
         required: true
-        default: ' ${{ env.GITHUB_BASE_REF }}'
+        type: string
+      branch:
+        description: 'Branch of the tests (default: target branch)'
+        default: ''
+        required: false
+        type: string
+      specs:
+        description: 'Additional tests to run'
+        default: ''
+        required: false
         type: string
 
-
 env:
+  REPO: ${{ inputs.repository != '' && inputs.repository || 'opensearch-project/opensearch-dashboards-functional-test' }}
+  TEST_BRANCH: ${{ inputs.branch != '' && inputs.branch || github.base_ref }}
   FTR_PATH: 'ftr'
   START_CMD: 'node ../scripts/opensearch_dashboards --dev --no-base-path --no-watch'
   OPENSEARCH_SNAPSHOT_CMD: 'node ../scripts/opensearch snapshot'
   SPEC: 'cypress/integration/core-opensearch-dashboards/opensearch-dashboards/**/*.js,'
+  ADDITIONAL_SPEC: "${{ inputs.specs != '' && inputs.specs || '' }}"
   CYPRESS_BROWSER: 'chromium'
   CYPRESS_VISBUILDER_ENABLED: true
   CYPRESS_DATASOURCE_MANAGEMENT_ENABLED: false
@@ -38,7 +50,11 @@ jobs:
       TERM: xterm
     name: Run cypress tests
     steps:
-      - run: echo "Targetted branch is ${{ inputs.branch }}"
+      - run: |
+          echo "Repo: ${{ env.REPO }}"
+          echo "Test branch: ${{ env.TEST_BRANCH }}"
+          echo "Extra spec: ${{ env.ADDITIONAL_SPEC }}"
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -63,8 +79,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: ${{ env.FTR_PATH }}
-          repository: opensearch-project/opensearch-dashboards-functional-test
-          ref: '${{ inputs.branch }}'
+          repository: ${{ env.REPO }}
+          ref: '${{ env.TEST_BRANCH }}'
 
       - name: Get Cypress version
         id: cypress_version
@@ -88,7 +104,7 @@ jobs:
           working-directory: ${{ env.FTR_PATH }}
           start: ${{ env.OPENSEARCH_SNAPSHOT_CMD }}, ${{ env.START_CMD }}
           wait-on: 'http://localhost:9200, http://localhost:5601'
-          command: yarn cypress:run-without-security --browser ${{ env.CYPRESS_BROWSER }} --spec ${{ env.SPEC }}
+          command: yarn cypress:run-without-security --browser ${{ env.CYPRESS_BROWSER }} --spec ${{ env.SPEC }}${{ env.ADDITIONAL_SPEC }}
 
       # Screenshots are only captured on failure, will change this once we do visual regression tests
       - uses: actions/upload-artifact@v3

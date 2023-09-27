@@ -61,7 +61,7 @@ jobs:
             const { data: pr } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: "${{ inputs.pr_number }}"
+              pull_number: ${{ inputs.pr_number }}
             });
 
             const sourceRepo = pr.head.repo.full_name;

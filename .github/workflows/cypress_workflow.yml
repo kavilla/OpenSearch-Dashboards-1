@@ -23,6 +23,11 @@ on:
         default: ''
         required: false
         type: string
+      pr_number:
+        description: 'Pull request number to link results'
+        default: ''
+        required: false
+        type: number
 
 env:
   REPO: ${{ inputs.repository != '' && inputs.repository || 'opensearch-project/opensearch-dashboards-functional-test' }}
@@ -36,6 +41,9 @@ env:
   CYPRESS_VISBUILDER_ENABLED: true
   CYPRESS_DATASOURCE_MANAGEMENT_ENABLED: false
   OSD_SNAPSHOT_SKIP_VERIFY_CHECKSUM: true
+  COMMENT_TAG: '[MANUAL CYPRESS TEST RUN RESULTS]'
+  COMMENT_SUCCESS_MSG: ':white_check_mark: Cypress test run succeeded.'
+  COMMENT_FAILURE_MSG: ':x: Cypress test run failed.'
 
 jobs:
   cypress-tests:
@@ -127,3 +135,37 @@ jobs:
           name: ftr-cypress-results
           path: ${{ env.FTR_PATH }}/cypress/results
           retention-days: 1
+
+  add-comment:
+    needs: [cypress-tests]
+    if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: fc
+        with:
+          issue-number: ${{ inputs.pr_number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: "${{ env.COMMENT_TAG }}"
+
+      - name: Add comment on the PR
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ inputs.pr_number }}
+          body: |
+            ### ${{ env.COMMENT_TAG }}
+
+            #### ${{ needs.cypress-tests.result == 'success' && env.COMMENT_SUCCESS_MSG || env.COMMENT_FAILURE_MSG }}
+
+            #### Inputs:
+            Test repo: `${{ env.REPO }}`
+            Test branch: `${{ env.TEST_BRANCH }}`
+            Spec: `${{ env.SPEC }}${{ env.ADDITIONAL_SPEC }}`
+
+            Link to results: 
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          edit-mode: replace

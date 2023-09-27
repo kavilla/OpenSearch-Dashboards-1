@@ -46,6 +46,39 @@ env:
   COMMENT_FAILURE_MSG: ':x: Cypress test run failed.'
 
 jobs:
+  test-add-comment:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number != '' }}
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: fc
+        with:
+          issue-number: ${{ inputs.pr_number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: "${{ env.COMMENT_TAG }}"
+
+      - name: Add comment on the PR
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ inputs.pr_number }}
+          body: |
+            ### ${{ env.COMMENT_TAG }}
+
+            #### ${{ env.CYPRESS_VISBUILDER_ENABLED && env.COMMENT_SUCCESS_MSG || env.COMMENT_FAILURE_MSG }}
+
+            #### Inputs:
+            Test repo: `${{ env.REPO }}`
+            Test branch: `${{ env.TEST_BRANCH }}`
+            Spec: `${{ env.SPEC }}${{ env.ADDITIONAL_SPEC }}`
+
+            Link to results: 
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          edit-mode: replace
+
   cypress-tests:
     runs-on: ubuntu-latest
     container:

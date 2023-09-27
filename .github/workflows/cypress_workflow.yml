@@ -38,6 +38,7 @@ jobs:
       TERM: xterm
     name: Run cypress tests
     steps:
+      - run: echo "Targetted branch is ${{ inputs.branch }}"
       - name: Checkout code
         uses: actions/checkout@v2
 

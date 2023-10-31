@@ -430,6 +430,8 @@ export class SearchSource {
       case 'type':
       case 'highlightAll':
         return key && data[key] == null && addToRoot(key, val);
+      case 'trackTotalHits':
+        return addToBody('track_total_hits', val);
       case 'searchAfter':
         return addToBody('search_after', val);
       case 'source':

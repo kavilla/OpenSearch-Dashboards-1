@@ -87,6 +87,7 @@ export interface SearchSourceFields {
   sort?: OpenSearchQuerySortValue | OpenSearchQuerySortValue[];
   highlight?: any;
   highlightAll?: boolean;
+  trackTotalHits?: boolean | number;
   /**
    * {@link AggConfigs}
    */

@@ -35,6 +35,9 @@ export const DashboardConstants = {
   ADD_EMBEDDABLE_TYPE: 'addEmbeddableType',
   DASHBOARDS_ID: 'dashboards',
   DASHBOARD_ID: 'dashboard',
+
+  HANDLE_INPUT_CHANGES_DEBOUNCE_MS: 50,
+  URL_APP_STATE_UPDATES_DEBOUNCE_MS: 15,
 };
 
 export function createDashboardEditUrl(id: string) {

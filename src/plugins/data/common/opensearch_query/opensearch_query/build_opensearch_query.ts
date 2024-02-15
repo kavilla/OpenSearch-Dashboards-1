@@ -35,6 +35,7 @@ import { buildQueryFromLucene } from './from_lucene';
 import { IIndexPattern } from '../../index_patterns';
 import { Filter } from '../filters';
 import { Query } from '../../query/types';
+import { buildQueryFromSql } from './from_sql';
 
 export interface OpenSearchQueryConfig {
   allowLeadingWildcards: boolean;
@@ -64,7 +65,17 @@ export function buildOpenSearchQuery(
   queries = Array.isArray(queries) ? queries : [queries];
   filters = Array.isArray(filters) ? filters : [filters];
 
-  const validQueries = queries.filter((query) => has(query, 'query'));
+  // TODO: SQL make this combinable. SQL needs to support DSL
+  // console.log('queries', queries);
+  const sqlQueries = queries.filter((query) => query.language === 'SQL');
+  if (sqlQueries.length > 0) {
+    // console.log('sqlQueries', sqlQueries);
+    return buildQueryFromSql(sqlQueries, config.dateFormatTZ);
+  }
+
+  const validQueries = queries
+    .filter((query) => query.language !== 'SQL')
+    .filter((query) => has(query, 'query'));
   const queriesByLanguage = groupBy(validQueries, 'language');
   const kueryQuery = buildQueryFromKuery(
     indexPattern,

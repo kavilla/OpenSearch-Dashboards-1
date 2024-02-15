@@ -13,7 +13,15 @@ import { DataSourceType } from '../datasource_services';
 export interface IndexPatternOption {
   title: string;
   id: string;
+  type?: DATA_FRAME_TYPE;
 }
+
+export enum DATA_FRAME_TYPE {
+  DATA_FRAME = 'data_frame',
+  DATA_FRAME_STREAM = 'data_frame_stream',
+}
+
+export type DataSourceTypeKey = 'DEFAULT_INDEX_PATTERNS' | 'DATA_FRAME' | 's3glue' | 'spark';
 
 export interface IDataSourceMetaData {
   name: string;

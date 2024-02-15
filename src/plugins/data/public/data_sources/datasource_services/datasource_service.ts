@@ -13,6 +13,7 @@ import {
 
 export class DataSourceService {
   private static dataSourceService: DataSourceService;
+
   // A record to store all registered data sources, using the data source name as the key.
   private dataSources: Record<string, GenericDataSource> = {};
   private dataSourcesSubject: BehaviorSubject<Record<string, GenericDataSource>>;

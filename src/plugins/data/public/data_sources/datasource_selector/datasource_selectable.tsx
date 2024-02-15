@@ -6,17 +6,18 @@
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { EuiComboBox } from '@elastic/eui';
 import { i18n } from '@osd/i18n';
-import { ISourceDataSet, IndexPatternOption } from '../datasource';
+import { DataSourceTypeKey, ISourceDataSet, IndexPatternOption } from '../datasource';
 import { DataSourceType, GenericDataSource } from '../datasource_services';
 import { DataSourceGroup, DataSourceSelectableProps } from './types';
-
-type DataSourceTypeKey = 'DEFAULT_INDEX_PATTERNS' | 's3glue' | 'spark';
 
 // Mapping between datasource type and its display name.
 // Temporary solution, will be removed along with refactoring of data source APIs
 const DATASOURCE_TYPE_DISPLAY_NAME_MAP: Record<DataSourceTypeKey, string> = {
   DEFAULT_INDEX_PATTERNS: i18n.translate('dataExplorer.dataSourceSelector.indexPatternGroupTitle', {
     defaultMessage: 'Index patterns',
+  }),
+  DATA_FRAME: i18n.translate('dataExplorer.dataSourceSelector.dataFrameGroupTitle', {
+    defaultMessage: 'Data frame',
   }),
   s3glue: i18n.translate('dataExplorer.dataSourceSelector.amazonS3GroupTitle', {
     defaultMessage: 'Amazon S3',
@@ -43,8 +44,16 @@ const getDataSets = (dataSources: GenericDataSource[]) =>
 
 export const isIndexPatterns = (dataSet: DataSetType): dataSet is IndexPatternOption => {
   if (typeof dataSet === 'string') return false;
+  if (dataSet.type) return false;
 
   return !!(dataSet.title && dataSet.id);
+};
+
+export const isDataFrame = (dataSet: DataSetType): dataSet is IndexPatternOption => {
+  if (typeof dataSet === 'string') return false;
+  if (dataSet.type === undefined) return false;
+
+  return !!(dataSet.title && dataSet.id && dataSet.type);
 };
 
 // Get the option format for the combo box from the dataSource and dataSet.
@@ -55,6 +64,14 @@ export const getSourceOptions = (dataSource: DataSourceType, dataSet: DataSetTyp
     ds: dataSource,
   };
   if (isIndexPatterns(dataSet)) {
+    return {
+      ...optionContent,
+      label: dataSet.title,
+      value: dataSet.id,
+      key: dataSet.id,
+    };
+  }
+  if (isDataFrame(dataSet)) {
     return {
       ...optionContent,
       label: dataSet.title,

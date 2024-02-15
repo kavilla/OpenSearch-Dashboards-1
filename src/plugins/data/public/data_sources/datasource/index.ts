@@ -5,6 +5,7 @@
 
 export { DataSource } from './datasource';
 export {
+  DataSourceTypeKey,
   IDataSourceMetaData,
   ISourceDataSet,
   IDataSetParams,

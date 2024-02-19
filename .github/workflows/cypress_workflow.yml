@@ -41,8 +41,8 @@ env:
   RELEASE_PATH: 'release'
   # START_CMD: 'node ../scripts/opensearch_dashboards --dev --no-base-path --no-watch --savedObjects.maxImportPayloadBytes=10485760 --server.maxPayloadBytes=1759977 --logging.json=false --data.search.aggs.shardDelay.enabled=true'
   # OPENSEARCH_SNAPSHOT_CMD: 'node ../scripts/opensearch snapshot -E cluster.routing.allocation.disk.threshold_enabled=false'
-  START_CMD: './${{ env.RELEASE_PATH }}/opensearch-dashboards/bin/opensearch-dashboards --savedObjects.maxImportPayloadBytes=10485760 --server.maxPayloadBytes=1759977 --logging.json=false --data.search.aggs.shardDelay.enabled=true'
-  OPENSEARCH_SNAPSHOT_CMD: './${{ env.RELEASE_PATH }}/opensearch/opensearch-tar-install.sh -E cluster.routing.allocation.disk.threshold_enabled=false'
+  START_CMD: './release/opensearch-dashboards/bin/opensearch-dashboards --savedObjects.maxImportPayloadBytes=10485760 --server.maxPayloadBytes=1759977 --logging.json=false --data.search.aggs.shardDelay.enabled=true'
+  OPENSEARCH_SNAPSHOT_CMD: './release/opensearch/opensearch-tar-install.sh -E cluster.routing.allocation.disk.threshold_enabled=false'
   CYPRESS_BROWSER: 'chromium'
   CYPRESS_VISBUILDER_ENABLED: true
   CYPRESS_DATASOURCE_MANAGEMENT_ENABLED: false

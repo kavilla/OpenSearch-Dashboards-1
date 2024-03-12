@@ -73,10 +73,15 @@ export function buildOpenSearchQuery(
     return buildQueryFromSql(sqlQueries, config.dateFormatTZ);
   }
 
-  const validQueries = queries
-    .filter((query) => query.language !== 'SQL')
-    .filter((query) => has(query, 'query'));
+  const validQueries = queries.filter((query) => has(query, 'query'));
   const queriesByLanguage = groupBy(validQueries, 'language');
+  const unsupportedQueries = Object.keys(queriesByLanguage).filter(
+    (language) => language !== 'kuery' && language !== 'lucene'
+  );
+  if (unsupportedQueries.length > 0) {
+    return queries;
+  }
+
   const kueryQuery = buildQueryFromKuery(
     indexPattern,
     queriesByLanguage.kuery,

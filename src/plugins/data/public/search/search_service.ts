@@ -74,6 +74,7 @@ export class SearchService implements Plugin<ISearchSetup, ISearchStart> {
   private readonly aggsService = new AggsService();
   private readonly searchSourceService = new SearchSourceService();
   private searchInterceptor!: ISearchInterceptor;
+  private defaultSearchInterceptor!: ISearchInterceptor;
   private usageCollector?: SearchUsageCollector;
 
   constructor(private initializerContext: PluginInitializerContext<ConfigSchema>) {}
@@ -95,6 +96,7 @@ export class SearchService implements Plugin<ISearchSetup, ISearchStart> {
       startServices: getStartServices(),
       usageCollector: this.usageCollector!,
     });
+    this.defaultSearchInterceptor = this.searchInterceptor;
 
     expressions.registerFunction(opensearchdsl);
     expressions.registerType(opensearchRawResponse);
@@ -154,6 +156,10 @@ export class SearchService implements Plugin<ISearchSetup, ISearchStart> {
         this.searchInterceptor.showError(e);
       },
       searchSource: this.searchSourceService.start(indexPatterns, searchSourceDependencies),
+      __enhance: (enhancements: SearchEnhancements) => {
+        this.searchInterceptor = enhancements.searchInterceptor;
+      },
+      getDefaultSearchInterceptor: () => this.defaultSearchInterceptor,
     };
   }
 

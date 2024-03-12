@@ -31,11 +31,19 @@
 import { EuiComboBox, EuiComboBoxOptionOption, PopoverAnchorPosition } from '@elastic/eui';
 import { i18n } from '@osd/i18n';
 import React from 'react';
+import { getSearchService, getUiService } from '../../services';
 
 interface Props {
   language: string;
   onSelectLanguage: (newLanguage: string) => void;
   anchorPosition?: PopoverAnchorPosition;
+}
+
+function mapExternalLanguageToOptions(language: string) {
+  return {
+    label: language,
+    value: language,
+  };
 }
 
 export function QueryLanguageSwitcher(props: Props) {
@@ -66,6 +74,11 @@ export function QueryLanguageSwitcher(props: Props) {
     },
   ];
 
+  const queryEnhancements = getUiService().queryEnhancements;
+  queryEnhancements.forEach((enhancement) =>
+    languageOptions.push(mapExternalLanguageToOptions(enhancement.language))
+  );
+
   const selectedLanguage = {
     label: props.language === 'kuery' ? 'DQL' : props.language,
   };
@@ -73,13 +86,18 @@ export function QueryLanguageSwitcher(props: Props) {
   const handleLanguageChange = (newLanguage: EuiComboBoxOptionOption[]) => {
     const queryLanguage = newLanguage[0].label === 'DQL' ? 'kuery' : newLanguage[0].label;
     props.onSelectLanguage(queryLanguage);
+    const queryEnhancement = queryEnhancements.get(queryLanguage);
+    getSearchService().__enhance({
+      searchInterceptor: queryEnhancement
+        ? queryEnhancement.search
+        : getSearchService().getDefaultSearchInterceptor(),
+    });
   };
 
   return (
     <EuiComboBox
       className="languageSwitcher"
       data-test-subj="languageSelect"
-      // TODO: FIX THIS ANY
       options={languageOptions}
       selectedOptions={[selectedLanguage]}
       onChange={handleLanguageChange}

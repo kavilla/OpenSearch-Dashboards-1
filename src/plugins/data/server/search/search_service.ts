@@ -166,7 +166,8 @@ export class SearchService implements Plugin<ISearchSetup, ISearchStart> {
       });
 
     return {
-      __enhance: (enhancements: SearchEnhancements) => {
+      __enhance: (enhancements?: SearchEnhancements) => {
+        if (!enhancements) return;
         if (this.searchStrategies.hasOwnProperty(enhancements.defaultStrategy)) {
           this.defaultSearchStrategyName = enhancements.defaultStrategy;
         }

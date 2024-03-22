@@ -83,9 +83,7 @@ export function QueryLanguageSwitcher(props: Props) {
     label: props.language === 'kuery' ? 'DQL' : props.language,
   };
 
-  const handleLanguageChange = (newLanguage: EuiComboBoxOptionOption[]) => {
-    const queryLanguage = newLanguage[0].label === 'DQL' ? 'kuery' : newLanguage[0].label;
-    props.onSelectLanguage(queryLanguage);
+  const setSearchEnhance = (queryLanguage: string) => {
     const queryEnhancement = queryEnhancements.get(queryLanguage);
     getSearchService().__enhance({
       searchInterceptor: queryEnhancement
@@ -93,6 +91,14 @@ export function QueryLanguageSwitcher(props: Props) {
         : getSearchService().getDefaultSearchInterceptor(),
     });
   };
+
+  const handleLanguageChange = (newLanguage: EuiComboBoxOptionOption[]) => {
+    const queryLanguage = newLanguage[0].label === 'DQL' ? 'kuery' : newLanguage[0].label;
+    props.onSelectLanguage(queryLanguage);
+    setSearchEnhance(queryLanguage);
+  };
+
+  setSearchEnhance(props.language);
 
   return (
     <EuiComboBox

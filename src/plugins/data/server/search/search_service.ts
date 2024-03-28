@@ -73,6 +73,7 @@ import {
 } from '../../common/search/aggs/buckets/shard_delay';
 import { aggShardDelay } from '../../common/search/aggs/buckets/shard_delay_fn';
 import { ConfigSchema } from '../../config';
+import { IDataFrameResponse } from '../../common';
 
 type StrategyMap = Record<string, ISearchStrategy<any, any>>;
 
@@ -262,7 +263,9 @@ export class SearchService implements Plugin<ISearchSetup, ISearchStart> {
 
   private search = <
     SearchStrategyRequest extends IOpenSearchDashboardsSearchRequest = IOpenSearchSearchRequest,
-    SearchStrategyResponse extends IOpenSearchDashboardsSearchResponse = IOpenSearchSearchResponse
+    SearchStrategyResponse extends
+      | IOpenSearchDashboardsSearchResponse
+      | IDataFrameResponse = IOpenSearchSearchResponse
   >(
     context: RequestHandlerContext,
     searchRequest: SearchStrategyRequest,
@@ -275,7 +278,9 @@ export class SearchService implements Plugin<ISearchSetup, ISearchStart> {
 
   private getSearchStrategy = <
     SearchStrategyRequest extends IOpenSearchDashboardsSearchRequest = IOpenSearchSearchRequest,
-    SearchStrategyResponse extends IOpenSearchDashboardsSearchResponse = IOpenSearchSearchResponse
+    SearchStrategyResponse extends
+      | IOpenSearchDashboardsSearchResponse
+      | IDataFrameResponse = IOpenSearchSearchResponse
   >(
     name: string
   ): ISearchStrategy<SearchStrategyRequest, SearchStrategyResponse> => {

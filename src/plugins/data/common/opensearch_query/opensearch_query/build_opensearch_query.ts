@@ -65,14 +65,6 @@ export function buildOpenSearchQuery(
   queries = Array.isArray(queries) ? queries : [queries];
   filters = Array.isArray(filters) ? filters : [filters];
 
-  // TODO: SQL make this combinable. SQL needs to support DSL
-  // console.log('queries', queries);
-  const sqlQueries = queries.filter((query) => query.language === 'SQL');
-  if (sqlQueries.length > 0) {
-    // console.log('sqlQueries', sqlQueries);
-    return buildQueryFromSql(sqlQueries, config.dateFormatTZ);
-  }
-
   const validQueries = queries.filter((query) => has(query, 'query'));
   const queriesByLanguage = groupBy(validQueries, 'language');
   const unsupportedQueries = Object.keys(queriesByLanguage).filter(

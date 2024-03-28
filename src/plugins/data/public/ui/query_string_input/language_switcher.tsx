@@ -53,9 +53,6 @@ export function QueryLanguageSwitcher(props: Props) {
   const dqlLabel = i18n.translate('data.query.queryBar.dqlLanguageName', {
     defaultMessage: 'DQL',
   });
-  const sqlLabel = i18n.translate('data.query.queryBar.sqlLanguageName', {
-    defaultMessage: 'SQL',
-  });
 
   const languageOptions: EuiComboBoxOptionOption[] = [
     {
@@ -65,12 +62,6 @@ export function QueryLanguageSwitcher(props: Props) {
     {
       label: dqlLabel,
       value: 'dql',
-    },
-    {
-      label: sqlLabel,
-      value: 'sql',
-      // TODO: add option to disable if SQL is not supported
-      // disabled: true,
     },
   ];
 

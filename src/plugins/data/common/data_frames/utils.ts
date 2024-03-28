@@ -10,6 +10,7 @@
  */
 
 import { SearchResponse } from 'elasticsearch';
+import datemath from '@elastic/datemath';
 import { IDataFrame, IDataFrameWithAggs, PartialDataFrame } from './types';
 import { IFieldType } from './fields';
 
@@ -76,6 +77,35 @@ export const convertResult = (response: IDataFrameResponse): SearchResponse<any>
   return searchResponse;
 };
 
+export const formatFieldValue = (field: IFieldType | Partial<IFieldType>, value: any): any => {
+  return field.format && field.format.convert ? field.format.convert(value) : value;
+};
+
+export const getFieldType = (field: IFieldType | Partial<IFieldType>): string | undefined => {
+  if (field.name) {
+    const fieldName = field.name.toLowerCase();
+    // TODO: feels little biased to check if timestamp.
+    // Has to be a better way to know so to be fair to all data sources
+    if (
+      fieldName.includes('date') ||
+      fieldName.includes('time') ||
+      fieldName.includes('timestamp')
+    ) {
+      return 'date';
+    }
+  }
+  if (!field.values) return field.type;
+  const firstValue = field.values.filter((value) => value !== null && value !== undefined)[0];
+  if (firstValue instanceof Date || datemath.isDateTime(firstValue)) {
+    return 'date';
+  }
+  return field.type;
+};
+
+export const getTimeField = (data: IDataFrame): IFieldType | undefined => {
+  return data.fields.find((field) => field.type === 'date');
+};
+
 export const createDataFrame = (partial: PartialDataFrame): IDataFrame | IDataFrameWithAggs => {
   let size = 0;
   const fields = partial.fields.map((field) => {
@@ -84,7 +114,11 @@ export const createDataFrame = (partial: PartialDataFrame): IDataFrame | IDataFr
     } else if (field.values.length > length) {
       size = field.values.length;
     }
+    field.type = getFieldType(field);
     // if (!field.type) {
+    // need to think if this needs to be mapped to OSD field type for example
+    // PPL type for date is TIMESTAMP
+    // OSD is expecting date
     //   field.type = get type
     // }
     // get timeseries field

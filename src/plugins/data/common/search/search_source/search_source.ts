@@ -87,7 +87,7 @@ import { normalizeSortRequest } from './normalize_sort_request';
 import { filterDocvalueFields } from './filter_docvalue_fields';
 import { fieldWildcardFilter } from '../../../../opensearch_dashboards_utils/common';
 import { IIndexPattern } from '../../index_patterns';
-import { IDataFrameResponse, convertResult } from '../../data_frames';
+import { IDataFrame, IDataFrameResponse, convertResult } from '../../data_frames';
 import { IOpenSearchSearchRequest, IOpenSearchSearchResponse, ISearchOptions } from '../..';
 import { IOpenSearchDashboardsSearchRequest, IOpenSearchDashboardsSearchResponse } from '../types';
 import { ISearchSource, SearchSourceOptions, SearchSourceFields } from './types';
@@ -138,6 +138,7 @@ export class SearchSource {
   private id: string = uniqueId('data_source');
   private searchStrategyId?: string;
   private parent?: SearchSource;
+  private df?: IDataFrame;
   private requestStartHandlers: Array<
     (searchSource: SearchSource, options?: ISearchOptions) => Promise<unknown>
   > = [];
@@ -271,6 +272,24 @@ export class SearchSource {
   }
 
   /**
+   * Set a dataframe to this search source
+   * @param  {IDataFrame} df - dataframe
+   * @return {this} - chainable
+   */
+  setDataFrame(df?: IDataFrame) {
+    this.df = df;
+    return this;
+  }
+
+  /**
+   * Get the data frame of this SearchSource
+   * @return {undefined|IDataFrame}
+   */
+  getDataFrame() {
+    return this.df;
+  }
+
+  /**
    * Fetch this source and reject the returned Promise on error
    *
    * @async
@@ -342,12 +361,16 @@ export class SearchSource {
       getConfig,
     });
 
+    // TODO: i think i need to set search strategy so I can know not to use indexType
+    // TODO: pass dataframe if the search strategy set is the date frame
     return search(
       { params, indexType: searchRequest.indexType, dataSourceId: searchRequest.dataSourceId },
       options
     ).then((response: any) => {
       if (response.hasOwnProperty('type')) {
         if ((response as IDataFrameResponse).type === 'data_frame') {
+          const dataFrameResponse = response as IDataFrameResponse;
+          this.setDataFrame(dataFrameResponse.body as IDataFrame);
           return onResponse(searchRequest, convertResult(response as IDataFrameResponse));
         }
       }

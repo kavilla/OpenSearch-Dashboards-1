@@ -87,6 +87,7 @@ import { normalizeSortRequest } from './normalize_sort_request';
 import { filterDocvalueFields } from './filter_docvalue_fields';
 import { fieldWildcardFilter } from '../../../../opensearch_dashboards_utils/common';
 import { IIndexPattern } from '../../index_patterns';
+import { IDataFrameResponse, convertResult } from '../../data_frames';
 import { IOpenSearchSearchRequest, IOpenSearchSearchResponse, ISearchOptions } from '../..';
 import { IOpenSearchDashboardsSearchRequest, IOpenSearchDashboardsSearchResponse } from '../types';
 import { ISearchSource, SearchSourceOptions, SearchSourceFields } from './types';
@@ -123,7 +124,9 @@ export interface SearchSourceDependencies extends FetchHandlers {
   // search options required here and returning a promise instead of observable.
   search: <
     SearchStrategyRequest extends IOpenSearchDashboardsSearchRequest = IOpenSearchSearchRequest,
-    SearchStrategyResponse extends IOpenSearchDashboardsSearchResponse = IOpenSearchSearchResponse
+    SearchStrategyResponse extends
+      | IOpenSearchDashboardsSearchResponse
+      | IDataFrameResponse = IOpenSearchSearchResponse
   >(
     request: SearchStrategyRequest,
     options: ISearchOptions
@@ -342,7 +345,14 @@ export class SearchSource {
     return search(
       { params, indexType: searchRequest.indexType, dataSourceId: searchRequest.dataSourceId },
       options
-    ).then(({ rawResponse }) => onResponse(searchRequest, rawResponse));
+    ).then((response: any) => {
+      if (response.hasOwnProperty('type')) {
+        if ((response as IDataFrameResponse).type === 'data_frame') {
+          return onResponse(searchRequest, convertResult(response as IDataFrameResponse));
+        }
+      }
+      return onResponse(searchRequest, response.rawResponse);
+    });
   }
 
   /**

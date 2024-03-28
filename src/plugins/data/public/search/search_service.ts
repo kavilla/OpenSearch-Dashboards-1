@@ -57,6 +57,7 @@ import {
   getShardDelayBucketAgg,
 } from '../../common/search/aggs/buckets/shard_delay';
 import { aggShardDelay } from '../../common/search/aggs/buckets/shard_delay_fn';
+import { IDataFrameResponse } from '../../common';
 
 /** @internal */
 export interface SearchServiceSetupDependencies {
@@ -135,7 +136,9 @@ export class SearchService implements Plugin<ISearchSetup, ISearchStart> {
       getConfig: uiSettings.get.bind(uiSettings),
       search: <
         SearchStrategyRequest extends IOpenSearchDashboardsSearchRequest = IOpenSearchSearchRequest,
-        SearchStrategyResponse extends IOpenSearchDashboardsSearchResponse = IOpenSearchSearchResponse
+        SearchStrategyResponse extends
+          | IOpenSearchDashboardsSearchResponse
+          | IDataFrameResponse = IOpenSearchSearchResponse
       >(
         request: SearchStrategyRequest,
         options: ISearchOptions

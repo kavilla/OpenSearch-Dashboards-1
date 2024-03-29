@@ -86,11 +86,7 @@ export const getFieldType = (field: IFieldType | Partial<IFieldType>): string | 
     const fieldName = field.name.toLowerCase();
     // TODO: feels little biased to check if timestamp.
     // Has to be a better way to know so to be fair to all data sources
-    if (
-      fieldName.includes('date') ||
-      fieldName.includes('time') ||
-      fieldName.includes('timestamp')
-    ) {
+    if (fieldName.includes('date') || fieldName.includes('timestamp')) {
       return 'date';
     }
   }

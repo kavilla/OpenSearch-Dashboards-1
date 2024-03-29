@@ -361,6 +361,10 @@ export class SearchSource {
       getConfig,
     });
 
+    if (this.df) {
+      params.body!.df = this.df;
+    }
+
     // TODO: i think i need to set search strategy so I can know not to use indexType
     // TODO: pass dataframe if the search strategy set is the date frame
     return search(

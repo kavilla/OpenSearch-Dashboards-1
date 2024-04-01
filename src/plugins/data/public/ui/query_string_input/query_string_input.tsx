@@ -626,12 +626,6 @@ export default class QueryStringInputUI extends Component<Props, State> {
     return (
       <div className={className}>
         {this.props.prepend}
-        <QueryLanguageSwitcher
-          language={this.props.query.language}
-          anchorPosition={this.props.languageSwitcherPopoverAnchorPosition}
-          onSelectLanguage={this.onSelectLanguage}
-        />
-
         <EuiOutsideClickDetector onOutsideClick={this.onOutsideClick}>
           <div
             {...ariaCombobox}
@@ -709,6 +703,12 @@ export default class QueryStringInputUI extends Component<Props, State> {
             </EuiPortal>
           </div>
         </EuiOutsideClickDetector>
+
+        <QueryLanguageSwitcher
+          language={this.props.query.language}
+          anchorPosition={this.props.languageSwitcherPopoverAnchorPosition}
+          onSelectLanguage={this.onSelectLanguage}
+        />
       </div>
     );
   }

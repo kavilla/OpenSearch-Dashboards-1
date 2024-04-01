@@ -59,6 +59,7 @@ import { QueryLanguageSwitcher } from './language_switcher';
 import { PersistedLog, getQueryLog, matchPairs, toUser, fromUser } from '../../query';
 import { SuggestionsListSize } from '../typeahead/suggestions_component';
 import { SuggestionsComponent } from '..';
+import { getUiService } from '../../services';
 
 export interface QueryStringInputProps {
   indexPatterns: Array<IIndexPattern | string>;
@@ -466,10 +467,16 @@ export default class QueryStringInputUI extends Component<Props, State> {
     });
 
     this.services.storage.set('opensearchDashboards.userQueryLanguage', language);
-
-    const newQuery = { query: '', language };
+    const queryEnhancements = getUiService().queryEnhancements;
+    // TODO: SQL proof you can modify search bar
+    // Will work on adding more to search bar of UI service
+    const input = queryEnhancements.get(language)?.input;
+    const submitOnLanguageSelect = input?.submitOnLanguageSelect ?? true;
+    const newQuery = { query: input?.placeholder ?? '', language };
     this.onChange(newQuery);
-    this.onSubmit(newQuery);
+    if (submitOnLanguageSelect) {
+      this.onSubmit(newQuery);
+    }
   };
 
   private onOutsideClick = () => {
@@ -619,6 +626,12 @@ export default class QueryStringInputUI extends Component<Props, State> {
     return (
       <div className={className}>
         {this.props.prepend}
+        <QueryLanguageSwitcher
+          language={this.props.query.language}
+          anchorPosition={this.props.languageSwitcherPopoverAnchorPosition}
+          onSelectLanguage={this.onSelectLanguage}
+        />
+
         <EuiOutsideClickDetector onOutsideClick={this.onOutsideClick}>
           <div
             {...ariaCombobox}
@@ -696,12 +709,6 @@ export default class QueryStringInputUI extends Component<Props, State> {
             </EuiPortal>
           </div>
         </EuiOutsideClickDetector>
-
-        <QueryLanguageSwitcher
-          language={this.props.query.language}
-          anchorPosition={this.props.languageSwitcherPopoverAnchorPosition}
-          onSelectLanguage={this.onSelectLanguage}
-        />
       </div>
     );
   }

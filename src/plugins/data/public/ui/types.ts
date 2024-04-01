@@ -16,6 +16,10 @@ import { StatefulSearchBarProps } from './search_bar';
 export interface QueryEnhancement {
   language: string;
   search: SearchInterceptor;
+  input?: {
+    placeholder?: string;
+    submitOnLanguageSelect?: boolean;
+  };
 }
 
 export interface UiEnhancements {

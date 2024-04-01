@@ -253,7 +253,9 @@ export class SearchService implements Plugin<ISearchSetup, ISearchStart> {
 
   private registerSearchStrategy = <
     SearchStrategyRequest extends IOpenSearchDashboardsSearchRequest = IOpenSearchSearchRequest,
-    SearchStrategyResponse extends IOpenSearchDashboardsSearchResponse = IOpenSearchSearchResponse
+    SearchStrategyResponse extends
+      | IOpenSearchDashboardsSearchResponse
+      | IDataFrameResponse = IOpenSearchSearchResponse
   >(
     name: string,
     strategy: ISearchStrategy<SearchStrategyRequest, SearchStrategyResponse>

@@ -304,6 +304,13 @@ export class SearchSource {
     let response;
     if (getConfig(UI_SETTINGS.COURIER_BATCH_SEARCHES)) {
       response = await this.legacyFetch(searchRequest, options);
+    } else if (this.isUnsupportedRequest(searchRequest)) {
+      if (!this.getDataFrame()) {
+        // populate initial dataframe
+        await this.fetchExternalSearch(searchRequest, options);
+      }
+
+      response = await this.fetchExternalSearch(searchRequest, options);
     } else {
       const indexPattern = this.getField('index');
       searchRequest.dataSourceId = indexPattern?.dataSourceRef?.id;
@@ -357,20 +364,37 @@ export class SearchSource {
   private fetchSearch(searchRequest: SearchRequest, options: ISearchOptions) {
     const { search, getConfig, onResponse } = this.dependencies;
 
+    if (this.getDataFrame()) {
+      delete searchRequest.body!.df;
+      this.setDataFrame(undefined);
+    }
+
     const params = getSearchParamsFromRequest(searchRequest, {
       getConfig,
     });
 
-    if (this.df) {
-      params.body!.df = this.df;
-    }
-
-    // TODO: i think i need to set search strategy so I can know not to use indexType
-    // TODO: pass dataframe if the search strategy set is the date frame
     return search(
       { params, indexType: searchRequest.indexType, dataSourceId: searchRequest.dataSourceId },
       options
-    ).then((response: any) => {
+    ).then((response: any) => onResponse(searchRequest, response.rawResponse));
+  }
+
+  /**
+   * Run a non-native search using the search service
+   * @return {Promise<SearchResponse<unknown>>}
+   */
+  private async fetchExternalSearch(searchRequest: SearchRequest, options: ISearchOptions) {
+    const { search, getConfig, onResponse } = this.dependencies;
+
+    const params = getSearchParamsFromRequest(searchRequest, {
+      getConfig,
+    });
+
+    if (this.getDataFrame()) {
+      params.body!.df = this.getDataFrame();
+    }
+
+    return search({ params }, options).then((response: any) => {
       if (response.hasOwnProperty('type')) {
         if ((response as IDataFrameResponse).type === 'data_frame') {
           const dataFrameResponse = response as IDataFrameResponse;
@@ -401,6 +425,10 @@ export class SearchSource {
         legacy,
       }
     );
+  }
+
+  private isUnsupportedRequest(request: SearchRequest): boolean {
+    return request.body!.query.hasOwnProperty('type') && request.body!.query.type === 'unsupported';
   }
 
   /**

@@ -76,10 +76,12 @@ export function QueryLanguageSwitcher(props: Props) {
 
   const setSearchEnhance = (queryLanguage: string) => {
     const queryEnhancement = queryEnhancements.get(queryLanguage);
-    getSearchService().__enhance({
+    const searchService = getSearchService();
+
+    searchService.__enhance({
       searchInterceptor: queryEnhancement
         ? queryEnhancement.search
-        : getSearchService().getDefaultSearchInterceptor(),
+        : searchService.getDefaultSearchInterceptor(),
     });
   };
 

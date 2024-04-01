@@ -35,7 +35,6 @@ import { buildQueryFromLucene } from './from_lucene';
 import { IIndexPattern } from '../../index_patterns';
 import { Filter } from '../filters';
 import { Query } from '../../query/types';
-import { buildQueryFromSql } from './from_sql';
 
 export interface OpenSearchQueryConfig {
   allowLeadingWildcards: boolean;
@@ -71,7 +70,11 @@ export function buildOpenSearchQuery(
     (language) => language !== 'kuery' && language !== 'lucene'
   );
   if (unsupportedQueries.length > 0) {
-    return queries;
+    return {
+      type: 'unsupported',
+      queries,
+      filters,
+    };
   }
 
   const kueryQuery = buildQueryFromKuery(

@@ -52,7 +52,9 @@ export interface ISearchSetup {
    */
   registerSearchStrategy: <
     SearchStrategyRequest extends IOpenSearchDashboardsSearchRequest = IOpenSearchSearchRequest,
-    SearchStrategyResponse extends IOpenSearchDashboardsSearchResponse = IOpenSearchSearchResponse
+    SearchStrategyResponse extends
+      | IOpenSearchDashboardsSearchResponse
+      | IDataFrameResponse = IOpenSearchSearchResponse
   >(
     name: string,
     strategy: ISearchStrategy<SearchStrategyRequest, SearchStrategyResponse>

@@ -87,7 +87,13 @@ import { normalizeSortRequest } from './normalize_sort_request';
 import { filterDocvalueFields } from './filter_docvalue_fields';
 import { fieldWildcardFilter } from '../../../../opensearch_dashboards_utils/common';
 import { IIndexPattern } from '../../index_patterns';
-import { IDataFrame, IDataFrameResponse, convertResult, dataFrameToSpec } from '../../data_frames';
+import {
+  DATA_FRAME_TYPES,
+  IDataFrame,
+  IDataFrameResponse,
+  convertResult,
+  dataFrameToSpec,
+} from '../../data_frames';
 import { IOpenSearchSearchRequest, IOpenSearchSearchResponse, ISearchOptions } from '../..';
 import { IOpenSearchDashboardsSearchRequest, IOpenSearchDashboardsSearchResponse } from '../types';
 import { ISearchSource, SearchSourceOptions, SearchSourceFields } from './types';
@@ -411,12 +417,12 @@ export class SearchSource {
 
     return search({ params }, options).then(async (response: any) => {
       if (response.hasOwnProperty('type')) {
-        if ((response as IDataFrameResponse).type === 'data_frame') {
+        if ((response as IDataFrameResponse).type === DATA_FRAME_TYPES.DEFAULT) {
           const dataFrameResponse = response as IDataFrameResponse;
           await this.setDataFrame(dataFrameResponse.body as IDataFrame);
           return onResponse(searchRequest, convertResult(response as IDataFrameResponse));
         }
-        // TODO: SQL else if data_frame_poll then poll for the data frame updating the df fields only
+        // TODO: SQL else if data_frame_polling then poll for the data frame updating the df fields only
       }
       return onResponse(searchRequest, response.rawResponse);
     });

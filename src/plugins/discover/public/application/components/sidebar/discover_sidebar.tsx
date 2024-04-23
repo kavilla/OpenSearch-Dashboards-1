@@ -45,7 +45,12 @@ import { DiscoverField } from './discover_field';
 import { DiscoverFieldSearch } from './discover_field_search';
 import { FIELDS_LIMIT_SETTING } from '../../../../common';
 import { groupFields } from './lib/group_fields';
-import { IndexPatternField, IndexPattern, UI_SETTINGS } from '../../../../../data/public';
+import {
+  IndexPatternField,
+  IndexPattern,
+  UI_SETTINGS,
+  OSD_FIELD_TYPES,
+} from '../../../../../data/public';
 import { getDetails } from './lib/get_details';
 import { getDefaultFieldFilter, setFieldFilterProp } from './lib/field_filter';
 import { getIndexPatternFieldList } from './lib/get_index_pattern_field_list';
@@ -83,13 +88,33 @@ export interface DiscoverSidebarProps {
    */
   onRemoveField: (fieldName: string) => void;
   /**
+   * Callback function when creating an index pattern
+   * @param fieldName
+   */
+  onCreateIndexPattern: () => void;
+  /**
+   * Callback function when editing a field
+   * @param fieldName
+   * @param fieldType
+   */
+  onEditField: (fieldName: string, fieldType: OSD_FIELD_TYPES) => void;
+  /**
    * Currently selected index pattern
    */
   selectedIndexPattern?: IndexPattern;
 }
 
 export function DiscoverSidebar(props: DiscoverSidebarProps) {
-  const { columns, fieldCounts, hits, onAddField, onReorderFields, selectedIndexPattern } = props;
+  const {
+    columns,
+    fieldCounts,
+    hits,
+    onAddField,
+    onReorderFields,
+    onEditField,
+    onCreateIndexPattern,
+    selectedIndexPattern,
+  } = props;
   const [fields, setFields] = useState<IndexPatternField[] | null>(null);
   const [fieldFilterState, setFieldFilterState] = useState(getDefaultFieldFilter());
   const services = useMemo(() => getServices(), []);
@@ -169,6 +194,16 @@ export function DiscoverSidebar(props: DiscoverSidebarProps) {
     [fields, onAddField, onReorderFields, popularFields, unpopularFields]
   );
 
+  const onFieldTypeChange = useCallback(
+    (fieldName, fieldType) => {
+      if (!fieldName || !fieldType || !fields) return;
+      onEditField(fieldName, fieldType);
+      const newFields = getIndexPatternFieldList(selectedIndexPattern, fieldCounts);
+      setFields(newFields);
+    },
+    [fieldCounts, fields, onEditField, selectedIndexPattern]
+  );
+
   if (!selectedIndexPattern || !fields) {
     return null;
   }
@@ -195,6 +230,21 @@ export function DiscoverSidebar(props: DiscoverSidebarProps) {
               types={fieldTypes}
             />
           </EuiSplitPanel.Inner>
+          {selectedIndexPattern.id === 'data_frame' ? (
+            <EuiSplitPanel.Inner grow={false} paddingSize="s">
+              <EuiButtonEmpty
+                iconType="plusInCircle"
+                onClick={onCreateIndexPattern}
+                size="xs"
+                flush="both"
+                className="dscSideBar_createIndexPattern"
+              >
+                {i18n.translate('discover.fieldChooser.filter.createIndexPattern', {
+                  defaultMessage: 'Create index pattern',
+                })}
+              </EuiButtonEmpty>
+            </EuiSplitPanel.Inner>
+          ) : null}
           <EuiSplitPanel.Inner className="eui-yScroll" paddingSize="none">
             {fields.length > 0 && (
               <>
@@ -206,6 +256,7 @@ export function DiscoverSidebar(props: DiscoverSidebarProps) {
                   title={i18n.translate('discover.fieldChooser.filter.selectedFieldsTitle', {
                     defaultMessage: 'Selected fields',
                   })}
+                  onFieldTypeChange={onFieldTypeChange}
                   {...props}
                 />
                 {popularFields.length > 0 && (
@@ -217,6 +268,7 @@ export function DiscoverSidebar(props: DiscoverSidebarProps) {
                     title={i18n.translate('discover.fieldChooser.filter.popularTitle', {
                       defaultMessage: 'Popular fields',
                     })}
+                    onFieldTypeChange={onFieldTypeChange}
                     {...props}
                   />
                 )}
@@ -228,6 +280,7 @@ export function DiscoverSidebar(props: DiscoverSidebarProps) {
                   title={i18n.translate('discover.fieldChooser.filter.availableFieldsTitle', {
                     defaultMessage: 'Available fields',
                   })}
+                  onFieldTypeChange={onFieldTypeChange}
                   {...props}
                 />
               </>
@@ -245,6 +298,7 @@ interface FieldGroupProps extends DiscoverSidebarProps {
   fields: IndexPatternField[];
   getDetailsByField: (field: IndexPatternField) => FieldDetails;
   shortDotsEnabled: boolean;
+  onFieldTypeChange: (fieldName: string, fieldType: OSD_FIELD_TYPES) => void;
 }
 
 const FieldList = ({
@@ -257,6 +311,7 @@ const FieldList = ({
   onRemoveField,
   onAddFilter,
   getDetailsByField,
+  onFieldTypeChange,
   shortDotsEnabled,
 }: FieldGroupProps) => {
   const [expanded, setExpanded] = useState(true);
@@ -307,6 +362,7 @@ const FieldList = ({
                     indexPattern={selectedIndexPattern}
                     onAddField={onAddField}
                     onRemoveField={onRemoveField}
+                    onEditField={onFieldTypeChange}
                     onAddFilter={onAddFilter}
                     getDetails={getDetailsByField}
                     useShortDots={shortDotsEnabled}

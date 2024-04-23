@@ -42,7 +42,7 @@ import { i18n } from '@osd/i18n';
 import { DiscoverFieldDetails } from './discover_field_details';
 import { FieldIcon } from '../../../../../opensearch_dashboards_react/public';
 import { FieldDetails } from './types';
-import { IndexPatternField, IndexPattern } from '../../../../../data/public';
+import { IndexPatternField, IndexPattern, OSD_FIELD_TYPES } from '../../../../../data/public';
 import { shortenDottedString } from '../../helpers';
 import { getFieldTypeName } from './lib/get_field_type_name';
 import './discover_field.scss';
@@ -75,6 +75,12 @@ export interface DiscoverFieldProps {
    */
   onRemoveField: (fieldName: string) => void;
   /**
+   * Callback function when editing a field
+   * @param fieldName
+   * @param fieldType
+   */
+  onEditField: (fieldName: string, fieldType: OSD_FIELD_TYPES) => void;
+  /**
    * Retrieve details data for the field
    */
   getDetails: (field: IndexPatternField) => FieldDetails;
@@ -93,6 +99,7 @@ export const DiscoverField = ({
   selected,
   onAddField,
   onRemoveField,
+  onEditField,
   columns,
   indexPattern,
   onAddFilter,
@@ -281,6 +288,7 @@ export const DiscoverField = ({
                 columns={columns}
                 details={getDetails(field)}
                 field={field}
+                onEditField={onEditField}
                 indexPattern={indexPattern}
               />
             )}

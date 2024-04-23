@@ -5,15 +5,13 @@
 
 import { SearchResponse } from 'elasticsearch';
 import datemath from '@elastic/datemath';
-import { IDataFrame, IDataFrameWithAggs, PartialDataFrame } from './types';
+import { DATA_FRAME_TYPES, IDataFrame, IDataFrameWithAggs, PartialDataFrame } from './types';
 import { IFieldType } from './fields';
 import { IndexPatternFieldMap, IndexPatternSpec } from '../index_patterns';
 import { IOpenSearchDashboardsSearchRequest } from '../search';
 
-const name = 'data_frame';
-
 export interface IDataFrameResponse extends SearchResponse<any> {
-  type: typeof name;
+  type: DATA_FRAME_TYPES;
   body: IDataFrame | IDataFrameWithAggs;
   took: number;
 }
@@ -132,7 +130,7 @@ export const createDataFrame = (partial: PartialDataFrame): IDataFrame | IDataFr
 
 export const dataFrameToSpec = (dataFrame: IDataFrame): IndexPatternSpec => {
   return {
-    id: 'data_frame',
+    id: DATA_FRAME_TYPES.DEFAULT,
     title: dataFrame.name,
     timeFieldName: getTimeField(dataFrame)?.name,
     fields: dataFrame.fields.reduce((acc, field) => {

@@ -7,6 +7,12 @@ import { IFieldType } from './fields';
 
 export * from './_df_cache';
 
+/** @public **/
+export enum DATA_FRAME_TYPES {
+  DEFAULT = 'data_frame',
+  POLLING = 'data_frame_polling',
+}
+
 export interface IDataFrame {
   name?: string;
   schema?: Array<Partial<IFieldType>>;

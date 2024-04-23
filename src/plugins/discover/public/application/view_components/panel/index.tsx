@@ -86,6 +86,33 @@ export default function DiscoverPanel(props: ViewProps) {
     [filterManager, indexPattern]
   );
 
+  const onCreateIndexPattern = useCallback(async () => {
+    if (!fetchState.title) return;
+    if (fetchState.title === indexPattern?.title) return;
+    const dataSet = indexPatterns.getIndexPatternCache().get(fetchState.title!);
+    await indexPatterns.createAndSave({
+      title: dataSet.title,
+      timeFieldName: dataSet.timeFieldName,
+      ...{},
+    });
+    indexPatterns.getIndexPatternCache().clear(dataSet.id!);
+    window.location.reload();
+  }, [fetchState.title, indexPattern?.title, indexPatterns]);
+
+  const onEditField = useCallback(
+    (fieldName, fieldType) => {
+      if (!fetchState.title) return;
+      if (fetchState.title === indexPattern?.title) return;
+      const dataSet = indexPatterns.getIndexPatternCache().get(fetchState.title!);
+      const field = dataSet.fields.getByName(fieldName);
+      const updatedFieldSpec = { ...field!.spec!, type: fieldType };
+      const updatedField = new IndexPatternField(updatedFieldSpec, fieldName);
+      dataSet.fields.update(updatedField.spec!);
+      indexPatterns.getIndexPatternCache().set(dataSet.title, dataSet);
+    },
+    [fetchState.title, indexPattern?.title, indexPatterns]
+  );
+
   return (
     <DiscoverSidebar
       columns={columns || []}
@@ -131,6 +158,8 @@ export default function DiscoverPanel(props: ViewProps) {
           ? indexPatterns.getIndexPatternCache().get(fetchState.title!)
           : indexPattern
       }
+      onCreateIndexPattern={onCreateIndexPattern}
+      onEditField={onEditField}
       onAddFilter={onAddFilter}
     />
   );

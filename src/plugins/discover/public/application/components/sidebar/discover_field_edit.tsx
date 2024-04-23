@@ -13,6 +13,12 @@ interface DiscoverFieldEditProps {
   details: FieldDetails;
   field: IndexPatternField;
   indexPattern: IndexPattern;
+  /**
+   * Callback function when editing a field
+   * @param fieldName
+   * @param fieldType
+   */
+  onEditField: (fieldName: string, fieldType: OSD_FIELD_TYPES) => void;
 }
 
 export function DiscoverFieldEdit({
@@ -20,13 +26,18 @@ export function DiscoverFieldEdit({
   details,
   field,
   indexPattern,
+  onEditField,
 }: DiscoverFieldEditProps) {
   const options = Object.keys(OSD_FIELD_TYPES).map((fieldType) => ({
     value: fieldType.toLowerCase(),
     text: fieldType,
   }));
-  options.unshift({ value: 'unknown', text: 'UNKNOWN' });
-  const [value, setValue] = useState(field.type.toLowerCase());
+  const fieldTypeValue = field.type.toLowerCase();
+  const [value, setValue] = useState(
+    options.some((option) => option.value === fieldTypeValue)
+      ? fieldTypeValue
+      : OSD_FIELD_TYPES.UNKNOWN
+  );
 
   return (
     <>
@@ -45,7 +56,7 @@ export function DiscoverFieldEdit({
               value={value}
               onChange={(e) => {
                 setValue(e.target.value);
-                // TODO: Handle the selected type
+                onEditField(field.name, e.target.value as OSD_FIELD_TYPES);
               }}
             />
           </div>

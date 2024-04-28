@@ -11,7 +11,7 @@
 
 import { SearchResponse } from 'elasticsearch';
 import datemath from '@elastic/datemath';
-import { IDataFrame, IDataFrameWithAggs, PartialDataFrame } from './types';
+import { IDataFrame, IDataFrameError, IDataFrameWithAggs, PartialDataFrame } from './types';
 import { IFieldType } from './fields';
 import { IndexPatternFieldMap, IndexPatternSpec } from '../index_patterns';
 import { IOpenSearchDashboardsSearchRequest } from '../search';
@@ -20,7 +20,7 @@ const name = 'data_frame';
 
 export interface IDataFrameResponse extends SearchResponse<any> {
   type: typeof name;
-  body: IDataFrame | IDataFrameWithAggs;
+  body: IDataFrame | IDataFrameWithAggs | IDataFrameError;
   took: number;
 }
 

@@ -27,7 +27,6 @@ export interface UiServiceStartDependencies {
 export class UiService implements Plugin<IUiSetup, IUiStart> {
   enhancementsConfig: ConfigSchema['enhancements'];
   private queryEnhancements: Map<string, QueryEnhancement> = new Map();
-  private containerRef: HTMLDivElement | null = null;
   private container$ = new BehaviorSubject<HTMLDivElement | null>(null);
 
   constructor(initializerContext: PluginInitializerContext<ConfigSchema>) {
@@ -56,7 +55,6 @@ export class UiService implements Plugin<IUiSetup, IUiStart> {
     });
 
     const setContainerRef = (ref: HTMLDivElement | null) => {
-      this.containerRef = ref;
       this.container$.next(ref);
     };
 
@@ -72,7 +70,6 @@ export class UiService implements Plugin<IUiSetup, IUiStart> {
       IndexPatternSelect: createIndexPatternSelect(core.savedObjects.client),
       SearchBar,
       Settings,
-      containerRef: this.containerRef,
       container$: this.container$,
     };
   }

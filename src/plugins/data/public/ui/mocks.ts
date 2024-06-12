@@ -40,7 +40,6 @@ function createStartContract(isEnhancementsEnabled: boolean = false): jest.Mocke
       createMockStorage(),
       queryEnhancements
     ),
-    containerRef: document.createElement('div'),
     container$: new BehaviorSubject<HTMLDivElement | null>(null),
   };
 }

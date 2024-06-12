@@ -58,7 +58,7 @@ export const Sidebar: FC = ({ children }) => {
     return () => {
       subscriptions.unsubscribe();
     };
-  }, [ui.container$, containerRef, setContainerRef, ui.containerRef, isEnhancementsEnabled]);
+  }, [ui.container$, containerRef, setContainerRef, isEnhancementsEnabled]);
 
   useEffect(() => {
     let isMounted = true;

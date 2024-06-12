@@ -51,6 +51,10 @@ export class Settings {
   setUserQueryEnhancementsEnabled(enabled: boolean) {
     if (!this.config.enabled) return;
     this.storage.set('opensearchDashboards.userQueryEnhancementsEnabled', enabled);
+    if (!enabled) {
+      this.storage.remove('opensearchDashboards.userQueryLanguage');
+      this.storage.remove('opensearchDashboards.userQueryString');
+    }
     this.enabledQueryEnhancementsUpdated$.next(enabled);
     return true;
   }

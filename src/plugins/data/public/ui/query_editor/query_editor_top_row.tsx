@@ -102,7 +102,11 @@ export default function QueryEditorTopRow(props: QueryEditorTopRowProps) {
   );
 
   function onClickSubmitButton(event: React.MouseEvent<HTMLButtonElement>) {
-    if (persistedLog && props.query) {
+    if (
+      persistedLog &&
+      props.query &&
+      (props.query.language === 'kuery' || props.query.language.toLowerCase() === 'lucene')
+    ) {
       persistedLog.add(props.query.query);
     }
     event.preventDefault();

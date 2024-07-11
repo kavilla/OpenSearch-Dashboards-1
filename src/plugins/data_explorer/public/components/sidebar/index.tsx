@@ -6,17 +6,24 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { EuiPageSideBar, EuiPortal, EuiSplitPanel } from '@elastic/eui';
 import { i18n } from '@osd/i18n';
-import { DataSource, DataSourceGroup, DataSourceSelectable } from '../../../../data/public';
+import { DataSource, DataSourceGroup, DataSetNavigator, DataSourceSelectable } from '../../../../data/public';
 import { DataSourceOption } from '../../../../data/public/';
 import { useOpenSearchDashboards } from '../../../../opensearch_dashboards_react/public';
 import { DataExplorerServices } from '../../types';
-import { setIndexPattern, useTypedDispatch, useTypedSelector } from '../../utils/state_management';
+import {
+  setIndexPattern,
+  setDataset,
+  useTypedDispatch,
+  useTypedSelector,
+} from '../../utils/state_management';
 import './index.scss';
 
 export const Sidebar: FC = ({ children }) => {
   const { indexPattern: indexPatternId } = useTypedSelector((state) => state.metadata);
   const dispatch = useTypedDispatch();
   const [selectedSources, setSelectedSources] = useState<DataSourceOption[]>([]);
+  const [selectedCluster, setSelectedCluster] = useState<any>();
+  const [indexPatternOptionList, setIndexPatternOptionList] = useState<DataSourceOption[]>([]);
   const [dataSourceOptionList, setDataSourceOptionList] = useState<DataSourceGroup[]>([]);
   const [activeDataSources, setActiveDataSources] = useState<DataSource[]>([]);
   const [isEnhancementsEnabled, setIsEnhancementsEnabled] = useState<boolean>(false);
@@ -58,7 +65,13 @@ export const Sidebar: FC = ({ children }) => {
     return () => {
       subscriptions.unsubscribe();
     };
-  }, [ui.container$, containerRef, setContainerRef, isEnhancementsEnabled]);
+  }, [
+    ui.container$,
+    containerRef,
+    setContainerRef,
+    ui.dataSourceContainer$,
+    isEnhancementsEnabled,
+  ]);
 
   useEffect(() => {
     let isMounted = true;
@@ -87,9 +100,20 @@ export const Sidebar: FC = ({ children }) => {
   useEffect(() => {
     if (indexPatternId) {
       const option = getMatchedOption(dataSourceOptionList, indexPatternId);
-      setSelectedSources(option ? [option] : []);
+      setSelectedSources((prev) => option ? [option] : prev);
     }
   }, [indexPatternId, activeDataSources, dataSourceOptionList]);
+
+  const getMatchedIndexPattern = (indexPatternList: DataSourceOption[], ipId: string) => {
+    return indexPatternList.find((indexPattern) => indexPattern.value === ipId);
+  };
+
+  useEffect(() => {
+    if (indexPatternId) {
+      const option = getMatchedIndexPattern(indexPatternOptionList, indexPatternId);
+      setSelectedSources((prev) => option ? [option] : prev);
+    }
+  }, [indexPatternId, activeDataSources, indexPatternOptionList]);
 
   const redirectToLogExplorer = useCallback(
     (dsName: string, dsType: string) => {
@@ -106,14 +130,14 @@ export const Sidebar: FC = ({ children }) => {
         setSelectedSources(selectedDataSources);
         return;
       }
-      // Temporary redirection solution for 2.11, where clicking non-index-pattern data sources
-      // will prompt users with modal explaining they are being redirected to Observability log explorer
-      if (selectedDataSources[0]?.ds?.getType() !== 'DEFAULT_INDEX_PATTERNS') {
-        redirectToLogExplorer(selectedDataSources[0].label, selectedDataSources[0].type);
-        return;
-      }
       setSelectedSources(selectedDataSources);
       dispatch(setIndexPattern(selectedDataSources[0].value));
+      // dispatch(
+      //   setDataset({
+      //     id: selectedDataSources[0].value,
+      //     datasource: { ref: selectedDataSources[0]?.ds?.getId() },
+      //   })
+      // );
     },
     [dispatch, redirectToLogExplorer, setSelectedSources]
   );
@@ -155,15 +179,6 @@ export const Sidebar: FC = ({ children }) => {
         borderRadius="none"
         color="transparent"
       >
-        {isEnhancementsEnabled && (
-          <EuiPortal
-            portalRef={(node) => {
-              containerRef.current = node;
-            }}
-          >
-            {dataSourceSelector}
-          </EuiPortal>
-        )}
         {!isEnhancementsEnabled && (
           <EuiSplitPanel.Inner
             paddingSize="s"

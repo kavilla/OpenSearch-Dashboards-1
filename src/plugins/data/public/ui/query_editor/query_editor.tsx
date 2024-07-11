@@ -6,8 +6,8 @@
 import { EuiFlexGroup, EuiFlexItem, htmlIdGenerator, PopoverAnchorPosition } from '@elastic/eui';
 import classNames from 'classnames';
 import { isEqual } from 'lodash';
-import React, { Component, createRef, RefObject } from 'react';
-import { Settings } from '..';
+import React, { Component, createRef, RefObject, useCallback } from 'react';
+import { DataSetNavigator, Settings } from '..';
 import { DataSource, IDataPluginServices, IIndexPattern, Query, TimeRange } from '../..';
 import {
   CodeEditor,
@@ -294,11 +294,12 @@ export default class QueryEditorUI extends Component<Props, State> {
           <EuiFlexItem grow={false}>
             <EuiFlexGroup gutterSize="xs" alignItems="center" className={`${className}__wrapper`}>
               <EuiFlexItem grow={false}>{this.props.prepend}</EuiFlexItem>
-              {this.state.isDataSourcesVisible && (
-                <EuiFlexItem grow={false} className={`${className}__dataSourceWrapper`}>
-                  <div ref={this.props.dataSourceContainerRef} />
-                </EuiFlexItem>
-              )}
+              <EuiFlexItem grow={false} className={`${className}__dataSetNavigatorWrapper`}>
+                <DataSetNavigator
+                  savedObjectsClient={this.services.savedObjects.client}
+                  indexPatterns={this.props.indexPatterns}
+                />
+              </EuiFlexItem>
               <EuiFlexItem grow={false} className={`${className}__languageWrapper`}>
                 <QueryLanguageSelector
                   language={this.props.query.language}
@@ -307,11 +308,6 @@ export default class QueryEditorUI extends Component<Props, State> {
                   appName={this.services.appName}
                 />
               </EuiFlexItem>
-              {this.state.isDataSetsVisible && (
-                <EuiFlexItem grow={false} className={`${className}__dataSetWrapper`}>
-                  <div ref={this.props.containerRef} />
-                </EuiFlexItem>
-              )}
             </EuiFlexGroup>
           </EuiFlexItem>
           <EuiFlexItem onClick={this.onClickInput} grow={true}>

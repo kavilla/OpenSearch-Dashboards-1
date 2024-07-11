@@ -5,8 +5,9 @@
 
 import { useEffect, useState } from 'react';
 import { i18n } from '@osd/i18n';
+import { batch } from 'react-redux';
 import { IndexPattern } from '../../../../../data/public';
-import { useSelector, updateIndexPattern } from '../../utils/state_management';
+import { updateDataSet, useSelector, updateIndexPattern } from '../../utils/state_management';
 import { DiscoverViewServices } from '../../../build_services';
 import { getIndexPatternId } from '../../helpers/get_index_pattern_id';
 
@@ -58,6 +59,16 @@ export const useIndexPattern = (services: DiscoverViewServices) => {
         });
     };
 
+    data.ui.Settings.getSelectedDataSet$().subscribe((dataSet) => {
+      if (dataSet) {
+        batch(() => {
+          store!.dispatch(updateDataSet(dataSet));
+          store!.dispatch(updateIndexPattern(dataSet.id));
+        });
+        fetchIndexPatternDetails(dataSet.id);
+      }
+    });
+
     if (!indexPatternIdFromState) {
       data.indexPatterns.getCache().then((indexPatternList) => {
         const newId = getIndexPatternId('', indexPatternList, config.get('defaultIndex'));
@@ -71,7 +82,14 @@ export const useIndexPattern = (services: DiscoverViewServices) => {
     return () => {
       isMounted = false;
     };
-  }, [indexPatternIdFromState, data.indexPatterns, toastNotifications, config, store]);
+  }, [
+    indexPatternIdFromState,
+    data.indexPatterns,
+    toastNotifications,
+    config,
+    store,
+    data.ui.Settings,
+  ]);
 
   return indexPattern;
 };

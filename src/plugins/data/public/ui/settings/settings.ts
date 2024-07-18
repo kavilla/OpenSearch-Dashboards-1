@@ -42,11 +42,18 @@ export class Settings {
     this.setSelectedDataSet(this.getSelectedDataSet());
   }
 
+  /**
+   * @experimental - Sets the dataset BehaviorSubject
+   */
   setSelectedDataSet = (dataSet: any) => {
+    console.log('dataSet in settings:', dataSet);
     this.storage.set('opensearchDashboards.userQueryDataSet', dataSet);
     this.selectedDataSet$.next(dataSet);
   };
 
+  /**
+   * @experimental - Gets the dataset Observable
+   */
   getSelectedDataSet$ = () => {
     return this.selectedDataSet$.asObservable();
   };
@@ -103,8 +110,10 @@ export class Settings {
   }
 
   setUserQueryLanguage(language: string) {
+    if (language !== this.getUserQueryLanguage()) {
+      this.search.df.clear();
+    }
     this.storage.set('opensearchDashboards.userQueryLanguage', language);
-    this.search.df.clear();
     const queryEnhancement = this.queryEnhancements.get(language);
     this.search.__enhance({
       searchInterceptor: queryEnhancement

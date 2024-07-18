@@ -6,7 +6,7 @@
 import { EuiFlexGroup, EuiFlexItem, htmlIdGenerator, PopoverAnchorPosition } from '@elastic/eui';
 import classNames from 'classnames';
 import { isEqual } from 'lodash';
-import React, { Component, createRef, RefObject, useCallback } from 'react';
+import React, { Component, createRef, RefObject } from 'react';
 import { DataSetNavigator, Settings } from '..';
 import { DataSource, IDataPluginServices, IIndexPattern, Query, TimeRange } from '../..';
 import {
@@ -39,7 +39,7 @@ export interface QueryEditorProps {
   onChange?: (query: Query, dateRange?: TimeRange) => void;
   onChangeQueryEditorFocus?: (isFocused: boolean) => void;
   onSubmit?: (query: Query, dateRange?: TimeRange) => void;
-  getQueryStringInitialValue?: (language: string) => string;
+  getQueryStringInitialValue?: (language: string, dataSetName?: string) => string;
   dataTestSubj?: string;
   size?: SuggestionsListSize;
   className?: string;
@@ -183,6 +183,32 @@ export default class QueryEditorUI extends Component<Props, State> {
     }
   };
 
+  // private onSelectDataSet = (dataSetName: string) => {
+  //   const newQuery = {
+  //     query: this.props.getQueryStringInitialValue?.(this.props.query.language, dataSetName) ?? '',
+  //     language: this.props.query.language,
+  //   };
+
+  //   const enhancement = this.props.settings.getQueryEnhancements(newQuery.language);
+  //   const fields = enhancement?.fields;
+  //   const newSettings: DataSettings = {
+  //     userQueryLanguage: newQuery.language,
+  //     userQueryString: newQuery.query,
+  //     ...(fields && { uiOverrides: { fields } }),
+  //   };
+  //   this.props.settings?.updateSettings(newSettings);
+
+  //   const dateRangeEnhancement = enhancement?.searchBar?.dateRange;
+  //   const dateRange = dateRangeEnhancement
+  //     ? {
+  //         from: dateRangeEnhancement.initialFrom!,
+  //         to: dateRangeEnhancement.initialTo!,
+  //       }
+  //     : undefined;
+  //   this.onChange(newQuery, dateRange);
+  //   this.onSubmit(newQuery, dateRange);
+  // };
+
   // TODO: MQL consider moving language select language of setting search source here
   private onSelectLanguage = (language: string) => {
     // Send telemetry info every time the user opts in or out of kuery
@@ -215,10 +241,6 @@ export default class QueryEditorUI extends Component<Props, State> {
       : undefined;
     this.onChange(newQuery, dateRange);
     this.onSubmit(newQuery, dateRange);
-    this.setState({
-      isDataSourcesVisible: enhancement?.searchBar?.showDataSourcesSelector ?? true,
-      isDataSetsVisible: enhancement?.searchBar?.showDataSetsSelector ?? true,
-    });
   };
 
   private initPersistedLog = () => {
@@ -256,10 +278,6 @@ export default class QueryEditorUI extends Component<Props, State> {
 
     this.initPersistedLog();
     // this.fetchIndexPatterns().then(this.updateSuggestions);
-    this.setState({
-      isDataSourcesVisible: this.initDataSourcesVisibility() || true,
-      isDataSetsVisible: this.initDataSetsVisibility() || true,
-    });
   }
 
   public componentDidUpdate(prevProps: Props) {
@@ -294,12 +312,6 @@ export default class QueryEditorUI extends Component<Props, State> {
           <EuiFlexItem grow={false}>
             <EuiFlexGroup gutterSize="xs" alignItems="center" className={`${className}__wrapper`}>
               <EuiFlexItem grow={false}>{this.props.prepend}</EuiFlexItem>
-              <EuiFlexItem grow={false} className={`${className}__dataSetNavigatorWrapper`}>
-                <DataSetNavigator
-                  savedObjectsClient={this.services.savedObjects.client}
-                  indexPatterns={this.props.indexPatterns}
-                />
-              </EuiFlexItem>
               <EuiFlexItem grow={false} className={`${className}__languageWrapper`}>
                 <QueryLanguageSelector
                   language={this.props.query.language}
@@ -308,6 +320,11 @@ export default class QueryEditorUI extends Component<Props, State> {
                   appName={this.services.appName}
                 />
               </EuiFlexItem>
+              {this.state.isDataSetsVisible && (
+                <EuiFlexItem grow={false} className={`${className}__dataSetWrapper`}>
+                  <div ref={this.props.containerRef} />
+                </EuiFlexItem>
+              )}
             </EuiFlexGroup>
           </EuiFlexItem>
           <EuiFlexItem onClick={this.onClickInput} grow={true}>

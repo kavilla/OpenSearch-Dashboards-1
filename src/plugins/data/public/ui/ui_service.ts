@@ -14,6 +14,7 @@ import { createSearchBar } from './search_bar/create_search_bar';
 import { createSettings } from './settings';
 import { SuggestionsComponent } from './typeahead';
 import { IUiSetup, IUiStart, QueryEnhancement, UiEnhancements } from './types';
+import { createDataSetNavigator } from './dataset_navigator/create_dataset_navigator';
 
 /** @internal */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -81,10 +82,16 @@ export class UiService implements Plugin<IUiSetup, IUiStart> {
 
     return {
       IndexPatternSelect: createIndexPatternSelect(core.savedObjects.client),
+      DataSetNavigator: (onSelectedDataSet) => createDataSetNavigator(
+        Settings,
+        core.savedObjects.client,
+        dataServices.indexPatterns,
+        dataServices.search,
+        onSelectedDataSet
+      ),
       SearchBar,
       SuggestionsComponent,
       Settings,
-      dataSourceContainer$: this.dataSourceContainer$,
       container$: this.container$,
     };
   }

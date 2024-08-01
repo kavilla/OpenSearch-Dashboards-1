@@ -4,12 +4,8 @@
  */
 
 import { IRouter, ILegacyClusterClient } from '../../../../core/server';
-import { registerDslRoute } from './dsl';
 import { registerDataConnectionsRoute } from './data_connections_router';
 import { registerDatasourcesRoute } from './datasources_router';
-import { registerPplRoute } from './ppl';
-import { DSLFacet } from '../services/facets/dsl_facet';
-import { PPLFacet } from '../services/facets/ppl_facet';
 
 export function defineRoutes(router: IRouter) {
   router.get(
@@ -36,9 +32,6 @@ export function setupRoutes({
   client: ILegacyClusterClient;
   dataSourceEnabled: boolean;
 }) {
-  registerPplRoute({ router, facet: new PPLFacet(client) });
-  registerDslRoute({ router, facet: new DSLFacet(client) }, dataSourceEnabled);
-
   // notebooks routes
   // const queryService = new QueryService(client);
   // registerSqlRoute(router, queryService);

@@ -391,6 +391,7 @@ export {
   SearchError,
   SearchTimeoutError,
   PainlessError,
+  usePolling,
 } from './search';
 
 export type { SearchSource } from './search';

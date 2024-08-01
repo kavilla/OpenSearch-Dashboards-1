@@ -18,17 +18,17 @@ import { ConfigSchema } from '../common/config';
 import { defineRoutes } from './routes';
 import {
   pplSearchStrategyProvider,
+  pplRawSearchStrategyProvider,
   sqlSearchStrategyProvider,
   sqlAsyncSearchStrategyProvider,
+  sqlAsyncRawSearchStrategyProvider,
 } from './search';
 import {
   QueryEnhancementsPluginSetup,
   QueryEnhancementsPluginSetupDependencies,
   QueryEnhancementsPluginStart,
-  QueryEnhancementsPluginStartDependencies,
 } from './types';
-import { OpenSearchObservabilityPlugin, OpenSearchPPLPlugin } from './utils';
-import { pplRawSearchStrategyProvider } from './search/ppl_raw_search_strategy';
+import { OpenSearchEnhancements } from './utils';
 
 export class QueryEnhancementsPlugin
   implements Plugin<QueryEnhancementsPluginSetup, QueryEnhancementsPluginStart> {
@@ -43,13 +43,12 @@ export class QueryEnhancementsPlugin
     this.logger.debug('queryEnhancements: Setup');
     const router = core.http.createRouter();
     // Register server side APIs
-    const client = core.opensearch.legacy.createClient('opensearch_observability', {
-      plugins: [OpenSearchPPLPlugin, OpenSearchObservabilityPlugin],
+    const client = core.opensearch.legacy.createClient('opensearch_enhancements', {
+      plugins: [OpenSearchEnhancements],
     });
 
     if (dataSource) {
-      dataSource.registerCustomApiSchema(OpenSearchPPLPlugin);
-      dataSource.registerCustomApiSchema(OpenSearchObservabilityPlugin);
+      dataSource.registerCustomApiSchema(OpenSearchEnhancements);
     }
 
     const pplSearchStrategy = pplSearchStrategyProvider(this.config$, this.logger, client);
@@ -60,11 +59,17 @@ export class QueryEnhancementsPlugin
       this.logger,
       client
     );
+    const sqlAsyncRawSearchStrategy = sqlAsyncRawSearchStrategyProvider(
+      this.config$,
+      this.logger,
+      client
+    );
 
     data.search.registerSearchStrategy(SEARCH_STRATEGY.PPL, pplSearchStrategy);
     data.search.registerSearchStrategy(SEARCH_STRATEGY.PPL_RAW, pplRawSearchStrategy);
     data.search.registerSearchStrategy(SEARCH_STRATEGY.SQL, sqlSearchStrategy);
     data.search.registerSearchStrategy(SEARCH_STRATEGY.SQL_ASYNC, sqlAsyncSearchStrategy);
+    data.search.registerSearchStrategy(SEARCH_STRATEGY.SQL_ASYNC_RAW, sqlAsyncRawSearchStrategy);
 
     core.http.registerRouteHandlerContext('query_assist', () => ({
       logger: this.logger,

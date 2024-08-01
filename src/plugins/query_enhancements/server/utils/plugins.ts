@@ -45,11 +45,15 @@ const createAction = (
   });
 };
 
-export const OpenSearchPPLPlugin = (client: any, config: any, components: any) => {
-  client.prototype.ppl = components.clientAction.namespaceFactory();
-  const ppl = client.prototype.ppl.prototype;
+export const OpenSearchEnhancements = (client: any, config: any, components: any) => {
+  client.prototype.enhancements = components.clientAction.namespaceFactory();
+  const enhancements = client.prototype.enhancements.prototype;
 
-  ppl.pplQuery = createAction(client, components, {
+  // PPL sub-namespace
+  enhancements.ppl = components.clientAction.namespaceFactory();
+  const ppl = enhancements.ppl.prototype;
+
+  ppl.query = createAction(client, components, {
     endpoint: URI.PPL,
     method: 'POST',
     needBody: true,
@@ -83,11 +87,10 @@ export const OpenSearchPPLPlugin = (client: any, config: any, components: any) =
     endpoint: OPENSEARCH_API.DATA_CONNECTIONS,
     method: 'GET',
   });
-};
 
-export const OpenSearchObservabilityPlugin = (client: any, config: any, components: any) => {
-  client.prototype.observability = components.clientAction.namespaceFactory();
-  const observability = client.prototype.observability.prototype;
+  // Observability sub-namespace
+  enhancements.observability = components.clientAction.namespaceFactory();
+  const observability = enhancements.observability.prototype;
 
   observability.getObject = createAction(client, components, {
     endpoint: OPENSEARCH_API.PANELS,

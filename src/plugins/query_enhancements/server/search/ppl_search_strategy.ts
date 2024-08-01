@@ -27,7 +27,7 @@ export const pplSearchStrategyProvider = (
   const pplFacet = new Facet({
     client,
     logger,
-    endpoint: 'ppl.pplQuery',
+    endpoint: 'enhancements.ppl.pplQuery',
     useJobs: false,
     shimResponse: true,
   });

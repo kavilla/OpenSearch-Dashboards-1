@@ -4,20 +4,23 @@
  */
 
 import { useEffect, useState } from 'react';
-import { HttpStart, NotificationsStart } from 'opensearch-dashboards/public';
-import { ASYNC_POLLING_INTERVAL } from '../constants';
+import { NotificationsStart } from 'opensearch-dashboards/public';
+import { ASYNC_QUERY } from '../constants';
 import { DirectQueryLoadingStatus, DirectQueryRequest } from '../types';
-import { getAsyncSessionId, setAsyncSessionId } from '../utils/query_session_utils';
-import { get as getObjValue, formatError } from '../utils/shared';
-import { usePolling } from '../utils/use_polling';
-import { SQLService } from '../requests/sql';
+import {
+  getAsyncSessionId,
+  setAsyncSessionId,
+  get as getObjValue,
+  formatError,
+  usePolling,
+} from '../utils';
+import { DataPublicPluginStart } from '../../../data/public';
 
 export const useDirectQuery = (
-  http: HttpStart,
+  data: DataPublicPluginStart,
   notifications: NotificationsStart,
-  dataSourceMDSId?: string
+  dataSourceId?: string
 ) => {
-  const sqlService = new SQLService(http);
   const [loadStatus, setLoadStatus] = useState<DirectQueryLoadingStatus>(
     DirectQueryLoadingStatus.SCHEDULED
   );
@@ -29,8 +32,10 @@ export const useDirectQuery = (
     startPolling,
     stopPolling: stopLoading,
   } = usePolling<any, any>((params) => {
-    return sqlService.fetchWithJobId(params, dataSourceMDSId || '');
-  }, ASYNC_POLLING_INTERVAL);
+    return data.search
+      .search({ params, dataSourceId }, { strategy: ASYNC_QUERY.SEARCH_STRATEGY })
+      .toPromise();
+  }, ASYNC_QUERY.POLLING_INTERVAL);
 
   const startLoading = (requestPayload: DirectQueryRequest) => {
     setLoadStatus(DirectQueryLoadingStatus.SCHEDULED);
@@ -40,13 +45,14 @@ export const useDirectQuery = (
       requestPayload = { ...requestPayload, sessionId };
     }
 
-    sqlService
-      .fetch(requestPayload, dataSourceMDSId)
+    data.search
+      .search({ params: requestPayload, dataSourceId }, { strategy: 'sqlasyncraw' })
+      .toPromise()
       .then((result) => {
         setAsyncSessionId(requestPayload.datasource, getObjValue(result, 'sessionId', null));
-        if (result.queryId) {
+        if ((result.rawResponse as any).queryId) {
           startPolling({
-            queryId: result.queryId,
+            queryId: (result.rawResponse as any).queryId,
           });
         } else {
           // eslint-disable-next-line no-console

@@ -56,5 +56,7 @@ export {
 
 export { getOpenSearchPreference } from './opensearch_search';
 
+export { usePolling } from './fetch';
+
 export { SearchInterceptor, SearchInterceptorDeps } from './search_interceptor';
 export * from './errors';

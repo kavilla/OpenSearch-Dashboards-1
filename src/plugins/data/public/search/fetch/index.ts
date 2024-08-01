@@ -28,4 +28,5 @@
  * under the License.
  */
 
+export { usePolling } from './use_polling';
 export { handleResponse } from './handle_response';

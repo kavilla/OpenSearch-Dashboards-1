@@ -7,6 +7,7 @@
 import { DataSourcePluginSetup } from 'src/plugins/data_source/server/types';
 import { Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
+import { OpenSearchEnhancements } from 'src/plugins/query_enhancements/server';
 import {
   CoreSetup,
   CoreStart,
@@ -18,8 +19,6 @@ import {
 
 import { setupRoutes } from './routes';
 import { DataSourceManagementPluginSetup, DataSourceManagementPluginStart } from './types';
-import { OpenSearchDataSourceManagementPlugin } from './adaptors/opensearch_data_source_management_plugin';
-import { PPLPlugin } from './adaptors/ppl_plugin';
 import { ConfigSchema } from '../config';
 import { getWorkspaceState } from '../../../../src/core/server/utils';
 import { ManageableBy } from '../common';
@@ -53,7 +52,7 @@ export class DataSourceManagementPlugin
     const openSearchDataSourceManagementClient: ILegacyClusterClient = core.opensearch.legacy.createClient(
       'opensearch_data_source_management',
       {
-        plugins: [PPLPlugin, OpenSearchDataSourceManagementPlugin],
+        plugins: [OpenSearchEnhancements],
       }
     );
 
@@ -79,10 +78,6 @@ export class DataSourceManagementPlugin
       return { dataSource: { canManage } };
     });
 
-    if (dataSourceEnabled) {
-      dataSource.registerCustomApiSchema(PPLPlugin);
-      dataSource.registerCustomApiSchema(OpenSearchDataSourceManagementPlugin);
-    }
     // @ts-ignore
     core.http.registerRouteHandlerContext(
       'opensearch_data_source_management',

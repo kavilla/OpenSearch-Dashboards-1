@@ -13,6 +13,7 @@ export const SEARCH_STRATEGY = {
   PPL_RAW: 'pplraw',
   SQL: 'sql',
   SQL_ASYNC: 'sqlasync',
+  SQL_ASYNC_RAW: 'sqlasyncraw',
 };
 
 export const API = {

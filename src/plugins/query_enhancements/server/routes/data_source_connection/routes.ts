@@ -63,7 +63,7 @@ export function registerDataSourceConnectionsRoutes(
       const client = request.params.dataSourceId
         ? context.dataSource.opensearch.legacy.getClient(request.params.dataSourceId).callAPI
         : defaultClient.asScoped(request).callAsCurrentUser;
-      const resp = await client('ppl.getDataConnectionById', {
+      const resp = await client('enhancements.ppl.getDataConnectionById', {
         dataconnection: request.params.dataSourceName,
       });
       console.log('resp1', resp);

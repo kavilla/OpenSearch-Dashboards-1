@@ -4,7 +4,7 @@
  */
 
 import { trimEnd } from 'lodash';
-import { Observable, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { i18n } from '@osd/i18n';
 import { concatMap, map } from 'rxjs/operators';
 import {
@@ -22,10 +22,10 @@ import {
   SearchInterceptorDeps,
   getAsyncSessionId,
   setAsyncSessionId,
+  usePolling,
 } from '../../../data/public';
 import {
   API,
-  DataFramePolling,
   FetchDataFrameContext,
   SEARCH_STRATEGY,
   fetchDataFrame,
@@ -164,17 +164,21 @@ export class SQLSearchInterceptor extends SearchInterceptor {
         if (dataSourceRef?.dataSourceName && df?.meta?.sessionId) {
           setAsyncSessionId(dataSourceRef.dataSourceName, df?.meta?.sessionId);
         }
-        const dataFramePolling = new DataFramePolling<any, any>(
-          () => fetchDataFramePolling(dfContext, df),
-          5000,
-          onPollingSuccess,
-          onPollingError
-        );
-        return dataFramePolling.fetch().pipe(
-          map(() => {
-            const dfPolling = dataFramePolling.data;
-            dfPolling.type = DATA_FRAME_TYPES.DEFAULT;
-            return dfPolling;
+        return of(
+          usePolling(
+            () => fetchDataFramePolling(dfContext, df).toPromise(),
+            5000,
+            onPollingSuccess,
+            onPollingError
+          )
+        ).pipe(
+          map((response) => {
+            return {
+              rawResponse: {
+                ...response,
+                type: DATA_FRAME_TYPES.DEFAULT,
+              },
+            };
           })
         );
       })

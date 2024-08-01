@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { DirectQueryLoadingStatus } from '../types';
+
 export function get<T = unknown>(obj: Record<string, any>, path: string, defaultValue?: T): T {
   return path.split('.').reduce((acc: any, part: string) => acc && acc[part], obj) || defaultValue;
 }
@@ -144,15 +146,6 @@ export const ASYNC_QUERY_ACCELERATIONS_CACHE = 'async-query-acclerations-cache';
 
 export const DIRECT_DUMMY_QUERY = 'select 1';
 
-export enum DirectQueryLoadingStatus {
-  SUCCESS = 'success',
-  FAILED = 'failed',
-  RUNNING = 'running',
-  SCHEDULED = 'scheduled',
-  CANCELED = 'canceled',
-  WAITING = 'waiting',
-  INITIAL = 'initial',
-}
 const catalogCacheFetchingStatus = [
   DirectQueryLoadingStatus.RUNNING,
   DirectQueryLoadingStatus.WAITING,

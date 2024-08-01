@@ -5,7 +5,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { HttpStart, NotificationsStart } from 'opensearch-dashboards/public';
-import { ASYNC_POLLING_INTERVAL, SPARK_HIVE_TABLE_REGEX, SPARK_PARTITION_INFO } from '../constants';
+import { ASYNC_QUERY, SPARK } from '../constants';
 import {
   AsyncPollingResult,
   CachedAccelerations,
@@ -17,16 +17,15 @@ import {
   DirectQueryLoadingStatus,
   DirectQueryRequest,
 } from '../types';
-import { getAsyncSessionId, setAsyncSessionId } from '../utils/query_session_utils';
 import {
+  getAsyncSessionId,
+  setAsyncSessionId,
   addBackticksIfNeeded,
   combineSchemaAndDatarows,
   get as getObjValue,
-  formatError,
-} from '../utils/shared';
-import { usePolling } from '../utils/use_polling';
-import { SQLService } from '../requests/sql';
+  formatError } from '../utils';
 import { CatalogCacheManager } from './cache_manager';
+import { usePolling } from '../../../data/public';
 
 export const updateDatabasesToCache = (
   dataSourceName: string,
@@ -104,7 +103,7 @@ export const updateTablesToCache = (
 
     const combinedData = combineSchemaAndDatarows(pollingResult.schema, pollingResult.datarows);
     const newTables = combinedData
-      .filter((row: any) => !SPARK_HIVE_TABLE_REGEX.test(row.information))
+      .filter((row: any) => !SPARK.HIVE_TABLE_REGEX.test(row.information))
       .map((row: any) => ({
         name: row.tableName,
       }));
@@ -189,7 +188,7 @@ export const updateTableColumnsToCache = (
 
     const tableColumns: CachedColumn[] = [];
     for (const row of combinedData) {
-      if (row.col_name === SPARK_PARTITION_INFO) {
+      if (row.col_name === SPARK.PARTITION_INFO) {
         break;
       }
       tableColumns.push({
@@ -296,15 +295,9 @@ export const useLoadToCache = (
   );
   const dataSourceMDSClientId = useRef('');
 
-  const {
-    data: pollingResult,
-    loading: _pollingLoading,
-    error: pollingError,
-    startPolling,
-    stopPolling: stopLoading,
-  } = usePolling<any, any>((params) => {
+  const { data: pollingResult } = usePolling<any, any>((params) => {
     return sqlService.fetchWithJobId(params, dataSourceMDSClientId.current);
-  }, ASYNC_POLLING_INTERVAL);
+  }, ASYNC_QUERY.POLLING_INTERVAL);
 
   const onLoadingFailed = () => {
     setLoadStatus(DirectQueryLoadingStatus.FAILED);

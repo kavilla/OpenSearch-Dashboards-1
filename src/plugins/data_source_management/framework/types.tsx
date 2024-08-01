@@ -5,6 +5,12 @@
 
 import { EuiComboBoxOptionOption } from '@elastic/eui';
 
+export enum DATA_SOURCE_TYPES {
+  DEFAULT_CLUSTER_TYPE = 'DEFAULT_INDEX_PATTERNS',
+  SPARK = 'spark',
+  S3Glue = 's3glue',
+}
+
 export enum DirectQueryLoadingStatus {
   SUCCESS = 'success',
   FAILED = 'failed',

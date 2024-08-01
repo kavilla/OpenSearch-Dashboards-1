@@ -30,7 +30,7 @@ export function registerDataConnectionsRoute(router: IRouter, dataSourceEnabled:
       try {
         const dataConnectionsresponse = await context.opensearch_data_source_management.dataSourceManagementClient
           .asScoped(request)
-          .callAsCurrentUser('ppl.getDataConnectionById', {
+          .callAsCurrentUser('enhancements.ppl.getDataConnectionById', {
             dataconnection: request.params.name,
           });
         return response.ok({
@@ -59,7 +59,7 @@ export function registerDataConnectionsRoute(router: IRouter, dataSourceEnabled:
       try {
         const dataConnectionsresponse = await context.opensearch_data_source_management.dataSourceManagementClient
           .asScoped(request)
-          .callAsCurrentUser('ppl.deleteDataConnection', {
+          .callAsCurrentUser('enhancements.ppl.deleteDataConnection', {
             dataconnection: request.params.name,
           });
         return response.ok({
@@ -89,7 +89,7 @@ export function registerDataConnectionsRoute(router: IRouter, dataSourceEnabled:
       try {
         const dataConnectionsresponse = await context.opensearch_data_source_management.dataSourceManagementClient
           .asScoped(request)
-          .callAsCurrentUser('ppl.modifyDataConnection', {
+          .callAsCurrentUser('enhancements.ppl.modifyDataConnection', {
             body: {
               name: request.body.name,
               allowedRoles: request.body.allowedRoles,
@@ -122,7 +122,7 @@ export function registerDataConnectionsRoute(router: IRouter, dataSourceEnabled:
       try {
         const dataConnectionsresponse = await context.opensearch_data_source_management.dataSourceManagementClient
           .asScoped(request)
-          .callAsCurrentUser('ppl.modifyDataConnection', {
+          .callAsCurrentUser('enhancements.ppl.modifyDataConnection', {
             body: {
               name: request.body.name,
               status: request.body.status,
@@ -161,7 +161,7 @@ export function registerDataConnectionsRoute(router: IRouter, dataSourceEnabled:
       try {
         const dataConnectionsresponse = await context.opensearch_data_source_management.dataSourceManagementClient
           .asScoped(request)
-          .callAsCurrentUser('ppl.createDataSource', {
+          .callAsCurrentUser('enhancements.ppl.createDataSource', {
             body: {
               name: request.body.name,
               connector: request.body.connector,
@@ -191,7 +191,7 @@ export function registerDataConnectionsRoute(router: IRouter, dataSourceEnabled:
       try {
         const dataConnectionsresponse = await context.opensearch_data_source_management.dataSourceManagementClient
           .asScoped(request)
-          .callAsCurrentUser('ppl.getDataConnections');
+          .callAsCurrentUser('enhancements.ppl.getDataConnections');
         return response.ok({
           body: dataConnectionsresponse,
         });
@@ -220,11 +220,11 @@ export function registerDataConnectionsRoute(router: IRouter, dataSourceEnabled:
         let dataConnectionsresponse;
         if (dataSourceEnabled && dataSourceMDSId) {
           const client = await context.dataSource.opensearch.legacy.getClient(dataSourceMDSId);
-          dataConnectionsresponse = await client.callAPI('ppl.getDataConnections');
+          dataConnectionsresponse = await client.callAPI('enhancements.ppl.getDataConnections');
         } else {
           dataConnectionsresponse = await context.opensearch_data_source_management.dataSourceManagementClient
             .asScoped(request)
-            .callAsCurrentUser('ppl.getDataConnections');
+            .callAsCurrentUser('enhancements.ppl.getDataConnections');
         }
         return response.ok({
           body: dataConnectionsresponse,
@@ -262,13 +262,13 @@ export function registerDataConnectionsRoute(router: IRouter, dataSourceEnabled:
         let dataConnectionsresponse;
         if (dataSourceEnabled && dataSourceMDSId) {
           const client = await context.dataSource.opensearch.legacy.getClient(dataSourceMDSId);
-          dataConnectionsresponse = await client.callAPI('ppl.getDataConnectionById', {
+          dataConnectionsresponse = await client.callAPI('enhancements.ppl.getDataConnectionById', {
             dataconnection: request.params.name,
           });
         } else {
           dataConnectionsresponse = await context.opensearch_data_source_management.dataSourceManagementClient
             .asScoped(request)
-            .callAsCurrentUser('ppl.getDataConnectionById', {
+            .callAsCurrentUser('enhancements.ppl.getDataConnectionById', {
               dataconnection: request.params.name,
             });
         }
@@ -308,13 +308,13 @@ export function registerDataConnectionsRoute(router: IRouter, dataSourceEnabled:
         let dataConnectionsresponse;
         if (dataSourceEnabled && dataSourceMDSId) {
           const client = await context.dataSource.opensearch.legacy.getClient(dataSourceMDSId);
-          dataConnectionsresponse = await client.callAPI('ppl.deleteDataConnection', {
+          dataConnectionsresponse = await client.callAPI('enhancements.ppl.deleteDataConnection', {
             dataconnection: request.params.name,
           });
         } else {
           dataConnectionsresponse = await context.opensearch_data_source_management.dataSourceManagementClient
             .asScoped(request)
-            .callAsCurrentUser('ppl.deleteDataConnection', {
+            .callAsCurrentUser('enhancements.ppl.deleteDataConnection', {
               dataconnection: request.params.name,
             });
         }

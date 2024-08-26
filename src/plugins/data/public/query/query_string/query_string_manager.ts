@@ -33,42 +33,39 @@ import { skip } from 'rxjs/operators';
 import { CoreStart } from 'opensearch-dashboards/public';
 import { Dataset, DataStorage, Query, TimeRange, UI_SETTINGS } from '../../../common';
 import { createHistory, QueryHistory } from './query_history';
-import { DatasetContract, DatasetManager } from './dataset_manager';
+import { DatasetService, DatasetServiceContract } from './dataset_service';
+import { LanguageService, LanguageServiceContract } from './language_service';
+import { ISearchInterceptor } from '../../search';
 
 export class QueryStringManager {
   private query$: BehaviorSubject<Query>;
   private queryHistory: QueryHistory;
-  private datasetManager!: DatasetContract;
+  private datasetService!: DatasetServiceContract;
+  private languageService!: LanguageServiceContract;
 
   constructor(
     private readonly storage: DataStorage,
-    private readonly uiSettings: CoreStart['uiSettings']
+    private readonly uiSettings: CoreStart['uiSettings'],
+    private readonly defaultSearchInterceptor: ISearchInterceptor
   ) {
     this.query$ = new BehaviorSubject<Query>(this.getDefaultQuery());
     this.queryHistory = createHistory({ storage });
-    this.datasetManager = new DatasetManager(uiSettings);
+    this.datasetService = new DatasetService(uiSettings);
+    this.languageService = new LanguageService(this.defaultSearchInterceptor);
   }
 
   private getDefaultQueryString() {
     return this.storage.get('userQueryString') || '';
   }
 
-  private getDefaultLanguage() {
-    return (
-      this.storage.get('userQueryLanguage') ||
-      this.uiSettings.get(UI_SETTINGS.SEARCH_QUERY_LANGUAGE)
-    );
-  }
-
   public getDefaultQuery() {
     return {
       query: this.getDefaultQueryString(),
       language: this.getDefaultLanguage(),
-      //   ...(this.uiSettings &&
-      //     this.uiSettings.get(UI_SETTINGS.QUERY_ENHANCEMENTS_ENABLED) && {
-      //       dataset: this.getDatasetManager().getDefaultDataset(),
-      //     }),
-      // };
+      ...(this.uiSettings &&
+        this.uiSettings.get(UI_SETTINGS.QUERY_ENHANCEMENTS_ENABLED) && {
+          dataset: this.datasetService?.getDefault(),
+        }),
     };
   }
 
@@ -79,6 +76,7 @@ export class QueryStringManager {
       return {
         query,
         language: this.getDefaultLanguage(),
+        dataset: this.datasetService?.getDefault(),
       };
     } else {
       return query;
@@ -97,11 +95,10 @@ export class QueryStringManager {
    * Updates the query.
    * @param {Query} query
    */
-  public setQuery = (query: Query) => {
+  public setQuery = (query: Partial<Query>) => {
     const curQuery = this.query$.getValue();
-    if (query?.language !== curQuery.language || query?.query !== curQuery.query) {
-      this.query$.next(query);
-    }
+    const newQuery = { ...curQuery, ...query };
+    this.query$.next(newQuery);
   };
 
   /**
@@ -129,12 +126,51 @@ export class QueryStringManager {
   public changeQueryHistory(listener: (reqs: any[]) => void) {
     return this.queryHistory.change(listener);
   }
-  /**
-   * TODO: verify if we want to just access the dataset manager directly or access each function
-   */
-  public getDatasetManager = () => {
-    return this.datasetManager;
+
+  public getDatasetService = () => {
+    return this.datasetService;
   };
+
+  public getLanguageService = () => {
+    return this.languageService;
+  };
+
+  public getInitialQuery = () => {
+    return this.getInitialQueryByLanguage(this.query$.getValue().language);
+  };
+
+  public getInitialQueryByLanguage = (languageId: string) => {
+    const curQuery = this.query$.getValue();
+    const language = this.languageService.getLanguage(languageId);
+    const dataset = curQuery.dataset;
+    const input = language?.getQueryString(curQuery) || '';
+
+    return {
+      query: input,
+      language: languageId,
+      dataset,
+    };
+  };
+
+  public getInitialQueryByDataset = (newDataset: Dataset) => {
+    const curQuery = this.query$.getValue();
+    const languageId = curQuery.language;
+    const language = this.languageService.getLanguage(languageId);
+    const newQuery = { ...curQuery, dataset: newDataset };
+    const input = language?.getQueryString(newQuery) || '';
+
+    return {
+      ...newQuery,
+      query: input,
+    };
+  };
+
+  private getDefaultLanguage() {
+    return (
+      this.storage.get('userQueryLanguage') ||
+      this.uiSettings.get(UI_SETTINGS.SEARCH_QUERY_LANGUAGE)
+    );
+  }
 }
 
 export type QueryStringContract = PublicMethodsOf<QueryStringManager>;

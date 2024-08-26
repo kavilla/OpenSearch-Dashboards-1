@@ -4,4 +4,4 @@
  */
 
 export * from './types';
-export { DatasetContract, DatasetManager } from './dataset_manager';
+export { LanguageServiceContract, LanguageService } from './language_service';

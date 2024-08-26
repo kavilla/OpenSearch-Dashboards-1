@@ -3,4 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './s3_handler';
+export * from './index_type';
+export * from './index_pattern_type';

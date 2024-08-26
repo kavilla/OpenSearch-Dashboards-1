@@ -119,9 +119,7 @@ export interface DataStructure {
   parent?: DataStructure;
   /** Optional array of child data structures */
   children?: DataStructure[];
-  /** Optional array of data structures of ancestors */
-  path?: DataStructure[];
-  isLeaf?: boolean;
+  hasNext?: boolean;
   columnHeader?: string;
   /** Optional metadata for the data structure */
   meta?: DataStructureMeta;
@@ -152,7 +150,6 @@ export interface DataStructureDataTypeMeta {
   type: DATA_STRUCTURE_META_TYPES.TYPE;
   icon: EuiIconProps;
   tooltip: string;
-  isLeaf?: boolean;
 }
 
 /**
@@ -203,7 +200,6 @@ export interface BaseDataset {
   type: string;
   /** Optional reference to the data source */
   dataSource?: DataSource;
-  fields?: DatasetField[];
 }
 
 /**
@@ -220,10 +216,10 @@ export interface BaseDataset {
  *   type: "INDEX_PATTERN",
  *   timeFieldName: "@timestamp",
  *   dataSource: {
- *     id: "main-cluster",
- *     title: "Main OpenSearch Cluster",
- *     type: "OPENSEARCH"
- *   },
+ *     id: "2e1b1b80-9c4d-11ee-8c90-0242ac120001",
+ *     title: "Cluster1",
+ *     type: "OpenSearch"
+ *   }
  * };
  *
  * @example

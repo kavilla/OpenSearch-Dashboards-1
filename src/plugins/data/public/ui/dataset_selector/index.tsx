@@ -5,31 +5,35 @@
 
 import { useEffect, useState } from 'react';
 import React from 'react';
-import { Dataset } from '../../../common/datasets';
+import { Dataset, Query, TimeRange } from '../../../common';
 import { DatasetSelector } from './dataset_selector';
 import { useOpenSearchDashboards } from '../../../../opensearch_dashboards_react/public';
 import { IDataPluginServices } from '../../types';
 
-const ConnectedDatasetSelector = () => {
-  const [selectedDataset, setSelectedDataset] = useState<Dataset | undefined>();
+interface ConnectedDatasetSelectorProps {
+  onSubmit: ((query: Query, dateRange?: TimeRange | undefined) => void) | undefined;
+}
+
+const ConnectedDatasetSelector = ({ onSubmit }: ConnectedDatasetSelectorProps) => {
   const { services } = useOpenSearchDashboards<IDataPluginServices>();
-  const datasetManager = services.data.query.queryString.getDatasetManager();
+  const queryString = services.data.query.queryString;
+  const initialDataset = queryString.getQuery().dataset || queryString.getDefaultQuery().dataset;
+  const [selectedDataset, setSelectedDataset] = useState<Dataset | undefined>(initialDataset);
 
   useEffect(() => {
-    const initialDataset = datasetManager.getDataset() || datasetManager.getDefaultDataset();
-    setSelectedDataset(initialDataset);
-
-    const subscription = datasetManager.getUpdates$().subscribe((updatedDataset) => {
-      setSelectedDataset(updatedDataset);
+    const subscription = queryString.getUpdates$().subscribe((query) => {
+      setSelectedDataset(query.dataset);
     });
 
     return () => subscription.unsubscribe();
-  }, [datasetManager]);
+  }, [queryString]);
 
   const handleDatasetChange = (dataset?: Dataset) => {
     setSelectedDataset(dataset);
     if (dataset) {
-      datasetManager.setDataset(dataset);
+      const query = queryString.getInitialQueryByDataset(dataset);
+      queryString.setQuery(query);
+      onSubmit!(queryString.getQuery());
     }
   };
 

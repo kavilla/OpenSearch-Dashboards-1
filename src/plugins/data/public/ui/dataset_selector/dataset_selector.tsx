@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   EuiButtonEmpty,
   EuiIcon,
@@ -22,7 +22,7 @@ import { getQueryService } from '../../services';
 
 interface DatasetSelectorProps {
   selectedDataset?: Dataset;
-  setSelectedDataset: (dataset?: Dataset) => void;
+  setSelectedDataset: (dataset: Dataset) => void;
   services: IDataPluginServices;
 }
 
@@ -33,64 +33,92 @@ export const DatasetSelector = ({
 }: DatasetSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [datasets, setDatasets] = useState<Dataset[]>([]);
-  const togglePopover = () => setIsOpen(!isOpen);
-  const closePopover = () => setIsOpen(false);
   const { overlays, savedObjects } = services;
 
-  const queryService = getQueryService();
-  const datasetManager = queryService.queryString.getDatasetManager();
+  const datasetService = getQueryService().queryString.getDatasetService();
 
   const datasetIcon =
-    datasetManager.getDatasetHandlerById(selectedDataset?.type || '')?.meta.icon.type || 'database';
+    datasetService.getType(selectedDataset?.type || '')?.meta.icon.type || 'database';
+
+  const fetchDatasets = useCallback(async () => {
+    const typeConfig = datasetService.getType(selectedDataset?.type || '');
+    if (!typeConfig || typeConfig.id !== DEFAULT_DATA.SET_TYPES.INDEX_PATTERN) {
+      return;
+    }
+
+    const fetchedIndexPatternDataStructures = await typeConfig.fetch(savedObjects.client, []);
+
+    const fetchedDatasets =
+      fetchedIndexPatternDataStructures.children?.map((pattern) =>
+        typeConfig.toDataset([pattern])
+      ) ?? [];
+    setDatasets(fetchedDatasets);
+
+    // If no dataset is selected, select the first one
+    if (!selectedDataset && fetchedDatasets.length > 0) {
+      setSelectedDataset(fetchedDatasets[0]);
+    }
+  }, [datasetService, savedObjects.client, selectedDataset, setSelectedDataset]);
 
   useEffect(() => {
-    const init = async () => {
-      setDatasets(
-        (
-          await datasetManager
-            .getDatasetHandlerById(DEFAULT_DATA.SET_TYPES.INDEX_PATTERN)
-            ?.fetch(savedObjects.client, [])!
-        ).children || []
-      );
-    };
+    fetchDatasets();
+  }, [fetchDatasets]);
 
-    init();
-  }, [datasetManager, savedObjects.client]);
+  const togglePopover = useCallback(async () => {
+    if (!isOpen) {
+      await fetchDatasets();
+    }
+    setIsOpen(!isOpen);
+  }, [isOpen, fetchDatasets]);
+
+  const closePopover = useCallback(() => setIsOpen(false), []);
 
   const options = useMemo(() => {
-    const newOptions: EuiSelectableOption[] = [];
-    // Add index pattern datasets
-    newOptions.push({
-      label: 'Index patterns',
-      isGroupLabel: true,
-    });
+    const newOptions: EuiSelectableOption[] = [
+      {
+        label: 'Index patterns',
+        isGroupLabel: true,
+      },
+    ];
 
-    datasets.forEach(({ id, title, type }) => {
+    datasets.forEach(({ id, title, type, dataSource }) => {
+      const label = dataSource ? `${dataSource.title}::${title}` : title;
       newOptions.push({
-        label: title,
+        label,
         checked: id === selectedDataset?.id ? 'on' : undefined,
         key: id,
-        prepend: <EuiIcon type={datasetManager.getDatasetHandlerById(type)!.meta.icon.type} />,
+        prepend: <EuiIcon type={datasetService.getType(type)!.meta.icon.type} />,
       });
     });
 
     return newOptions;
-  }, [datasetManager, datasets, selectedDataset?.id]);
+  }, [datasets, selectedDataset?.id, datasetService]);
 
-  // Handle option change
-  const handleOptionChange = (newOptions: EuiSelectableOption[]) => {
-    const selectedOption = newOptions.find((option) => option.checked === 'on');
+  const handleOptionChange = useCallback(
+    (newOptions: EuiSelectableOption[]) => {
+      const selectedOption = newOptions.find((option) => option.checked === 'on');
+      if (selectedOption) {
+        const foundDataset = datasets.find((dataset) => dataset.id === selectedOption.key);
+        if (foundDataset) {
+          closePopover();
+          setSelectedDataset(foundDataset);
+        }
+      }
+    },
+    [datasets, setSelectedDataset, closePopover]
+  );
 
-    if (!selectedOption) {
-      setSelectedDataset(undefined);
-      return;
+  const datasetTitle = useMemo(() => {
+    if (!selectedDataset) {
+      return 'Select data';
     }
 
-    const foundDataset = datasets.find((dataset) => dataset.id === selectedOption.key);
+    if (selectedDataset.dataSource) {
+      return `${selectedDataset.dataSource.title}::${selectedDataset.title}`;
+    }
 
-    closePopover();
-    setSelectedDataset(foundDataset || undefined);
-  };
+    return selectedDataset.title;
+  }, [selectedDataset]);
 
   return (
     <EuiPopover
@@ -102,8 +130,8 @@ export const DatasetSelector = ({
             iconSide="right"
             onClick={togglePopover}
           >
-            <EuiIcon type={datasetIcon} className="dataSetNavigator__icon" />
-            {selectedDataset?.title ?? 'Select data'}
+            <EuiIcon type={datasetIcon} className="datasetSelector__icon" />
+            {datasetTitle}
           </EuiButtonEmpty>
         </EuiToolTip>
       }
@@ -129,7 +157,9 @@ export const DatasetSelector = ({
                   savedObjects={savedObjects.client}
                   onSelect={(dataset?: Dataset) => {
                     overlay?.close();
-                    setSelectedDataset(dataset);
+                    if (dataset) {
+                      setSelectedDataset(dataset);
+                    }
                   }}
                   onCancel={() => overlay?.close()}
                 />
@@ -146,7 +176,7 @@ export const DatasetSelector = ({
       <EuiSelectable
         className="datasetSelector__selectable"
         options={options}
-        singleSelection={true}
+        singleSelection="always"
         searchable={true}
         onChange={handleOptionChange}
         listProps={{

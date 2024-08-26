@@ -4,12 +4,12 @@
  */
 import { SavedObjectsClientContract } from 'opensearch-dashboards/public';
 import { EuiIconProps } from '@elastic/eui';
-import { BaseDataset, Dataset, DatasetField, DataStructure } from '../../../../common';
+import { Dataset, DatasetField, DataStructure } from '../../../../common';
 
 /**
  * Configuration for handling dataset operations.
  */
-export interface DatasetHandlerConfig {
+export interface DatasetTypeConfig {
   /** Unique identifier for the dataset handler */
   id: string;
   /** Human-readable title for the dataset type */
@@ -43,5 +43,5 @@ export interface DatasetHandlerConfig {
    * Retrieves the supported query languages for this dataset type.
    * @returns {Promise<string[]>} A promise that resolves to an array of supported language names.
    */
-  supportedLanguages: () => Promise<string[]>;
+  supportedLanguages: (dataset: Dataset) => string[];
 }

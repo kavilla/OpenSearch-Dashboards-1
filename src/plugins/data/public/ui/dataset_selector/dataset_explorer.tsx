@@ -20,25 +20,19 @@ import {
 } from '@elastic/eui';
 import { FormattedMessage } from '@osd/i18n/react';
 import { SavedObjectsClientContract } from 'opensearch-dashboards/public';
-import {
-  BaseDataset,
-  DATA_STRUCTURE_META_TYPES,
-  Dataset,
-  DataStructure,
-  DEFAULT_DATA,
-} from '../../../common';
-import { DatasetContract } from '../../query';
+import { BaseDataset, DATA_STRUCTURE_META_TYPES, DataStructure } from '../../../common';
+import { QueryStringContract } from '../../query';
 
 export const DatasetExplorer = ({
   savedObjects,
-  datasetManager,
+  queryString,
   path,
   setPath,
   onNext,
   onCancel,
 }: {
   savedObjects: SavedObjectsClientContract;
-  datasetManager: DatasetContract;
+  queryString: QueryStringContract;
   path: DataStructure[];
   setPath: (path: DataStructure[]) => void;
   onNext: (dataset: BaseDataset) => void;
@@ -51,23 +45,23 @@ export const DatasetExplorer = ({
     const lastPathItem = newPath[newPath.length - 1];
     const nextPath = [...newPath, item];
 
-    const handler = datasetManager.getDatasetHandlerById(nextPath[1].id);
-    if (!handler) return;
+    const typeConfig = queryString.getDatasetService().getType(nextPath[1].id);
+    if (!typeConfig) return;
 
-    if (lastPathItem.isLeaf) {
-      const dataset = handler!.toDataset(nextPath);
+    if (!lastPathItem.hasNext) {
+      const dataset = typeConfig!.toDataset(nextPath);
       setExplorerDataset(dataset as BaseDataset);
       return;
     }
 
     setLoading(true);
-    const nextDataStructure = await handler.fetch(savedObjects, nextPath);
+    const nextDataStructure = await typeConfig.fetch(savedObjects, nextPath);
     setLoading(false);
 
     setPath([...newPath, nextDataStructure]);
   };
 
-  const columnCount = !path[path.length - 1]?.isLeaf ? path.length + 1 : path.length;
+  const columnCount = path[path.length - 1]?.hasNext ? path.length + 1 : path.length;
 
   return (
     <>
@@ -103,7 +97,7 @@ export const DatasetExplorer = ({
         >
           {path.map((current, index) => {
             const isLast = index === path.length - 1;
-            const isFinal = isLast && current.isLeaf;
+            const isFinal = isLast && !current.hasNext;
             return (
               <div
                 key={current.id}
@@ -116,7 +110,7 @@ export const DatasetExplorer = ({
                 </EuiTitle>
                 <EuiSelectable
                   options={(current.children || []).map((child) => ({
-                    label: child.title,
+                    label: child.parent ? `${child.parent.title}::${child.title}` : child.title,
                     value: child.id,
                     prepend: child.meta?.type === DATA_STRUCTURE_META_TYPES.TYPE &&
                       child.meta?.icon && <EuiIcon {...child.meta.icon} />,
@@ -139,7 +133,7 @@ export const DatasetExplorer = ({
                     },
                     searchable: true,
                   })}
-                  className="datasetSelector__selectable"
+                  className="datasetExplorer__selectable"
                 >
                   {(list, search) => (
                     <>
@@ -151,7 +145,7 @@ export const DatasetExplorer = ({
               </div>
             );
           })}
-          {!!!path[path.length - 1]?.isLeaf && <LoadingEmptyColumn isLoading={loading} />}
+          {!!path[path.length - 1]?.hasNext && <LoadingEmptyColumn isLoading={loading} />}
         </div>
       </EuiModalBody>
       <EuiModalFooter>

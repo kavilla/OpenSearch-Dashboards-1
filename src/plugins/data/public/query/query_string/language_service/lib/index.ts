@@ -3,5 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './index_handler';
-export * from './index_pattern_handler';
+export * from './dql_language';
+export * from './lucene_language';

@@ -5,21 +5,11 @@
 
 import { SavedObjectsClientContract } from 'opensearch-dashboards/public';
 import { map } from 'rxjs/operators';
-import {
-  DEFAULT_DATA,
-  DataStructure,
-  DATA_STRUCTURE_META_TYPES,
-  DataStructureFeatureMeta,
-  DatasetField,
-  Dataset,
-} from '../../../../../common';
-import { DatasetHandlerConfig } from '../types';
+import { DEFAULT_DATA, DataStructure, Dataset } from '../../../../../common';
+import { DatasetTypeConfig } from '../types';
 import { getSearchService, getIndexPatterns } from '../../../../services';
 
 const INDEX_INFO = {
-  ID: DEFAULT_DATA.SET_TYPES.INDEX,
-  TITLE: 'Indexes',
-  ICON: 'logoOpenSearch',
   LOCAL_DATASOURCE: {
     id: '',
     title: 'Local Cluster',
@@ -27,13 +17,7 @@ const INDEX_INFO = {
   },
 };
 
-const meta = {
-  type: DATA_STRUCTURE_META_TYPES.FEATURE,
-  icon: INDEX_INFO.ICON,
-  tooltip: INDEX_INFO.TITLE,
-} as DataStructureFeatureMeta;
-
-export const indexHandlerConfig: DatasetHandlerConfig = {
+export const indexTypeConfig: DatasetTypeConfig = {
   id: DEFAULT_DATA.SET_TYPES.INDEX,
   title: 'Indexes',
   meta: {
@@ -41,7 +25,7 @@ export const indexHandlerConfig: DatasetHandlerConfig = {
     tooltip: 'OpenSearch Indexes',
   },
 
-  toDataset: (path: DataStructure[]): Dataset => {
+  toDataset: (path) => {
     const index = path[path.length - 1];
     const dataSource = path.find((ds) => ds.type === 'DATA_SOURCE');
 
@@ -59,22 +43,19 @@ export const indexHandlerConfig: DatasetHandlerConfig = {
     };
   },
 
-  fetch: async (
-    savedObjects: SavedObjectsClientContract,
-    path: DataStructure[]
-  ): Promise<DataStructure> => {
+  fetch: async (savedObjects, path) => {
     const dataStructure = path[path.length - 1];
     switch (dataStructure.type) {
       case 'DATA_SOURCE': {
         const indices = await fetchIndices(dataStructure);
         return {
           ...dataStructure,
-          isLeaf: true,
-          columnHeader: 'Indices',
+          hasNext: false,
+          columnHeader: 'Indexes',
           children: indices.map((indexName) => ({
             id: `${dataStructure.id}::${indexName}`,
             title: indexName,
-            type: DEFAULT_DATA.STRUCTURES.INDEX.type,
+            type: 'INDEX',
           })),
         };
       }
@@ -84,14 +65,14 @@ export const indexHandlerConfig: DatasetHandlerConfig = {
         return {
           ...dataStructure,
           columnHeader: 'Cluster',
-          isLeaf: false,
+          hasNext: true,
           children: dataSources,
         };
       }
     }
   },
 
-  fetchFields: async (dataset: Dataset): Promise<DatasetField[]> => {
+  fetchFields: async (dataset) => {
     const fields = await getIndexPatterns().getFieldsForWildcard({
       pattern: dataset.title,
       dataSourceId: dataset.dataSource?.id,
@@ -102,8 +83,8 @@ export const indexHandlerConfig: DatasetHandlerConfig = {
     }));
   },
 
-  supportedLanguages: async (): Promise<string[]> => {
-    return ['SQL', 'PPL'];
+  supportedLanguages: (dataset: Dataset): string[] => {
+    return ['SQL', 'PPL', 'DQL', 'Lucene'];
   },
 };
 

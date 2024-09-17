@@ -44,7 +44,7 @@ export default function () {
     opensearchTestCluster: {
       license: 'oss',
       from: 'snapshot',
-      serverArgs: [],
+      serverArgs: ['cluster.indices.replication.strategy=SEGMENT'],
     },
 
     osdTestServer: {

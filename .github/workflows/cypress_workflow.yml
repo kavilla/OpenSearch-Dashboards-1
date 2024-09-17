@@ -10,7 +10,7 @@ on:
 env:
   FTR_PATH: 'ftr'
   START_CMD: 'node ../scripts/opensearch_dashboards --dev --no-base-path --no-watch'
-  OPENSEARCH_SNAPSHOT_CMD: 'node ../scripts/opensearch snapshot'
+  OPENSEARCH_SNAPSHOT_CMD: 'node ../scripts/opensearch snapshot -E cluster.indices.replication.strategy=SEGMENT'
   SPEC: 'cypress/integration/core-opensearch-dashboards/opensearch-dashboards/**/*.js,'
   CYPRESS_BROWSER: 'chromium'
   CYPRESS_VISBUILDER_ENABLED: true
@@ -55,7 +55,7 @@ jobs:
         with:
           path: ${{ env.FTR_PATH }}
           repository: opensearch-project/opensearch-dashboards-functional-test
-          ref: '${{ github.base_ref }}'
+          ref: 'main'
 
       - name: Get Cypress version
         id: cypress_version

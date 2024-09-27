@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { debounceTime } from 'rxjs/operators';
 import { migrateAppState } from '../lib/migrate_app_state';
 import {
   IOsdUrlStateStorage,
@@ -21,6 +22,7 @@ import { syncQueryStateWithUrl } from '../../../../data/public';
 import { SavedObjectDashboard } from '../../saved_dashboards';
 
 const APP_STATE_STORAGE_KEY = '_a';
+const APP_STATE_ON_CHANGE_DEBOUNCE_MS = 50;
 
 interface Arguments {
   osdUrlStateStorage: IOsdUrlStateStorage;
@@ -118,6 +120,9 @@ export const createDashboardGlobalAndAppState = ({
     stateStorage: osdUrlStateStorage,
   });
 
+  // creates observable that debounces to prevent url state async updates
+  const onStateChange$ = stateContainer.state$.pipe(debounceTime(APP_STATE_ON_CHANGE_DEBOUNCE_MS));
+
   // starts syncing `_g` portion of url with query services
   // it is important to start this syncing after we set the time filter if timeRestore = true
   // otherwise it will case redundant browser history records and browser navigation like going back will not work correctly
@@ -129,7 +134,7 @@ export const createDashboardGlobalAndAppState = ({
   updateStateUrl({ osdUrlStateStorage, state: initialState, replace: true });
   // start syncing the appState with the ('_a') url
   startStateSync();
-  return { stateContainer, stopStateSync, stopSyncingQueryServiceStateWithUrl };
+  return { stateContainer, onStateChange$, stopStateSync, stopSyncingQueryServiceStateWithUrl };
 };
 
 /**

@@ -191,6 +191,13 @@ export const QueryEditorUI: React.FC<Props> = (props) => {
   };
 
   const onSelectLanguage = (languageId: string) => {
+    console.trace();
+    console.log('onSelectLanguage', languageId);
+    console.log(
+      'queryString.getInitialQueryByLanguage(languageId)',
+      queryString.getInitialQueryByLanguage(languageId)
+    );
+    console.log('queryString.getcurrent()', queryString.getQuery());
     const newQuery = queryString.getInitialQueryByLanguage(languageId);
 
     onChange(newQuery);
@@ -288,9 +295,8 @@ export const QueryEditorUI: React.FC<Props> = (props) => {
     ...baseInputProps,
     onChange: onInputChange,
     editorDidMount: (editor: monaco.editor.IStandaloneCodeEditor) => {
-      editor.setValue(`\n`.repeat(10));
-      setLineCount(editor.getModel()?.getLineCount());
       inputRef.current = editor;
+      setLineCount(inputRef.current.getModel()?.getLineCount());
       // eslint-disable-next-line no-bitwise
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
         const newQuery = {

@@ -86,16 +86,6 @@ export const TopNav = ({ opts, showSaveQuery, isEnhancementsEnabled }: TopNavPro
   useConnectStorageToQueryState(services.data.query, osdUrlStateStorage, syncConfig);
 
   useEffect(() => {
-    const subscription = data$.subscribe((queryData) => {
-      const result = {
-        status: queryData.status,
-        ...queryData.queryStatus,
-      };
-      setQueryStatus(result);
-    });
-  }, [data$]);
-
-  useEffect(() => {
     let isMounted = true;
     const initializeDataset = async () => {
       await data.indexPatterns.ensureDefaultIndexPattern();
@@ -105,12 +95,21 @@ export const TopNav = ({ opts, showSaveQuery, isEnhancementsEnabled }: TopNavPro
       setIndexPatterns(defaultIndexPattern ? [defaultIndexPattern] : undefined);
     };
 
+    const subscription = data$.subscribe((queryData) => {
+      const result = {
+        status: queryData.status,
+        ...queryData.queryStatus,
+      };
+      setQueryStatus(result);
+    });
+
     initializeDataset();
 
     return () => {
+      subscription.unsubscribe();
       isMounted = false;
     };
-  }, [data.indexPatterns, data.query]);
+  }, [data$, data.indexPatterns, data.query]);
 
   useEffect(() => {
     const pageTitleSuffix = savedSearch?.id && savedSearch.title ? `: ${savedSearch.title}` : '';
@@ -121,16 +120,13 @@ export const TopNav = ({ opts, showSaveQuery, isEnhancementsEnabled }: TopNavPro
     } else {
       chrome.setBreadcrumbs([...getRootBreadcrumbs()]);
     }
-  }, [chrome, getUrlForApp, savedSearch?.id, savedSearch?.title]);
-
-  useEffect(() => {
     setScreenTitle(
       savedSearch?.title ||
         i18n.translate('discover.savedSearch.newTitle', {
           defaultMessage: 'New search',
         })
     );
-  }, [savedSearch?.title]);
+  }, [chrome, getUrlForApp, savedSearch?.id, savedSearch?.title]);
 
   const showDatePicker = useMemo(() => (indexPattern ? indexPattern.isTimeBased() : false), [
     indexPattern,

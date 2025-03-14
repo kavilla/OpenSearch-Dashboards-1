@@ -274,6 +274,15 @@ export default function QueryEditorTopRow(props: QueryEditorTopRowProps) {
   }
 
   function shouldRenderQueryEditor(): boolean {
+    console.trace();
+    console.log('Query Editor Render Check:', {
+      showQueryEditor: props.showQueryEditor,
+      query: props.query,
+      storageAvailable: !!storage,
+      datasetSelectorRef: !!props.datasetSelectorRef?.current,
+      queryLanguage: props.query?.language,
+    });
+
     return Boolean(props.showQueryEditor && props.query && storage);
   }
 

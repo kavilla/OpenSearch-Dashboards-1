@@ -103,6 +103,7 @@ export const useIndexPattern = (services: DiscoverViewServices) => {
     return () => {
       isMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     services,
     isQueryEnhancementEnabled,
@@ -112,7 +113,6 @@ export const useIndexPattern = (services: DiscoverViewServices) => {
     store,
     toastNotifications,
     uiSettings,
-    query.dataset,
     data.query.queryString,
   ]);
 

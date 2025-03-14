@@ -30,6 +30,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Subscription } from 'rxjs';
+import { isEqual } from 'lodash';
 import { Query } from '../../..';
 import { QueryStringContract } from '../../../query/query_string';
 
@@ -50,7 +51,7 @@ export const useQueryStringManager = (props: UseQueryStringProps) => {
           setQuery((prevQuery) => {
             const newQuery = props.queryString.getQuery();
             // Only update if the query has actually changed
-            return JSON.stringify(prevQuery) !== JSON.stringify(newQuery) ? newQuery : prevQuery;
+            return !isEqual(newQuery, prevQuery) ? newQuery : prevQuery;
           });
         },
       })

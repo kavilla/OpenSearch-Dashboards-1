@@ -42,7 +42,11 @@ const ConnectedDatasetSelector = ({
 
   const onSelect = useCallback(
     (partialQuery: Partial<Query>) => {
-      const query = queryString.getInitialQuery(partialQuery);
+      // Preserve existing query if provided in partialQuery
+      const query = partialQuery.query
+        ? { ...queryString.getQuery(), ...partialQuery }
+        : queryString.getInitialQuery(partialQuery);
+
       setSelectedDataset(query.dataset);
       queryString.setQuery(query);
       onSubmit!(query);

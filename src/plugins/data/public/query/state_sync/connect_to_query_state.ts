@@ -73,7 +73,7 @@ export const connectStorageToQueryState = (
     }
 
     const initialStateFromURL: QueryState = osdUrlStateStorage.get('_q') ?? {
-      query: queryString.getDefaultQuery(),
+      query: queryString.getQuery() || queryString.getDefaultQuery(),
       filters: filterManager.getAppFilters(),
     };
 

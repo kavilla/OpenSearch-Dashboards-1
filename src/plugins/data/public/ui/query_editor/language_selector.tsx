@@ -39,7 +39,7 @@ export const QueryLanguageSelector = (props: QueryLanguageSelectorProps) => {
 
   const [isPopoverOpen, setPopover] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState<string>(
-    queryString.getQuery()?.language || languageService.getDefaultLanguage()?.id || ''
+    queryString.getQuery()?.language || languageService.getDefaultLanguage()?.id || 'kuery'
   );
   const [languageOptions, setLanguageOptions] = useState<LanguageOption[]>([]);
 
@@ -51,7 +51,7 @@ export const QueryLanguageSelector = (props: QueryLanguageSelectorProps) => {
 
       // Update current language if changed
       if (language !== currentLanguage) {
-        setCurrentLanguage(language || '');
+        setCurrentLanguage(language || 'kuery');
       }
 
       // Get supported languages

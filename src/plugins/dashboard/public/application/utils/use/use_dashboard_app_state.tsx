@@ -92,7 +92,10 @@ export const useDashboardAppAndGlobalState = ({
         {
           set: ({ filters, query }) => {
             stateContainer.transitions.set('filters', filters || []);
-            stateContainer.transitions.set('query', query || queryString.getDefaultQuery());
+            stateContainer.transitions.set(
+              'query',
+              query || queryString.getQuery() || queryString.getDefaultQuery()
+            );
           },
           get: () => ({
             filters: stateContainer.getState().filters,

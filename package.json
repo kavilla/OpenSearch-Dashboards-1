@@ -321,6 +321,7 @@
     "@types/chance": "^1.0.0",
     "@types/cheerio": "^0.22.31",
     "@types/color": "^3.0.0",
+    "@types/cypress": "^1.1.6",
     "@types/d3": "^3.5.43",
     "@types/dedent": "^0.7.0",
     "@types/deep-freeze-strict": "^1.1.0",

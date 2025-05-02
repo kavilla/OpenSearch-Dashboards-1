@@ -10,19 +10,11 @@ import { ExploreStartPlugins } from './types';
 import { ExploreApp } from './components/app';
 
 export const renderApp = (
-  { notifications, http }: CoreStart,
-  { navigation }: ExploreStartPlugins,
+  core: CoreStart,
+  plugins: ExploreStartPlugins,
   { appBasePath, element }: AppMountParameters
 ) => {
-  ReactDOM.render(
-    <ExploreApp
-      basename={appBasePath}
-      notifications={notifications}
-      http={http}
-      navigation={navigation}
-    />,
-    element
-  );
+  ReactDOM.render(<ExploreApp basename={appBasePath} core={core} plugins={plugins} />, element);
 
   return () => ReactDOM.unmountComponentAtNode(element);
 };

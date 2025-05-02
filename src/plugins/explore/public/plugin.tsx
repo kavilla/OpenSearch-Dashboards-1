@@ -19,9 +19,11 @@ import {
   ExploreStartPlugins,
 } from './types';
 import { PLUGIN_ID, PLUGIN_NAME } from '../common';
+import { ExploreContainerFactoryDefinition } from './embeddable/container/explore_container_factory';
+import { LogsEmbeddableFactoryDefinition } from './embeddable/logs/logs_embeddable_factory';
 
 export class ExplorePlugin implements Plugin<ExplorePluginSetup, ExplorePluginStart> {
-  public setup(core: CoreSetup, plugins: ExploreSetupPlugins): ExplorePluginSetup {
+  public async setup(core: CoreSetup, plugins: ExploreSetupPlugins): Promise<ExplorePluginSetup> {
     // Register an application into the side navigation menu
     core.application.register({
       id: PLUGIN_ID,
@@ -109,9 +111,21 @@ export class ExplorePlugin implements Plugin<ExplorePluginSetup, ExplorePluginSt
     //   Context: lazy(() => import('./application/view_components/context')),
     // });
 
-    // TODO: Register embeddable factory when ready
-    // this.registerEmbeddable(core, plugins);
+    const getStartServices = async () => {
+      const [coreStart, deps] = await core.getStartServices();
+      return {
+        // executeTriggerActions: deps.uiActions.executeTriggerActions,
+        isEditable: () => coreStart.application.capabilities.discover?.save as boolean,
+      };
+    };
 
+    const factory = new ExploreContainerFactoryDefinition(getStartServices);
+    plugins.embeddable.registerEmbeddableFactory(factory.type, factory);
+
+    plugins.embeddable.registerEmbeddableFactory(
+      'explore-logs-embeddable',
+      new LogsEmbeddableFactoryDefinition(getStartServices)
+    );
     return {};
   }
 
@@ -120,18 +134,4 @@ export class ExplorePlugin implements Plugin<ExplorePluginSetup, ExplorePluginSt
   }
 
   public stop() {}
-
-  // TODO: Register embeddable factory when ready
-  // private registerEmbeddable(core: CoreSetup<ExploreStartPlugins>, plugins: ExploreSetupPlugins) {
-  //   const getStartServices = async () => {
-  //     const [coreStart, deps] = await core.getStartServices();
-  //     return {
-  //       executeTriggerActions: deps.uiActions.executeTriggerActions,
-  //       isEditable: () => coreStart.application.capabilities.discover?.save as boolean,
-  //     };
-  //   };
-
-  //   const factory = new ExploreEmbeddableFactory(getStartServices);
-  //   plugins.embeddable.registerEmbeddableFactory(factory.type, factory);
-  // }
 }

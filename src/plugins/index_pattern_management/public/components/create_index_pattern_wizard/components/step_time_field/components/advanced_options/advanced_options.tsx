@@ -122,7 +122,8 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
           helpText={
             <FormattedMessage
               id="indexPatternManagement.createIndexPattern.stepTime.options.displayNameLabel"
-              defaultMessage="Display name for the index pattern."
+              defaultMessage="OpenSearch Dashboards will use the pattern as the display name. If you want to use a display name other than the pattern, you can
+            enter a custom one."
             />
           }
         >

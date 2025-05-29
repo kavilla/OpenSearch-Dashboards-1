@@ -199,7 +199,7 @@ export const EditIndexPattern = withRouter(
       defaultMessage: 'Index pattern details',
     });
 
-    chrome.docTitle.change(indexPattern.title);
+    chrome.docTitle.change(indexPattern.displayName || indexPattern.title);
 
     const showTagsSection = Boolean(indexPattern.timeFieldName || (tags && tags.length > 0));
 

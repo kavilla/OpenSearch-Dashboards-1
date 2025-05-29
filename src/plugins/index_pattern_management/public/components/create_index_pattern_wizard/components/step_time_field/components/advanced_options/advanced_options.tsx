@@ -34,6 +34,7 @@ import {
   EuiForm,
   EuiCompressedFormRow,
   EuiCompressedFieldText,
+  EuiCompressedTextArea,
   EuiSmallButtonEmpty,
   EuiSpacer,
 } from '@elastic/eui';
@@ -44,15 +45,23 @@ import { FormattedMessage } from '@osd/i18n/react';
 interface AdvancedOptionsProps {
   isVisible: boolean;
   indexPatternId: string;
+  indexPatternDisplayName: string;
+  indexPatternDescription: string;
   toggleAdvancedOptions: (e: React.FormEvent<HTMLButtonElement>) => void;
   onChangeIndexPatternId: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChangeIndexPatternDisplayName: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChangeIndexPatternDescription: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
   isVisible,
   indexPatternId,
+  indexPatternDisplayName,
+  indexPatternDescription,
   toggleAdvancedOptions,
   onChangeIndexPatternId,
+  onChangeIndexPatternDisplayName,
+  onChangeIndexPatternDescription,
 }) => (
   <div>
     <EuiSmallButtonEmpty
@@ -100,6 +109,57 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
                 defaultMessage: 'custom-index-pattern-id',
               }
             )}
+          />
+        </EuiCompressedFormRow>
+
+        <EuiCompressedFormRow
+          label={
+            <FormattedMessage
+              id="indexPatternManagement.createIndexPattern.stepTime.options.displayNameHeader"
+              defaultMessage="Display name"
+            />
+          }
+          helpText={
+            <FormattedMessage
+              id="indexPatternManagement.createIndexPattern.stepTime.options.displayNameLabel"
+              defaultMessage="Display name for the index pattern."
+            />
+          }
+        >
+          <EuiCompressedFieldText
+            name="indexPatternDisplayName"
+            data-test-subj="createIndexPatternDisplayNameInput"
+            value={indexPatternDisplayName}
+            onChange={onChangeIndexPatternDisplayName}
+            placeholder={i18n.translate(
+              'indexPatternManagement.createIndexPattern.stepTime.options.displayNamePlaceholder',
+              {
+                defaultMessage: 'Custom display name',
+              }
+            )}
+          />
+        </EuiCompressedFormRow>
+
+        <EuiCompressedFormRow
+          label={
+            <FormattedMessage
+              id="indexPatternManagement.createIndexPattern.stepTime.options.descriptionHeader"
+              defaultMessage="Description"
+            />
+          }
+        >
+          <EuiCompressedTextArea
+            name="indexPatternDescription"
+            data-test-subj="createIndexPatternDescriptionInput"
+            value={indexPatternDescription}
+            onChange={onChangeIndexPatternDescription}
+            placeholder={i18n.translate(
+              'indexPatternManagement.createIndexPattern.stepTime.options.descriptionPlaceholder',
+              {
+                defaultMessage: 'Description of this index pattern',
+              }
+            )}
+            rows={2}
           />
         </EuiCompressedFormRow>
       </EuiForm>

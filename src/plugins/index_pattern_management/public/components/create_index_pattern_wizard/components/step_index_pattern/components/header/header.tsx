@@ -172,7 +172,7 @@ const renderIndexPatternInput = (
       label={
         <FormattedMessage
           id="indexPatternManagement.createIndexPattern.step.indexPatternLabel"
-          defaultMessage="Index pattern name"
+          defaultMessage="Pattern"
         />
       }
       isInvalid={isInputInvalid}

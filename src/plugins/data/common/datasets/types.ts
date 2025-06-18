@@ -5,6 +5,12 @@
 
 import { EuiIconProps } from '@elastic/eui';
 export * from './_structure_cache';
+import { ErrorToastOptions, ToastInputFields } from 'src/core/public/notifications';
+// eslint-disable-next-line
+import type { SavedObject } from 'src/core/server';
+import { FieldFormat, DatasetField, OSD_FIELD_TYPES } from '..';
+import { SerializedFieldFormat } from '../../../expressions/common';
+import { IFieldType } from './fields';
 
 /**
  * Describes a data source with its properties.
@@ -261,13 +267,189 @@ export interface Dataset extends BaseDataset {
   isRemoteDataset?: boolean;
 }
 
-export interface DatasetField {
-  name: string;
-  type: string;
-  displayName?: string;
-  // TODO:  osdFieldType?
-}
+// export interface DatasetField {
+//   name: string;
+//   type: string;
+//   displayName?: string;
+//   // TODO:  osdFieldType?
+// }
 
 export interface DatasetSearchOptions {
   strategy?: string;
+}
+
+export type BaseFieldFormatMap<T = SerializedFieldFormat> = Record<string, T>;
+
+export interface IDataset {
+  fields: IFieldType[];
+  title: string;
+  displayName?: string;
+  description?: string;
+  id?: string;
+  type?: string;
+  timeFieldName?: string;
+  intervalName?: string | null;
+  getTimeField?(): IFieldType | undefined;
+  fieldFormatMap?: Record<string, SerializedFieldFormat<unknown> | undefined>;
+  getFormatterForField?: (field: DatasetField | DatasetField['spec'] | IFieldType) => FieldFormat;
+}
+
+export interface DatasetAttributes {
+  type: string;
+  fields: string;
+  title: string;
+  displayName?: string;
+  description?: string;
+  typeMeta: string;
+  timeFieldName?: string;
+  intervalName?: string;
+  sourceFilters?: string;
+  fieldFormatMap?: string;
+}
+
+export type OnNotification = (toastInputFields: ToastInputFields) => void;
+export type OnError = (error: Error, toastInputFields: ErrorToastOptions) => void;
+
+export type OnUnsupportedTimePattern = ({
+  id,
+  title,
+  index,
+}: {
+  id: string;
+  title: string;
+  index: string;
+}) => void;
+
+export interface UiSettingsCommon {
+  get: (key: string) => Promise<any>;
+  getAll: () => Promise<Record<string, any>>;
+  set: (key: string, value: any) => Promise<void>;
+  remove: (key: string) => Promise<void>;
+}
+
+export interface SavedObjectsClientCommonFindArgs {
+  type: string | string[];
+  fields?: string[];
+  perPage?: number;
+  search?: string;
+  searchFields?: string[];
+}
+
+export interface SavedObjectsClientCommon {
+  find: <T = unknown>(options: SavedObjectsClientCommonFindArgs) => Promise<Array<SavedObject<T>>>;
+  get: <T = unknown>(type: string, id: string) => Promise<SavedObject<T>>;
+  update: <T = unknown>(
+    type: string,
+    id: string,
+    attributes: Record<string, any>,
+    options: Record<string, any>
+  ) => Promise<SavedObject<T>>;
+  create: (
+    type: string,
+    attributes: Record<string, any>,
+    options: Record<string, any>
+  ) => Promise<SavedObject>;
+  delete: (type: string, id: string) => Promise<{}>;
+}
+
+export interface BaseGetFieldsOptions<P = any> {
+  pattern?: string;
+  type?: string;
+  params?: P;
+  lookBack?: boolean;
+  metaFields?: string[];
+  dataSourceId?: string;
+}
+
+export interface IDatasetsApiClient {
+  getFieldsForTimePattern: (options: BaseGetFieldsOptions) => Promise<any>;
+  getFieldsForWildcard: (options: BaseGetFieldsOptions) => Promise<any>;
+}
+
+export type { SavedObject };
+
+export type BaseAggregationRestrictions<
+  T = {
+    agg?: string;
+    interval?: number;
+    fixed_interval?: string;
+    calendar_interval?: string;
+    delay?: string;
+    time_zone?: string;
+  }
+> = Record<string, T>;
+
+export interface IBaseFieldSubType {
+  multi?: { parent: string };
+  nested?: { path: string };
+}
+
+export interface TypeMeta {
+  aggs?: Record<string, BaseAggregationRestrictions>;
+  [key: string]: any;
+}
+
+export type BaseFieldSpecConflictDescriptions<T = string[]> = Record<string, T>;
+
+// This should become FieldSpec once types are cleaned up
+export interface BaseFieldSpecExportFmt<T = OSD_FIELD_TYPES, U = SerializedFieldFormat> {
+  count?: number;
+  script?: string;
+  lang?: string;
+  conflictDescriptions?: BaseFieldSpecConflictDescriptions;
+  name: string;
+  type: T;
+  esTypes?: string[];
+  scripted: boolean;
+  searchable: boolean;
+  aggregatable: boolean;
+  readFromDocValues?: boolean;
+  subType?: IBaseFieldSubType;
+  format?: U;
+  indexed?: boolean;
+}
+
+export interface BaseFieldSpec<T = string, U = SerializedFieldFormat> {
+  count?: number;
+  script?: string;
+  lang?: string;
+  conflictDescriptions?: Record<string, string[]>;
+  format?: U;
+
+  name: string;
+  type: T;
+  esTypes?: string[];
+  scripted?: boolean;
+  searchable: boolean;
+  aggregatable: boolean;
+  readFromDocValues?: boolean;
+  subType?: IBaseFieldSubType;
+  indexed?: boolean;
+}
+
+export type DatasetFieldMap = Record<string, BaseFieldSpec>;
+
+export interface SavedObjectReference {
+  name?: string;
+  id: string;
+  type: string;
+}
+export interface DatasetSpec {
+  id?: string;
+  version?: string;
+  title?: string;
+  displayName?: string;
+  description?: string;
+  intervalName?: string;
+  timeFieldName?: string;
+  sourceFilters?: SourceFilter[];
+  fields?: DatasetFieldMap;
+  typeMeta?: TypeMeta;
+  type?: string;
+  dataSourceRef?: SavedObjectReference;
+  fieldsLoading?: boolean;
+}
+
+export interface SourceFilter {
+  value: string;
 }

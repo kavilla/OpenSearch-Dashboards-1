@@ -31,10 +31,63 @@
 export * from './constants';
 export * from './opensearch_query';
 export * from './data_frames';
-export * from './datasets';
+
+export {
+  DatasetsService,
+  DatasetField,
+  IFieldType,
+  OnError,
+  OnNotification,
+  OnUnsupportedTimePattern,
+  SavedObjectReference,
+  SavedObjectsClientCommon,
+  SavedObjectsClientCommonFindArgs,
+  SourceFilter,
+  TypeMeta,
+  UiSettingsCommon,
+  fieldList,
+  getOverrides,
+  isFilterable,
+  isNestedField,
+  setOverrides,
+  validateDataSourceReference,
+  getDatasetTitle,
+} from './datasets';
+export type {
+  Dataset,
+  DataSource,
+  DataSourceMeta,
+  DataStructure,
+  DataStructureMeta,
+  BaseDataset,
+  IDataset,
+  DatasetAttributes,
+  IDatasetsApiClient,
+  DatasetSpec,
+  DatasetFieldMap,
+  BaseFieldFormatMap,
+  BaseFieldSpec,
+} from './datasets';
+
 export * from './field_formats';
 export * from './field_mapping';
-export * from './index_patterns';
+
+export { IndexPatternsService, IndexPatternField, getIndexPatternTitle } from './index_patterns';
+export type {
+  IndexPattern,
+  FieldFormatMap,
+  IIndexPattern,
+  GetFieldsOptions,
+  IIndexPatternsApiClient,
+  AggregationRestrictions,
+  IFieldSubType,
+  FieldSpecConflictDescriptions,
+  FieldSpecExportFmt,
+  FieldSpec,
+  IndexPatternFieldMap,
+  IndexPatternSpec,
+} from './index_patterns';
+
 export * from './osd_field_types';
 export * from './query';
 export * from './search';
@@ -46,5 +99,3 @@ export * from './storage';
  * Use data plugin interface instead
  * @deprecated
  */
-
-export { IndexPatternAttributes } from './types';

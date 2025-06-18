@@ -153,7 +153,9 @@ export function IndexHeader({
     <EuiFlexGroup justifyContent="spaceBetween" alignItems="center">
       <EuiFlexItem>
         <EuiText size="s">
-          <h1 data-test-subj="indexPatternTitle">{indexPattern.title}</h1>
+          <h1 data-test-subj="indexPatternTitle">
+            {indexPattern.displayName || indexPattern.title}
+          </h1>
         </EuiText>
       </EuiFlexItem>
       <EuiFlexItem grow={false}>

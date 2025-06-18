@@ -219,6 +219,12 @@ export const IndexPatternTable = ({ canSave, history }: Props) => {
       dataType: 'string' as const,
       sortable: ({ sort }: { sort: string }) => sort,
     },
+    {
+      field: 'description',
+      name: 'Description',
+      render: (description: string) => description || '-',
+      dataType: 'string' as const,
+    },
     ...columnRegistry.getAll().map((column) => {
       return {
         ...column.euiColumn,

@@ -53,7 +53,12 @@ import { StepInfo } from '../../types';
 interface StepTimeFieldProps {
   indexPattern: string;
   goToPreviousStep: () => void;
-  createIndexPattern: (selectedTimeField: string | undefined, indexPatternId: string) => void;
+  createIndexPattern: (
+    selectedTimeField: string | undefined,
+    indexPatternId: string,
+    indexPatternDisplayName?: string | undefined,
+    indexPatternDescription?: string | undefined
+  ) => void;
   indexPatternCreationType: IndexPatternCreationConfig;
   selectedTimeField?: string;
   dataSourceRef?: DataSourceRef;
@@ -71,6 +76,8 @@ interface StepTimeFieldState {
   indexPatternId: string;
   indexPatternType: string;
   indexPatternName: string;
+  indexPatternDisplayName: string;
+  indexPatternDescription: string;
 }
 
 interface TimeFieldConfig {
@@ -95,6 +102,8 @@ export class StepTimeField extends Component<StepTimeFieldProps, StepTimeFieldSt
     indexPatternId: '',
     indexPatternType: '',
     indexPatternName: '',
+    indexPatternDisplayName: '',
+    indexPatternDescription: '',
   };
 
   constructor(props: StepTimeFieldProps) {
@@ -156,6 +165,14 @@ export class StepTimeField extends Component<StepTimeFieldProps, StepTimeFieldSt
     this.setState({ indexPatternId: e.target.value });
   };
 
+  onChangeIndexPatternDisplayName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ indexPatternDisplayName: e.target.value });
+  };
+
+  onChangeIndexPatternDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({ indexPatternDescription: e.target.value });
+  };
+
   toggleAdvancedOptions = () => {
     this.setState((state) => ({
       isAdvancedOptionsVisible: !state.isAdvancedOptionsVisible,
@@ -164,10 +181,20 @@ export class StepTimeField extends Component<StepTimeFieldProps, StepTimeFieldSt
 
   createIndexPattern = async () => {
     const { createIndexPattern } = this.props;
-    const { selectedTimeField, indexPatternId } = this.state;
+    const {
+      selectedTimeField,
+      indexPatternId,
+      indexPatternDisplayName,
+      indexPatternDescription,
+    } = this.state;
     this.setState({ isCreating: true });
     try {
-      await createIndexPattern(selectedTimeField, indexPatternId);
+      await createIndexPattern(
+        selectedTimeField,
+        indexPatternId,
+        indexPatternDisplayName,
+        indexPatternDescription
+      );
     } catch (error) {
       if (!this.mounted) return;
       this.setState({
@@ -196,6 +223,8 @@ export class StepTimeField extends Component<StepTimeFieldProps, StepTimeFieldSt
       timeFieldSet,
       isAdvancedOptionsVisible,
       indexPatternId,
+      indexPatternDisplayName,
+      indexPatternDescription,
       isCreating,
       isFetchingTimeFields,
       indexPatternName,
@@ -276,8 +305,12 @@ export class StepTimeField extends Component<StepTimeFieldProps, StepTimeFieldSt
         <AdvancedOptions
           isVisible={isAdvancedOptionsVisible}
           indexPatternId={indexPatternId}
+          indexPatternDisplayName={indexPatternDisplayName}
+          indexPatternDescription={indexPatternDescription}
           toggleAdvancedOptions={this.toggleAdvancedOptions}
           onChangeIndexPatternId={this.onChangeIndexPatternId}
+          onChangeIndexPatternDisplayName={this.onChangeIndexPatternDisplayName}
+          onChangeIndexPatternDescription={this.onChangeIndexPatternDescription}
         />
         <EuiSpacer size="m" />
         {error}

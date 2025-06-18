@@ -34,12 +34,22 @@ import type { SavedObject } from 'src/core/server';
 import { FieldFormat, IndexPatternField, OSD_FIELD_TYPES } from '..';
 import { SerializedFieldFormat } from '../../../expressions/common';
 import { IFieldType } from './fields';
+import {
+  BaseFieldFormatMap,
+  BaseAggregationRestrictions,
+  BaseFieldSpecConflictDescriptions,
+  BaseFieldSpecExportFmt,
+  BaseFieldSpec,
+  BaseGetFieldsOptions,
+} from '../datasets/types';
 
-export type FieldFormatMap = Record<string, SerializedFieldFormat>;
+export type FieldFormatMap = BaseFieldFormatMap<SerializedFieldFormat>;
 
 export interface IIndexPattern {
   fields: IFieldType[];
   title: string;
+  displayName?: string;
+  description?: string;
   id?: string;
   type?: string;
   timeFieldName?: string;
@@ -55,6 +65,8 @@ export interface IndexPatternAttributes {
   type: string;
   fields: string;
   title: string;
+  displayName?: string;
+  description?: string;
   typeMeta: string;
   timeFieldName?: string;
   intervalName?: string;
@@ -107,14 +119,7 @@ export interface SavedObjectsClientCommon {
   delete: (type: string, id: string) => Promise<{}>;
 }
 
-export interface GetFieldsOptions {
-  pattern?: string;
-  type?: string;
-  params?: any;
-  lookBack?: boolean;
-  metaFields?: string[];
-  dataSourceId?: string;
-}
+export type GetFieldsOptions = BaseGetFieldsOptions<any>;
 
 export interface IIndexPatternsApiClient {
   getFieldsForTimePattern: (options: GetFieldsOptions) => Promise<any>;
@@ -123,17 +128,14 @@ export interface IIndexPatternsApiClient {
 
 export type { SavedObject };
 
-export type AggregationRestrictions = Record<
-  string,
-  {
-    agg?: string;
-    interval?: number;
-    fixed_interval?: string;
-    calendar_interval?: string;
-    delay?: string;
-    time_zone?: string;
-  }
->;
+export type AggregationRestrictions = BaseAggregationRestrictions<{
+  agg?: string;
+  interval?: number;
+  fixed_interval?: string;
+  calendar_interval?: string;
+  delay?: string;
+  time_zone?: string;
+}>;
 
 export interface IFieldSubType {
   multi?: { parent: string };
@@ -145,43 +147,12 @@ export interface TypeMeta {
   [key: string]: any;
 }
 
-export type FieldSpecConflictDescriptions = Record<string, string[]>;
+export type FieldSpecConflictDescriptions = BaseFieldSpecConflictDescriptions<string[]>;
 
 // This should become FieldSpec once types are cleaned up
-export interface FieldSpecExportFmt {
-  count?: number;
-  script?: string;
-  lang?: string;
-  conflictDescriptions?: FieldSpecConflictDescriptions;
-  name: string;
-  type: OSD_FIELD_TYPES;
-  esTypes?: string[];
-  scripted: boolean;
-  searchable: boolean;
-  aggregatable: boolean;
-  readFromDocValues?: boolean;
-  subType?: IFieldSubType;
-  format?: SerializedFieldFormat;
-  indexed?: boolean;
-}
+export type FieldSpecExportFmt = BaseFieldSpecExportFmt<OSD_FIELD_TYPES, SerializedFieldFormat>;
 
-export interface FieldSpec {
-  count?: number;
-  script?: string;
-  lang?: string;
-  conflictDescriptions?: Record<string, string[]>;
-  format?: SerializedFieldFormat;
-
-  name: string;
-  type: string;
-  esTypes?: string[];
-  scripted?: boolean;
-  searchable: boolean;
-  aggregatable: boolean;
-  readFromDocValues?: boolean;
-  subType?: IFieldSubType;
-  indexed?: boolean;
-}
+export type FieldSpec = BaseFieldSpec<string, SerializedFieldFormat>;
 
 export type IndexPatternFieldMap = Record<string, FieldSpec>;
 
@@ -194,6 +165,8 @@ export interface IndexPatternSpec {
   id?: string;
   version?: string;
   title?: string;
+  displayName?: string;
+  description?: string;
   intervalName?: string;
   timeFieldName?: string;
   sourceFilters?: SourceFilter[];

@@ -11,13 +11,8 @@ import {
   EuiTitle,
   EuiTabs,
   EuiTab,
-  EuiButton,
-  EuiFormRow,
-  EuiFieldText,
-  EuiSelect,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiPanel,
   EuiText,
   EuiCodeBlock,
 } from '@elastic/eui';
@@ -1283,7 +1278,6 @@ const mockDatasets = [
     timeFieldName: 'timestamp',
     type: 'LOGS',
     version: '1.0.0',
-    fieldsPersistence: 'SELECTIVE',
     dataSourceRef: {
       id: 'e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b',
       type: 'data-source',
@@ -1452,7 +1446,6 @@ const mockDatasets = [
     timeFieldName: 'timestamp',
     type: 'METRICS',
     version: '1.0.0',
-    fieldsPersistence: 'SELECTIVE',
     dataSourceRef: {
       id: 'f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c',
       type: 'data-source',
@@ -1806,7 +1799,7 @@ const DatasetSelectWithDetails = ({
   selectedDataset?: Dataset;
 }) => {
   const [currentDataset, setCurrentDataset] = useState(selectedDataset);
-  const [selectedTabId, setSelectedTabId] = useState('json');
+  const [selectedTabId, setSelectedTabId] = useState('contract');
 
   const handleSelect = (dataset: Dataset) => {
     setCurrentDataset(dataset);
@@ -1816,12 +1809,10 @@ const DatasetSelectWithDetails = ({
   const formatForDisplay = (dataset: Dataset) => {
     if (!dataset) return '';
 
-    // Create a copy of the dataset with fields array included
     const datasetWithFields = {
       ...dataset,
       fields: {
         ...dataset.fields,
-        // Include the actual fields array from getAll()
         fieldsList: dataset.fields.getAll(),
       },
     };
@@ -1829,7 +1820,6 @@ const DatasetSelectWithDetails = ({
     return JSON.stringify(datasetWithFields, null, 2);
   };
 
-  // Current index pattern contract (before)
   const getCurrentIndexPatternContract = () => {
     return `{
   "id": "string | optional | Unique identifier for the index pattern",
@@ -1875,14 +1865,12 @@ const DatasetSelectWithDetails = ({
         "time_zone": "string | optional",
       }
     },
-    // API specific parameters
      "params": {
       "[key: string]": "any | optional"
     },
     "[key: string]": "any | optional | Accepts any additional properties"
   },
 
-  // OPTIONAL
   "dataSourceRef": {
     "id": "string | required",
     "type": "string | required | always 'data-source'",
@@ -1891,7 +1879,6 @@ const DatasetSelectWithDetails = ({
 }`;
   };
 
-  // Proposed dataset interface (after)
   const getProposedDatasetInterface = () => {
     return `{
   "id": "string | optional | Unique identifier for the dataset",
@@ -1973,180 +1960,15 @@ const DatasetSelectWithDetails = ({
   const currentInterfaceText = getCurrentIndexPatternContract();
   const proposedInterfaceText = getProposedDatasetInterface();
 
-  // State for temporary dataset creation
-  const [tempDatasetName, setTempDatasetName] = useState('Temporary Dataset');
-  const [tempDatasetType, setTempDatasetType] = useState('LOGS');
-  const [tempDatasetFields, setTempDatasetFields] = useState<
-    Array<{
-      name: string;
-      type: string;
-      esTypes: string[];
-      scripted: boolean;
-      searchable: boolean;
-      aggregatable: boolean;
-      readFromDocValues: boolean;
-    }>
-  >([]);
-  const [tempDataset, setTempDataset] = useState<Dataset | null>(null);
-
-  // Create a temporary dataset from a data source
-  const createTemporaryDataset = () => {
-    // Find a data source to use as a base (using the first dataset's data source)
-    const dataSource = mockDatasets[0].dataSourceRef;
-
-    // Create a new temporary dataset that maps over the data source
-    const newTempDataset = ({
-      id: `temp-${Date.now()}`,
-      title: tempDatasetName,
-      displayName: `${tempDatasetName} (Temporary)`,
-      description: 'A temporary dataset created from mapping over a data source',
-      type: tempDatasetType,
-      dataSourceRef: dataSource,
-      fields: {
-        getAll: () => tempDatasetFields,
-        getByName: (name: string) => tempDatasetFields.find((field) => field.name === name),
-        toSpec: () => ({}),
-      },
-      fieldFormatMap: {},
-      timeFieldName: 'timestamp',
-      intervalName: undefined,
-      formatHit: (() => {}) as any,
-      formatField: (() => {}) as any,
-      flattenHit: (() => {}) as any,
-      metaFields: [],
-      version: '1.0.0',
-      getFormatterForField: () => ({} as any),
-    } as unknown) as Dataset;
-
-    setTempDataset(newTempDataset);
-    action('temporary-dataset-created')(newTempDataset);
-
-    // Also select this dataset to show in the JSON view
-    setCurrentDataset(newTempDataset);
-  };
-
-  // Generate fields based on the selected type
-  useEffect(() => {
-    let fields = [];
-
-    // Common fields for all types
-    const commonFields = [
-      {
-        name: 'timestamp',
-        type: 'date',
-        esTypes: ['date'],
-        scripted: false,
-        searchable: true,
-        aggregatable: true,
-        readFromDocValues: true,
-      },
-      {
-        name: 'source',
-        type: 'string',
-        esTypes: ['keyword'],
-        scripted: false,
-        searchable: true,
-        aggregatable: true,
-        readFromDocValues: true,
-      },
-    ];
-
-    // Type-specific fields
-    switch (tempDatasetType) {
-      case 'LOGS':
-        fields = [
-          ...commonFields,
-          {
-            name: 'message',
-            type: 'string',
-            esTypes: ['text'],
-            scripted: false,
-            searchable: true,
-            aggregatable: false,
-            readFromDocValues: false,
-          },
-          {
-            name: 'level',
-            type: 'string',
-            esTypes: ['keyword'],
-            scripted: false,
-            searchable: true,
-            aggregatable: true,
-            readFromDocValues: true,
-          },
-        ];
-        break;
-      case 'METRICS':
-        fields = [
-          ...commonFields,
-          {
-            name: 'value',
-            type: 'number',
-            esTypes: ['float'],
-            scripted: false,
-            searchable: true,
-            aggregatable: true,
-            readFromDocValues: true,
-          },
-          {
-            name: 'metric_name',
-            type: 'string',
-            esTypes: ['keyword'],
-            scripted: false,
-            searchable: true,
-            aggregatable: true,
-            readFromDocValues: true,
-          },
-        ];
-        break;
-      case 'TRACES':
-        fields = [
-          ...commonFields,
-          {
-            name: 'traceId',
-            type: 'string',
-            esTypes: ['keyword'],
-            scripted: false,
-            searchable: true,
-            aggregatable: true,
-            readFromDocValues: true,
-          },
-          {
-            name: 'spanId',
-            type: 'string',
-            esTypes: ['keyword'],
-            scripted: false,
-            searchable: true,
-            aggregatable: true,
-            readFromDocValues: true,
-          },
-          {
-            name: 'duration',
-            type: 'number',
-            esTypes: ['long'],
-            scripted: false,
-            searchable: true,
-            aggregatable: true,
-            readFromDocValues: true,
-          },
-        ];
-        break;
-      default:
-        fields = commonFields;
-    }
-
-    setTempDatasetFields(fields);
-  }, [tempDatasetType]);
-
   const tabs = [
     {
-      id: 'diff',
-      name: 'Interface Comparison',
+      id: 'contract',
+      name: 'Contract',
       disabled: false,
     },
     {
       id: 'json',
-      name: 'JSON View',
+      name: 'JSON',
       disabled: !currentDataset,
     },
   ];
@@ -2169,80 +1991,6 @@ const DatasetSelectWithDetails = ({
           </EuiTab>
         ))}
       </EuiTabs>
-    );
-  };
-
-  // Render the temporary dataset creation UI
-  const renderTemporaryDatasetTab = () => {
-    return (
-      <div>
-        <EuiTitle size="s">
-          <h3>Create Temporary Dataset</h3>
-        </EuiTitle>
-        <EuiSpacer size="m" />
-        <EuiText>
-          <p>
-            Create a temporary dataset by mapping over a data source. This demonstrates how to
-            create datasets that point to sub-datastructures within a data source.
-          </p>
-        </EuiText>
-        <EuiSpacer size="m" />
-
-        <EuiFlexGroup>
-          <EuiFlexItem>
-            <EuiFormRow label="Dataset Name">
-              <EuiFieldText
-                value={tempDatasetName}
-                onChange={(e) => setTempDatasetName(e.target.value)}
-              />
-            </EuiFormRow>
-          </EuiFlexItem>
-          <EuiFlexItem>
-            <EuiFormRow label="Dataset Type">
-              <EuiSelect
-                options={[
-                  { value: 'LOGS', text: 'Logs' },
-                  { value: 'METRICS', text: 'Metrics' },
-                  { value: 'TRACES', text: 'Traces' },
-                ]}
-                value={tempDatasetType}
-                onChange={(e) => setTempDatasetType(e.target.value)}
-              />
-            </EuiFormRow>
-          </EuiFlexItem>
-        </EuiFlexGroup>
-
-        <EuiSpacer size="m" />
-
-        <EuiButton onClick={createTemporaryDataset} fill>
-          Create Temporary Dataset
-        </EuiButton>
-
-        <EuiSpacer size="l" />
-
-        {tempDataset && (
-          <>
-            <EuiPanel>
-              <EuiTitle size="xs">
-                <h4>Generated Fields</h4>
-              </EuiTitle>
-              <EuiSpacer size="s" />
-              <EuiCodeBlock language="json" fontSize="s" paddingSize="m">
-                {JSON.stringify(tempDatasetFields, null, 2)}
-              </EuiCodeBlock>
-            </EuiPanel>
-
-            <EuiSpacer size="m" />
-
-            <EuiText>
-              <p>
-                The temporary dataset has been created and selected. You can view its details in the
-                JSON View tab.
-              </p>
-            </EuiText>
-          </>
-        )}
-      </div>
     );
   };
 
@@ -2304,37 +2052,33 @@ const DatasetSelectWithDetails = ({
               <EuiFlexGroup>
                 <EuiFlexItem>
                   <EuiTitle size="xs">
-                    <h4>Current</h4>
+                    <span>Current</span>
                   </EuiTitle>
                   <EuiSpacer size="xs" />
-                  <MonacoEditor
-                    language="xjson"
-                    theme="euiColors"
-                    value={currentInterfaceText}
-                    onChange={() => {}}
-                    height={500}
-                    options={{
-                      ...editorOptions,
-                      readOnly: true,
-                    }}
-                  />
+                  <EuiCodeBlock
+                    language="json"
+                    fontSize="s"
+                    paddingSize="s"
+                    isCopyable
+                    overflowHeight={500}
+                  >
+                    {currentInterfaceText}
+                  </EuiCodeBlock>
                 </EuiFlexItem>
                 <EuiFlexItem>
                   <EuiTitle size="xs">
-                    <h4>Proposed</h4>
+                    <span>Proposed</span>
                   </EuiTitle>
                   <EuiSpacer size="xs" />
-                  <MonacoEditor
-                    language="xjson"
-                    theme="euiColors"
-                    value={proposedInterfaceText}
-                    onChange={() => {}}
-                    height={500}
-                    options={{
-                      ...editorOptions,
-                      readOnly: true,
-                    }}
-                  />
+                  <EuiCodeBlock
+                    language="json"
+                    fontSize="s"
+                    paddingSize="s"
+                    isCopyable
+                    overflowHeight={500}
+                  >
+                    {proposedInterfaceText}
+                  </EuiCodeBlock>
                 </EuiFlexItem>
               </EuiFlexGroup>
             </div>

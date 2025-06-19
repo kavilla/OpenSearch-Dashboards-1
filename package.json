@@ -116,7 +116,6 @@
   "resolutions": {
     "**/@storybook/**/webpack": "npm:@amoo-miki/webpack@4.46.0-xxhash.1",
     "**/@storybook/**/micromatch": "^4.0.8",
-    "**/@lhci/**/lighthouse": "^12.3.0",
     "**/axios": "^1.8.2",
     "**/browserify-rsa": "^4.1.1",
     "**/@babel/helpers": "^7.27.0",

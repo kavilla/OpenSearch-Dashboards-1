@@ -4,7 +4,7 @@
  */
 
 import initCommandNamespace from './command_namespace';
-import { PATHS, INDEX_WITH_TIME_1 } from './constants';
+import { PATHS, INDEX_WITH_TIME_1, INDEX_PATTERN_WITH_TIME } from './constants';
 import { ADMIN_AUTH } from './commands';
 
 initCommandNamespace(cy, 'core');
@@ -28,7 +28,7 @@ export const DEFAULT_OPTIONS = {
     dataPath: `cypress/fixtures/query_enhancements/data_logs_1/${INDEX_WITH_TIME_1}.data.ndjson`,
   },
   dataset: {
-    title: INDEX_WITH_TIME_1,
+    title: INDEX_PATTERN_WITH_TIME,
     timeFieldName: 'timestamp',
     type: 'INDEX_PATTERN',
     fieldAttrs: '{}',
@@ -90,7 +90,7 @@ export const DEFAULT_OPTIONS = {
     title: `ss-${Date.now()}`,
     description: 'Saved search created by Cypress',
     query: {
-      query: `source = ${INDEX_WITH_TIME_1}* | where category = "Network"`,
+      query: `source = ${INDEX_PATTERN_WITH_TIME} | where category = "Network"`,
       language: 'PPL',
     },
     columns: ['_source'],
@@ -187,6 +187,38 @@ cy.core.add('createDataset', (workspaceId, dataSourceId, options = {}) => {
       cy.wrap(datasetId).as('DATASET_ID');
       return cy.wrap(datasetId);
     });
+});
+
+cy.core.add('deleteDataset', (datasetId) => {
+  cy.log(`Deleting dataset: ${datasetId}`);
+
+  return cy.request({
+    method: 'DELETE',
+    url: `/api/saved_objects/index-pattern/${datasetId}?force=true`,
+    headers: { 'osd-xsrf': true },
+    failOnStatusCode: false,
+  });
+});
+
+cy.core.add('selectDataset', (title) => {
+  cy.log(`Selecting dataset: ${title}`);
+
+  cy.intercept('GET', '**/api/assistant/agent_config*', (req) => {
+    req.continue((res) => {
+      if (res.statusCode === 404) {
+        res.send(200, { status: 'ok', data: {} });
+      }
+    });
+  }).as('agentConfigRequest');
+
+  cy.getElementByTestId('datasetSelectButton').should('be.visible').click();
+  cy.getElementByTestId('datasetSelectSelectable')
+    .should('be.visible')
+    .getElementByTestId(`datasetSelectOption-${title}`)
+    .should('be.visible')
+    .click();
+  cy.getElementByTestId('datasetSelectButton').should('contain.text', `${title}`);
+  cy.wait(1000);
 });
 
 cy.core.add('setUiSettings', (workspaceId, changes = {}) => {

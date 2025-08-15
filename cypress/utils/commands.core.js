@@ -86,6 +86,16 @@ export const DEFAULT_OPTIONS = {
       },
     ]),
   },
+  search: {
+    title: `ss-${Date.now()}`,
+    description: 'Saved search created by Cypress',
+    query: {
+      query: `source = ${INDEX_WITH_TIME_1}* | where category = "Network"`,
+      language: 'PPL',
+    },
+    columns: ['_source'],
+    sort: [['timestamp', 'desc']],
+  },
 };
 
 cy.core.add('createWorkspace', (options = {}) => {
@@ -197,6 +207,75 @@ cy.core.add('setUiSettings', (workspaceId, changes = {}) => {
     });
 });
 
+cy.core.add('createSavedSearch', (workspaceId, dataSourceId, datasetId, options = {}) => {
+  const {
+    search: { title, description, query, columns, sort },
+    dataset: { timeFieldName, type: datasetType, title: datasetTitle },
+  } = { ...DEFAULT_OPTIONS, ...options };
+
+  cy.log(`Creating saved search: { title: ${title} }`);
+
+  const searchSourceJSON = {
+    index: datasetId,
+    query: query,
+    highlightAll: true,
+    version: true,
+    filter: [],
+    dataset: {
+      id: datasetId,
+      timeFieldName,
+      title: datasetTitle,
+      type: datasetType,
+      dataSource: {
+        id: dataSourceId,
+        type: 'data-source',
+      },
+    },
+  };
+
+  return cy
+    .request({
+      method: 'POST',
+      url: `/w/${workspaceId}/api/saved_objects/search`,
+      headers: {
+        'osd-xsrf': 'true',
+      },
+      body: {
+        attributes: {
+          title,
+          description,
+          columns,
+          sort,
+          hits: 0,
+          version: 1,
+          kibanaSavedObjectMeta: {
+            searchSourceJSON: JSON.stringify(searchSourceJSON),
+          },
+        },
+        references: [
+          {
+            id: datasetId,
+            name: 'kibanaSavedObjectMeta.searchSourceJSON.index',
+            type: 'index-pattern',
+          },
+          {
+            id: dataSourceId,
+            name: 'dataSource',
+            type: 'data-source',
+          },
+        ],
+        workspaces: [workspaceId],
+      },
+    })
+    .then((resp) => {
+      expect(resp.status).to.eq(200);
+      const searchId = resp.body.id;
+      cy.wrap(searchId).as('SAVED_SEARCH_ID');
+      cy.log(`Saved search created with ID: ${searchId}`);
+      return cy.wrap(searchId);
+    });
+});
+
 cy.core.add('setupTestResources', (options = {}) => {
   const {
     dataSource: { endpoint },
@@ -244,6 +323,15 @@ cy.core.add('cleanupTestResources', (options = {}) => {
     `Cleaning up resources: { workspaceId: ${workspaceId}, dataSourceId: ${dataSourceId}, datasetId: ${datasetId} }`
   );
 
+  cy.osd.deleteIndex(index);
+
+  cy.request({
+    method: 'DELETE',
+    url: `/api/saved_objects/index-pattern/${datasetId}?force=true`,
+    headers: { 'osd-xsrf': true },
+    failOnStatusCode: false,
+  });
+
   cy.request({
     method: 'DELETE',
     url: `/api/workspaces/${workspaceId}`,
@@ -257,15 +345,6 @@ cy.core.add('cleanupTestResources', (options = {}) => {
     headers: { 'osd-xsrf': true },
     failOnStatusCode: false,
   });
-
-  cy.request({
-    method: 'DELETE',
-    url: `/api/saved_objects/index-pattern/${datasetId}?force=true`,
-    headers: { 'osd-xsrf': true },
-    failOnStatusCode: false,
-  });
-
-  cy.osd.deleteIndex(index);
 
   cy.clearLocalStorage();
 });

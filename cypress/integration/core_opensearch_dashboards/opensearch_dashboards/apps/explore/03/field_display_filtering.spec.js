@@ -10,8 +10,8 @@ import {
   generateAllTestConfigurations,
   getRandomizedWorkspaceName,
   setDatePickerDatesAndSearchIfRelevant,
+  verifyMonacoEditorContent,
 } from '../../../../../../utils/apps/explore/shared';
-import { verifyMonacoEditorContent } from '../../../../../../utils/apps/explore/autocomplete';
 import { prepareTestSuite } from '../../../../../../utils/helpers';
 import { QueryLanguages } from '../../../../../../utils/apps/explore/constants';
 

@@ -14,7 +14,7 @@ import {
 } from '../../../../../../utils/apps/query_enhancements/saved';
 import { prepareTestSuite } from '../../../../../../utils/helpers';
 import { QueryLanguages } from '../../../../../../utils/apps/explore/constants';
-import { verifyMonacoEditorContent } from '../../../../../../utils/apps/query_enhancements/autocomplete';
+import { verifyMonacoEditorContent } from '../../../../../../utils/apps/explore/shared';
 
 const workspaceName = getRandomizedWorkspaceName();
 

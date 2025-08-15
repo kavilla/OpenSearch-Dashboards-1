@@ -3,29 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  END_TIME,
-  INDEX_WITH_TIME_1,
-  START_TIME,
-} from '../../../../../../utils/apps/explore/constants';
+import { END_TIME, START_TIME } from '../../../../../../utils/apps/explore/constants';
 
 describe('AI Editor', () => {
-  const index = INDEX_WITH_TIME_1;
   const generatedQuery = 'source=data_logs_small_time_* | where bytes_transferred > 9000';
+  let testResources = {};
 
   before(() => {
-    cy.core.setupTestResources({
-      index,
-    });
-
-    cy.get('@WORKSPACE_ID').then((workspaceId) => {
-      cy.visit(`/w/${workspaceId}/app/explore/logs#`);
+    cy.core.setupTestResources().then((resources) => {
+      testResources = resources;
+      cy.visit(`/w/${testResources.workspaceId}/app/explore/logs#`);
       cy.osd.waitForLoader(true);
     });
   });
 
   after(() => {
-    // cy.core.cleanupTestResources({ index });
+    cy.core.cleanupTestResources(testResources);
   });
 
   beforeEach(() => {

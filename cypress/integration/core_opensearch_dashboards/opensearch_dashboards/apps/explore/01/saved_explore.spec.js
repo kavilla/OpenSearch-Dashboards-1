@@ -11,9 +11,11 @@ import {
   END_TIME,
   START_TIME,
 } from '../../../../../../utils/apps/explore/constants';
-import { getRandomizedWorkspaceName } from '../../../../../../utils/apps/explore/shared';
+import {
+  getRandomizedWorkspaceName,
+  verifyMonacoEditorContent,
+} from '../../../../../../utils/apps/explore/shared';
 import { prepareTestSuite } from '../../../../../../utils/helpers';
-import { verifyMonacoEditorContent } from '../../../../../../utils/apps/explore/autocomplete';
 
 const workspaceName = getRandomizedWorkspaceName();
 

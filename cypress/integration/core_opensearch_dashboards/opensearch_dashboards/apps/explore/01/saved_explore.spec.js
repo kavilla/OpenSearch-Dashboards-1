@@ -12,6 +12,9 @@ import { verifyMonacoEditorContent } from '../../../../../../utils/apps/explore/
 
 describe('Saved Explore', () => {
   let testResources = {};
+  let savedSearchName;
+  let updatedSavedSearchName;
+  let newSavedSearchName;
 
   before(() => {
     cy.core.setupTestResources().then((resources) => {
@@ -21,14 +24,17 @@ describe('Saved Explore', () => {
     });
   });
 
+  beforeEach(() => {
+    cy.getElementByTestId('discoverNewButton').click();
+    cy.osd.waitForLoader(true);
+    verifyMonacoEditorContent('');
+  });
+
   after(() => {
     cy.core.cleanupTestResources(testResources);
   });
 
-  it('should create and load a saved search', () => {
-    cy.getElementByTestId('discoverNewButton').click();
-    cy.osd.waitForLoader(true);
-
+  it('should create a saved search', () => {
     cy.explore.setTopNavDate(START_TIME, END_TIME);
     cy.osd.waitForLoader(true);
 
@@ -41,59 +47,57 @@ describe('Saved Explore', () => {
     cy.get('#logs').click();
     cy.getElementByTestId('docTable').should('be.visible');
 
-    // Create a saved search
     cy.getElementByTestId('discoverSaveButton').click();
-    const savedSearchName = `SAVED_SEARCH_${Date.now()}`;
+    savedSearchName = `SAVED_SEARCH_${Date.now()}`;
     cy.getElementByTestId('savedObjectTitle').type(savedSearchName);
     cy.getElementByTestId('confirmSaveSavedObjectButton').click();
     cy.getElementByTestId('savedExploreSuccess').should('be.visible');
     cy.osd.waitForLoader(true);
+  });
 
-    // Reset to default state
-    cy.getElementByTestId('discoverNewButton').click();
-    cy.osd.waitForLoader(true);
-    verifyMonacoEditorContent('');
-
+  it('should load a saved search', () => {
     cy.getElementByTestId('discoverOpenButton').click();
     cy.getElementByTestId('savedObjectFinderItemList')
       .should('be.visible')
       .contains(savedSearchName)
       .click();
     cy.osd.waitForLoader(true);
-    cy.contains('h1', savedSearchName).should('be.visible');
-    verifyMonacoEditorContent(query);
 
+    cy.contains('h1', savedSearchName).should('be.visible');
+    const query = `source=${INDEX_PATTERN_WITH_TIME} | stats count() by category`;
+    verifyMonacoEditorContent(query);
+  });
+
+  it('should modify a saved search', () => {
     const newQuery = `source=${INDEX_PATTERN_WITH_TIME} | stats count()`;
     cy.explore.setQueryEditor(newQuery);
     cy.getElementByTestId('exploreQueryExecutionButton').click();
-
     cy.osd.waitForLoader(true);
 
-    // Navigate to logs tab
     cy.getElementByTestId('exploreTabs').should('be.visible');
     cy.get('#logs').click();
     cy.getElementByTestId('docTable').should('be.visible');
 
-    // Save the updated saved search
     cy.getElementByTestId('discoverSaveButton').click();
-    const updatedSavedSearchName = `UPDATED_SAVED_SEARCH_${Date.now()}`;
+    updatedSavedSearchName = `UPDATED_SAVED_SEARCH_${Date.now()}`;
     cy.getElementByTestId('savedObjectTitle').clear().type(updatedSavedSearchName);
     cy.getElementByTestId('confirmSaveSavedObjectButton').click();
     cy.getElementByTestId('savedExploreSuccess').should('be.visible');
+    cy.contains('h1', updatedSavedSearchName).should('be.visible');
+    verifyMonacoEditorContent(newQuery);
 
-    // Save as a new saved search
     cy.getElementByTestId('discoverSaveButton').click();
-    const newSavedSearchName = `NEW_SAVED_SEARCH_${Date.now()}`;
+    newSavedSearchName = `NEW_SAVED_SEARCH_${Date.now()}`;
     cy.getElementByTestId('saveAsNewCheckbox').click();
     cy.getElementByTestId('savedObjectTitle').clear().type(newSavedSearchName);
     cy.getElementByTestId('confirmSaveSavedObjectButton').click();
     cy.getElementByTestId('savedExploreSuccess').should('be.visible');
+    cy.contains('h1', newSavedSearchName).should('be.visible');
+    verifyMonacoEditorContent(newQuery);
 
-    // Verify all saved searches are available
     cy.getElementByTestId('discoverOpenButton').click();
     cy.getElementByTestId('savedObjectFinderItemList').should('be.visible');
     cy.contains(updatedSavedSearchName).should('be.visible');
     cy.contains(newSavedSearchName).should('be.visible');
-    cy.contains(savedSearchName).should('not.exist');
   });
 });

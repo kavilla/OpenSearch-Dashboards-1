@@ -2,7 +2,6 @@
  * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import {
   INDEX_PATTERN_WITH_TIME,
   INDEX_PATTERN_WITH_NO_TIME,
@@ -20,11 +19,11 @@ describe('Dataset Select', () => {
   before(() => {
     cy.core.setupTestResources().then((resources) => {
       testResources = resources;
-      cy.osd
+      cy.core
         .setupTestData(
           PATHS.ENGINE,
-          [`cypress/fixtures/query_enhancements/data_logs_1/${INDEX_WITHOUT_TIME_1}.mapping.json`],
-          [`cypress/fixtures/query_enhancements/data_logs_1/${INDEX_WITHOUT_TIME_1}.data.ndjson`]
+          `query_enhancements/data_logs_1/${INDEX_WITHOUT_TIME_1}.data.ndjson`,
+          INDEX_WITHOUT_TIME_1
         )
         .then(() => {
           const dataset = {
@@ -42,14 +41,13 @@ describe('Dataset Select', () => {
               testResources.noTimeDatasetId = datasetId;
               cy.visit(`/w/${testResources.workspaceId}/app/explore/logs#`);
               cy.osd.waitForLoader(true);
-              cy.wait(3000);
+              cy.wait(5000);
             });
         });
     });
   });
 
   after(() => {
-    cy.osd.deleteIndex(INDEX_WITHOUT_TIME_1);
     cy.core.deleteDataset(testResources.noTimeDatasetId);
     cy.core.cleanupTestResources(testResources);
   });

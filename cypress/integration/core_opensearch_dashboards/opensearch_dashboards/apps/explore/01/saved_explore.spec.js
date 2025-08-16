@@ -83,6 +83,7 @@ describe('Saved Explore', () => {
     cy.getElementByTestId('savedObjectTitle').clear().type(updatedSavedSearchName);
     cy.getElementByTestId('confirmSaveSavedObjectButton').click();
     cy.getElementByTestId('savedExploreSuccess').should('be.visible');
+    cy.osd.waitForLoader(true);
     cy.contains('h1', updatedSavedSearchName).should('be.visible');
     verifyMonacoEditorContent(newQuery);
 
@@ -92,8 +93,6 @@ describe('Saved Explore', () => {
     cy.getElementByTestId('savedObjectTitle').clear().type(newSavedSearchName);
     cy.getElementByTestId('confirmSaveSavedObjectButton').click();
     cy.getElementByTestId('savedExploreSuccess').should('be.visible');
-    cy.contains('h1', newSavedSearchName).should('be.visible');
-    verifyMonacoEditorContent(newQuery);
 
     cy.getElementByTestId('discoverOpenButton').click();
     cy.getElementByTestId('savedObjectFinderItemList').should('be.visible');

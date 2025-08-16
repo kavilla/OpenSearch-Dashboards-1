@@ -24,9 +24,10 @@ export const DEFAULT_OPTIONS = {
     dataSourceEngineType: 'OpenSearch',
   },
   fixture: {
-    mappingPath: `cypress/fixtures/query_enhancements/data_logs_1/${INDEX_WITH_TIME_1}.mapping.json`,
-    dataPath: `cypress/fixtures/query_enhancements/data_logs_1/${INDEX_WITH_TIME_1}.data.ndjson`,
+    mappingPath: `query_enhancements/data_logs_1/${INDEX_WITH_TIME_1}.mapping.json`,
+    dataPath: `query_enhancements/data_logs_1/${INDEX_WITH_TIME_1}.data.ndjson`,
   },
+  index: INDEX_WITH_TIME_1,
   dataset: {
     title: INDEX_PATTERN_WITH_TIME,
     timeFieldName: 'timestamp',
@@ -311,18 +312,17 @@ cy.core.add('createSavedSearch', (workspaceId, dataSourceId, datasetId, options 
 cy.core.add('setupTestResources', (options = {}) => {
   const {
     dataSource: { endpoint },
-    fixture: { mappingPath, dataPath },
+    fixture: { dataPath },
     dataset,
+    index,
   } = {
     ...DEFAULT_OPTIONS,
     ...options,
   };
 
-  cy.log(
-    `Setting up resources: { endpoint: ${endpoint}, mappingPath: ${mappingPath}, dataPath: ${dataPath} }`
-  );
+  cy.log(`Setting up resources: { endpoint: ${endpoint}, dataPath: ${dataPath}, index: ${index} }`);
 
-  return cy.osd.setupTestData(endpoint, [mappingPath], [dataPath]).then(() =>
+  return cy.core.setupTestData(endpoint, dataPath, index).then(() =>
     cy.core.createDataSource().then((dataSourceId) => {
       return cy.core.createWorkspace().then((workspaceId) => {
         cy.core.setUiSettings(workspaceId, {
@@ -349,7 +349,7 @@ cy.core.add('setupTestResources', (options = {}) => {
 });
 
 cy.core.add('cleanupTestResources', (options = {}) => {
-  const { index = DEFAULT_OPTIONS.dataset.title, workspaceId, dataSourceId, datasetId } = options;
+  const { index, workspaceId, dataSourceId, datasetId } = { ...DEFAULT_OPTIONS, ...options };
 
   cy.log(
     `Cleaning up resources: { workspaceId: ${workspaceId}, dataSourceId: ${dataSourceId}, datasetId: ${datasetId} }`
@@ -379,4 +379,42 @@ cy.core.add('cleanupTestResources', (options = {}) => {
   });
 
   cy.clearLocalStorage();
+});
+
+cy.core.add('setupTestData', (endpoint, fixturePath, index, options = {}) => {
+  if (Cypress.env('CYPRESS_RUNTIME_ENV') !== 'osd') {
+    return true;
+  }
+  return cy.core.bulkUploadDocs(endpoint, fixturePath, index, options);
+});
+
+cy.core.add('bulkUploadDocs', (endpoint, fixturePath, index) => {
+  const sendBulkAPIRequest = (ndjson) => {
+    const url = index ? `${endpoint}/${index}/_bulk` : `${endpoint}/_bulk`;
+    cy.log('bulkUploadDocs')
+      .request({
+        method: 'POST',
+        url,
+        headers: {
+          'content-type': 'application/json;charset=UTF-8',
+          'osd-xsrf': true,
+        },
+        body: ndjson,
+      })
+      .then((response) => {
+        if (response.body.errors) {
+          console.error(response.body.items);
+          throw new Error('Bulk upload failed');
+        }
+      });
+  };
+
+  cy.fixture(fixturePath, 'utf8').then((ndjson) => {
+    sendBulkAPIRequest(ndjson);
+  });
+
+  cy.request({
+    method: 'POST',
+    url: `${endpoint}/_all/_refresh`,
+  });
 });

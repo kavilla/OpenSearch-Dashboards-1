@@ -5,7 +5,7 @@
 
 import {
   END_TIME,
-  INDEX_WITH_TIME_1,
+  INDEX_PATTERN_WITH_TIME,
   INVALID_INDEX,
   START_TIME,
 } from '../../../../../../utils/apps/explore/constants';
@@ -13,7 +13,7 @@ import { verifyMonacoEditorContent } from '../../../../../../utils/apps/explore/
 
 describe('Queries', { scrollBehavior: false }, () => {
   let testResources = {};
-  const index = INDEX_WITH_TIME_1;
+  const pattern = INDEX_PATTERN_WITH_TIME;
 
   before(() => {
     cy.core.setupTestResources().then((resources) => {
@@ -59,7 +59,7 @@ describe('Queries', { scrollBehavior: false }, () => {
 
   it('should execute PPL query starting with search command', () => {
     cy.explore.setTopNavDate(START_TIME, END_TIME);
-    const queryWithSearch = `search source = ${index} category = "Network" and bytes_transferred > 5000 | sort bytes_transferred`;
+    const queryWithSearch = `search source = ${pattern} category = "Network" and bytes_transferred > 5000 | sort bytes_transferred`;
     cy.explore.setQueryEditor(queryWithSearch);
     cy.verifyHitCount('1,263');
     verifyMonacoEditorContent(queryWithSearch);

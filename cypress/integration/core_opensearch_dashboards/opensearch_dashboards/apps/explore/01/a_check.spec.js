@@ -4,7 +4,6 @@
  */
 
 import { DEFAULT_OPTIONS } from '../../../../../../utils/commands.core';
-import { INDEX_WITH_TIME_1 } from '../../../../../../utils/constants';
 
 describe('No Index Pattern Check', () => {
   const testResources = {};
@@ -12,9 +11,10 @@ describe('No Index Pattern Check', () => {
   before(() => {
     const {
       dataSource: { endpoint },
-      fixture: { mappingPath, dataPath },
+      fixture: { dataPath },
+      index,
     } = DEFAULT_OPTIONS;
-    cy.osd.setupTestData(endpoint, [mappingPath], [dataPath]).then(() => {
+    cy.core.setupTestData(endpoint, dataPath, index).then(() => {
       cy.core.createDataSource().then((dataSourceId) => {
         testResources.dataSourceId = dataSourceId;
 
@@ -35,7 +35,6 @@ describe('No Index Pattern Check', () => {
     cy.core.cleanupTestResources({
       workspaceId: testResources.workspaceId,
       dataSourceId: testResources.dataSourceId,
-      index: INDEX_WITH_TIME_1,
     });
   });
 

@@ -3,10 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { END_TIME, START_TIME } from '../../../../../../utils/apps/explore/constants';
+import {
+  END_TIME,
+  START_TIME,
+  INDEX_PATTERN_WITH_TIME,
+} from '../../../../../../utils/apps/explore/constants';
 
 describe('AI Editor', () => {
-  const generatedQuery = 'source=data_logs_small_time_* | where bytes_transferred > 9000';
+  const query = `source=${INDEX_PATTERN_WITH_TIME} | where bytes_transferred > 9000`;
   let testResources = {};
 
   before(() => {
@@ -22,18 +26,16 @@ describe('AI Editor', () => {
   });
 
   beforeEach(() => {
-    // mock AI mode enablement
     cy.intercept('GET', '**/enhancements/assist/languages*', {
       statusCode: 200,
       body: {
         configuredLanguages: ['PPL'],
       },
     });
-    // mock generated PPL
     cy.intercept('POST', '**/enhancements/assist/generate', {
       statusCode: 200,
       body: {
-        query: generatedQuery,
+        query,
       },
     });
   });
@@ -44,14 +46,14 @@ describe('AI Editor', () => {
     cy.explore.setQueryEditor(' give me all errors');
     cy.getElementByTestId('exploreTabs').should('exist');
     cy.verifyHitCount('992');
-    cy.getElementByTestId('exploreQueryPanelGeneratedQuery').contains(generatedQuery);
+    cy.getElementByTestId('exploreQueryPanelGeneratedQuery').contains(query);
 
     // check to see if the "Edit query" button works
     cy.getElementByTestId('exploreQueryPanelGeneratedQueryEditButton').click();
     cy.getElementByTestId('exploreQueryPanelEditor').should('be.visible');
     cy.getElementByTestId('exploreQueryPanelEditor').should(
       'contain.text',
-      'source=data_logs_small_time_*'
+      `source=${INDEX_PATTERN_WITH_TIME}`
     );
   });
 
